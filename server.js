@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'
 import {
   openDb,
   getStops,
@@ -16,6 +17,11 @@ const config = JSON.parse(
 )
 import fs from 'fs'
 const app = express()
+app.use(
+  cors({
+    origin: '*',
+  })
+)
 const port = process.env.PORT || 3000
 import { Readable } from 'node:stream'
 
