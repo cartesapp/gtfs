@@ -1,5 +1,12 @@
 import express from 'express'
-import { openDb, getStops, closeDb, getStoptimes } from 'gtfs'
+import {
+  openDb,
+  getStops,
+  closeDb,
+  getStoptimes,
+  getTrips,
+  getRoutes,
+} from 'gtfs'
 import { importGtfs } from 'gtfs'
 import { readFile } from 'fs/promises'
 import { pipeline } from 'stream/promises'
@@ -31,8 +38,16 @@ app.get('/stopTimes/:id', (req, res) => {
     const stops = getStoptimes({
       stop_id: [id],
     })
-    console.log(stops)
-    res.json(stops)
+    const stopTrips = stops.reduce((memo, next) => [...memo, next.trip_id], [])
+
+    const trips = getTrips({ trip_id: stopTrips })
+    const tripRoutes = trips.reduce(
+      (memo, next) => [...memo, next.route_id],
+      []
+    )
+
+    const routes = getRoutes({ route_id: tripRoutes })
+    res.json({ stops, trips, routes })
 
     //  closeDb(db);
   } catch (error) {
