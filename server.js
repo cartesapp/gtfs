@@ -15,18 +15,18 @@ import { Readable } from 'node:stream'
 const url = 'https://www.korrigo.bzh/ftp/OPENDATA/KORRIGOBRET.gtfs.zip'
 
 const fetchGTFS = async () => {
+  consol.log('will fetch gtfs zip and import in node-gtfs')
   const response = await fetch(url)
   const fileWriteStream = fs.createWriteStream('./gtfs/bretagne.zip')
   const readableStream = Readable.fromWeb(response.body)
   await pipeline(readableStream, fileWriteStream)
-  importGtfs(config)
+  await importGtfs(config)
+  return "C'est bon !"
 }
-
-fetchGTFS()
 
 app.get('/stopTimes/:id', (req, res) => {
   try {
-    const id = req.query.id
+    const id = req.params.id
     const db = openDb(config)
     const stops = getStoptimes({
       stop_id: [id],
@@ -38,6 +38,10 @@ app.get('/stopTimes/:id', (req, res) => {
   } catch (error) {
     console.error(error)
   }
+})
+app.get('/fetch', async (req, res) => {
+  const alors = await fetchGTFS()
+  res.send(alors)
 })
 
 app.listen(port, () => {
