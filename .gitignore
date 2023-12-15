@@ -1,4 +1,7 @@
-db/
-gtfs/
 node_modules/
-tmp/
+db/*
+gtfs/*
+
+
+!db/.gitkeep
+!gtfs/.gitkeep
