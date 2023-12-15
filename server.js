@@ -2,6 +2,7 @@ import express from 'express'
 import { openDb, getStops, closeDb, getStoptimes } from 'gtfs'
 import { importGtfs } from 'gtfs'
 import { readFile } from 'fs/promises'
+import { pipeline } from 'stream/promises'
 
 const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
@@ -17,19 +18,18 @@ const fetchGTFS = async () => {
   const response = await fetch(url)
   const fileWriteStream = fs.createWriteStream('./gtfs/bretagne.zip')
   const readableStream = Readable.fromWeb(response.body)
-  readableStream.pipe(fileWriteStream)
-  setTimeout(() => {
-    importGtfs(config)
-  }, 20000)
+  await pipeline(readableStream, fileWriteStream)
+  importGtfs(config)
 }
 
 fetchGTFS()
 
-app.get('/', (req, res) => {
+app.get('/stopTimes/:id', (req, res) => {
   try {
+    const id = req.query.id
     const db = openDb(config)
     const stops = getStoptimes({
-      stop_id: ['STAR:1320'],
+      stop_id: [id],
     })
     console.log(stops)
     res.json(stops)
