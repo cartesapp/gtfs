@@ -1,8 +1,8 @@
 {
   "agencies": [
     {
-      "path": "KORRIGOBRET.gtfs"
+      "path": "gtfs/bretagne.zip"
     }
   ],
-  "sqlitePath": "/tmp/gtfs"
+  "sqlitePath": "db/gtfs"
 }

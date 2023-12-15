@@ -1,3 +1,4 @@
 db/
 gtfs/
 node_modules/
+tmp/
