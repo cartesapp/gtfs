@@ -7,6 +7,9 @@ import {
   getStoptimes,
   getTrips,
   getRoutes,
+  getFrequencies,
+  getCalendars,
+  getCalendarDates,
 } from 'gtfs'
 import { importGtfs } from 'gtfs'
 import { readFile } from 'fs/promises'
@@ -46,14 +49,24 @@ app.get('/stopTimes/:id', (req, res) => {
     })
     const stopTrips = stops.reduce((memo, next) => [...memo, next.trip_id], [])
 
-    const trips = getTrips({ trip_id: stopTrips })
+    const trips = getTrips({ trip_id: stopTrips }).map((trip) => ({
+      ...trip,
+      frequencies: getFrequencies({ trip_id: trip.trip_id }),
+      calendar: getCalendars({ service_id: trip.service_id }),
+      calendarDates: getCalendarDates({ service_id: trip.service_id }),
+    }))
+    const stopsWithTrips = stops.map((stop) => ({
+      ...stop,
+      trip: trips.find((el) => el.trip_id === stop.trip_id),
+    }))
+
     const tripRoutes = trips.reduce(
       (memo, next) => [...memo, next.route_id],
       []
     )
 
     const routes = getRoutes({ route_id: tripRoutes })
-    res.json({ stops, trips, routes })
+    res.json({ stops: stopsWithTrips, trips, routes })
 
     //  closeDb(db);
   } catch (error) {
