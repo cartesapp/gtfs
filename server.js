@@ -73,11 +73,26 @@ app.get('/stopTimes/:id', (req, res) => {
     console.error(error)
   }
 })
+app.get('/routes/trip/:tripId', (req, res) => {
+  try {
+    const tripId = req.params.tripId
+    const db = openDb(config)
+    const routeIds = getTrips({ trip_id: [tripId] }).map((el) => el.route_id)
+    const routes = getRoutes({
+      route_id: routeIds,
+    })
+    res.json({ routes })
+
+    //  closeDb(db);
+  } catch (error) {
+    console.error(error)
+  }
+})
 app.get('/fetch', async (req, res) => {
   const alors = await fetchGTFS()
   res.send(alors)
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Cartes.app GTFS server listening on port ${port}`)
 })
