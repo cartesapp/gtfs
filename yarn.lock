@@ -174,10 +174,10 @@ base64-js@^1.3.1:
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-better-sqlite3@^9.1.1:
-  version "9.2.2"
-  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-9.2.2.tgz#3ce1ed24f327ed8c9b0c39b825cdc2341aeb249f"
-  integrity sha512-qwjWB46il0lsDkeB4rSRI96HyDQr8sxeu1MkBVLMrwusq1KRu4Bpt1TMI+8zIJkDUtZ3umjAkaEjIlokZKWCQw==
+better-sqlite3@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-9.3.0.tgz#2a8aaad65fa0210a4df5e8a0bcbc9156f6138d56"
+  integrity sha512-ww73jVpQhRRdS9uMr761ixlkl4bWoXi8hMQlBGhoN6vPNlUHpIsNmw4pKN6kjknlt/wopdvXHvLk1W75BI+n0Q==
   dependencies:
     bindings "^1.5.0"
     prebuild-install "^7.1.1"
@@ -355,12 +355,12 @@ css-what@^6.0.1:
   resolved "https://registry.yarnpkg.com/css-what/-/css-what-6.1.0.tgz#fb5effcf76f1ddea2c81bdfaa4de44e79bac70f4"
   integrity sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==
 
-csv-parse@^5.5.2:
+csv-parse@^5.5.3:
   version "5.5.3"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.5.3.tgz#0261050761ee46cd0e46421854bf9bf4de1317bf"
   integrity sha512-v0KW6C0qlZzoGjk6u5tLmVfyZxNgPGXZsWTXshpAgKVGmGXzaVWGdlCFxNx5iuzcXT/oJN1HHM9DZKwtAtYa+A==
 
-csv-stringify@^6.4.4:
+csv-stringify@^6.4.5:
   version "6.4.5"
   resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.5.tgz#99808b40ec30b86cc0e1c7d707c1d6ecbc4e1a00"
   integrity sha512-SPu1Vnh8U5EnzpNOi1NDBL5jU5Rx7DVHr15DNg9LXDTAbQlAVAmEbVt16wZvEW9Fu9Qt4Ji8kmeCJ2B1+4rFTQ==
@@ -733,15 +733,15 @@ gtfs-realtime-bindings@^1.1.1:
     protobufjs "^7.1.2"
     protobufjs-cli "^1.0.2"
 
-gtfs@^4.5.1:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.5.1.tgz#ccc473cd45ab6a9d238451cbc34c463592488727"
-  integrity sha512-zTXKZfEyn42Vf/Tw4zFaOv1Wto2q9g6BcDfyIQnmml6CnO8SDGsS1VmrT/uP6sNjw5N8xhsDgaG/1lvcxXo+Hw==
+gtfs@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.6.0.tgz#6f84fee6f2b49fe9f5c91d50e47b0eb9566f2e18"
+  integrity sha512-cLCvbZTpfzmzUL8b1rnTfV43e5R8ZCIGisVQc3C4wBC8zsSA8Me86sGdnB86FeRRp033LlLrOT9Gr3aoBuhecQ==
   dependencies:
     "@turf/helpers" "^6.5.0"
-    better-sqlite3 "^9.1.1"
-    csv-parse "^5.5.2"
-    csv-stringify "^6.4.4"
+    better-sqlite3 "^9.3.0"
+    csv-parse "^5.5.3"
+    csv-stringify "^6.4.5"
     gtfs-realtime-bindings "^1.1.1"
     lodash-es "^4.17.21"
     long "^5.2.3"

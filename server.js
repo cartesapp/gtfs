@@ -1,24 +1,20 @@
-import express from 'express'
 import cors from 'cors'
+import express from 'express'
+import { readFile } from 'fs/promises'
 import {
-  openDb,
-  getStops,
-  closeDb,
+  getCalendarDates,
+  getCalendars,
+  getFrequencies,
+  getRoutes,
   getStoptimes,
   getTrips,
-  getRoutes,
-  getFrequencies,
-  getCalendars,
-  getCalendarDates,
+  importGtfs,
+  openDb,
 } from 'gtfs'
-import { importGtfs } from 'gtfs'
-import { readFile } from 'fs/promises'
-import { pipeline } from 'stream/promises'
 
 const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
 )
-import fs from 'fs'
 const app = express()
 app.use(
   cors({
@@ -26,16 +22,9 @@ app.use(
   })
 )
 const port = process.env.PORT || 3000
-import { Readable } from 'node:stream'
-
-const url = 'https://www.korrigo.bzh/ftp/OPENDATA/KORRIGOBRET.gtfs.zip'
 
 const fetchGTFS = async () => {
   console.log('will fetch gtfs zip and import in node-gtfs')
-  const response = await fetch(url)
-  const fileWriteStream = fs.createWriteStream('./gtfs/bretagne.zip')
-  const readableStream = Readable.fromWeb(response.body)
-  await pipeline(readableStream, fileWriteStream)
   await importGtfs(config)
   return "C'est bon !"
 }
