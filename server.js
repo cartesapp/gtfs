@@ -2,6 +2,8 @@ import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
 import {
+  getShapesAsGeoJSON,
+  getAgencies,
   getCalendarDates,
   getCalendars,
   getFrequencies,
@@ -10,6 +12,7 @@ import {
   getTrips,
   importGtfs,
   openDb,
+  getStopsAsGeoJSON,
 } from 'gtfs'
 
 const config = JSON.parse(
@@ -55,7 +58,22 @@ app.get('/stopTimes/:id', (req, res) => {
     )
 
     const routes = getRoutes({ route_id: tripRoutes })
-    res.json({ stops: stopsWithTrips, trips, routes })
+    const routesGeojson = routes.map((route) => ({
+      route,
+
+      shapes: getShapesAsGeoJSON({
+        route_id: route.route_id,
+      }),
+      stops: getStopsAsGeoJSON({
+        route_id: route.route_id,
+      }),
+    }))
+    res.json({
+      stops: stopsWithTrips,
+      trips,
+      routes,
+      routesGeojson,
+    })
 
     //  closeDb(db);
   } catch (error) {
@@ -73,6 +91,26 @@ app.get('/routes/trip/:tripId', (req, res) => {
     res.json({ routes })
 
     //  closeDb(db);
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/agencies', (req, res) => {
+  try {
+    const db = openDb(config)
+    const agencies = getAgencies()
+    res.json({ agencies })
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/geojson/route/:routeId', (req, res) => {
+  try {
+    const db = openDb(config)
+    const shapesGeojson = getShapesAsGeoJSON({
+      route_id: req.params.routeId,
+    })
+    res.json(shapesGeojson)
   } catch (error) {
     console.error(error)
   }
