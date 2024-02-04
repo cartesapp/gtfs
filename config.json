@@ -9,7 +9,7 @@
     {
       "url": "https://eu.ftp.opendatasoft.com/sncf/gtfs/export-intercites-gtfs-last.zip"
     },
-    { "url": "https://donnees.paysdelaloire.fr/data/DESTINEO.gtfs.zip" },
+    { "url": "http://donnees.paysdelaloire.fr/data/DESTINEO.gtfs.zip" },
     {
       "url": "https://mobi-iti-ara.okina.fr/static/mobiiti_technique/DAT_AURA_GTFS_ExportAOM.zip"
     },
