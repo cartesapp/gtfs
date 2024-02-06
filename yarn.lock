@@ -733,10 +733,9 @@ gtfs-realtime-bindings@^1.1.1:
     protobufjs "^7.1.2"
     protobufjs-cli "^1.0.2"
 
-gtfs@^4.6.0:
+"gtfs@https://github.com/BlinkTagInc/node-gtfs.git#3590d2a80f2183f595db5ccc3efef45c770be5f6":
   version "4.6.0"
-  resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.6.0.tgz#6f84fee6f2b49fe9f5c91d50e47b0eb9566f2e18"
-  integrity sha512-cLCvbZTpfzmzUL8b1rnTfV43e5R8ZCIGisVQc3C4wBC8zsSA8Me86sGdnB86FeRRp033LlLrOT9Gr3aoBuhecQ==
+  resolved "https://github.com/BlinkTagInc/node-gtfs.git#3590d2a80f2183f595db5ccc3efef45c770be5f6"
   dependencies:
     "@turf/helpers" "^6.5.0"
     better-sqlite3 "^9.3.0"

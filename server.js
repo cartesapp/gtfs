@@ -2,6 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
 import {
+  getStops,
   getShapesAsGeoJSON,
   getAgencies,
   getCalendarDates,
@@ -115,6 +116,32 @@ app.get('/geojson/route/:routeId', (req, res) => {
     console.error(error)
   }
 })
+
+app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
+  try {
+    const db = openDb(config)
+
+    const { lat, lon, distance } = req.params
+
+    console.log('Will query stops for lat ', lat, ' and lon ', lon)
+
+    const results = getStops(
+      {
+        stop_lat: lat,
+        stop_lon: lon,
+      },
+      [],
+      [],
+      { boundary_side_m: distance }
+    )
+
+    res.json(results)
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+/* Update files */
 app.get('/fetch', async (req, res) => {
   const alors = await fetchGTFS()
   res.send(alors)
