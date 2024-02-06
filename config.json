@@ -1,7 +1,10 @@
 {
   "agencies": [
     {
-      "path": "gtfs/bretagne.zip"
+      "url": "https://www.korrigo.bzh/ftp/OPENDATA/KORRIGOBRET.gtfs.zip"
+    },
+    {
+      "url": "https://mobi-iti-ara.okina.fr/static/mobiiti_technique/DAT_AURA_GTFS_ExportAOM.zip"
     }
   ],
   "sqlitePath": "db/gtfs"

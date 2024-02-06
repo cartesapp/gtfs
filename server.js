@@ -28,14 +28,8 @@ app.use(
 const port = process.env.PORT || 3000
 import { Readable } from 'node:stream'
 
-const url = 'https://www.korrigo.bzh/ftp/OPENDATA/KORRIGOBRET.gtfs.zip'
-
 const fetchGTFS = async () => {
   console.log('will fetch gtfs zip and import in node-gtfs')
-  const response = await fetch(url)
-  const fileWriteStream = fs.createWriteStream('./gtfs/bretagne.zip')
-  const readableStream = Readable.fromWeb(response.body)
-  await pipeline(readableStream, fileWriteStream)
   await importGtfs(config)
   return "C'est bon !"
 }
