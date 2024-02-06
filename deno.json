@@ -1,0 +1,23 @@
+{
+  "imports": {
+    "@turf/helpers": "npm:@turf/helpers@^6.5.0",
+    "better-sqlite3": "https://deno.land/x/sqlite",
+    "csv-parse": "npm:csv-parse@^5.5.3",
+    "csv-stringify": "npm:csv-stringify@^6.4.5",
+    "gtfs-realtime-bindings": "npm:gtfs-realtime-bindings@^1.1.1",
+    "lodash-es": "npm:lodash-es@^4.17.21",
+    "long": "npm:long@^5.2.3",
+    "node-fetch": "npm:node-fetch@^3.3.2",
+    "node-stream-zip": "npm:node-stream-zip@^1.15.0",
+    "pluralize": "npm:pluralize@^8.0.0",
+    "pretty-error": "npm:pretty-error@^4.0.0",
+    "promise-map-series": "npm:promise-map-series@^0.3.0",
+    "recursive-copy": "npm:recursive-copy@^2.0.14",
+    "sanitize-filename": "npm:sanitize-filename@^1.6.3",
+    "sqlstring-sqlite": "npm:sqlstring-sqlite@^0.1.1",
+    "strip-bom-stream": "npm:strip-bom-stream@^5.0.0",
+    "tmp-promise": "npm:tmp-promise@^3.0.3",
+    "untildify": "npm:untildify@^5.0.0",
+    "yargs": "npm:yargs@^17.7.2"
+  }
+}
