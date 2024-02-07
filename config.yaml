@@ -1,0 +1,12 @@
+agencies:
+  - url: https://eu.ftp.opendatasoft.com/sncf/gtfs/export_gtfs_voyages.zip
+  - url: https://eu.ftp.opendatasoft.com/sncf/gtfs/export-ter-gtfs-last.zip
+  - url: https://eu.ftp.opendatasoft.com/sncf/gtfs/export-intercites-gtfs-last.zip
+  - url: http://donnees.paysdelaloire.fr/data/DESTINEO.gtfs.zip
+  - url: https://mobi-iti-ara.okina.fr/static/mobiiti_technique/DAT_AURA_GTFS_ExportAOM.zip
+  - url: https://www.korrigo.bzh/ftp/OPENDATA/KORRIGOBRET.gtfs.zip
+  - url: https://gtech-transit-prod.apigee.net/v1/google/gtfs/odbl/lyon_tcl.zip?apikey=BasyG6OFZXgXnzWdQLTwJFGcGmeOs204&secret=gNo6F5PhQpsGRBCK
+ignoreDuplicates: true
+sqlitePath: db/gtfs
+workingAgencies: []
+notWorkingAgencies: []
