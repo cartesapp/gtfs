@@ -1,3 +1,10 @@
 datasets:
   - breizhgo-bateaux
   - horaires-des-lignes-ter-sncf
+  - horaires-des-tgv
+  - horaires-des-lignes-intercites-sncf
+  - arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+  - base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
+    # Lyon / Aura
+    # https://mobi-iti-ara.okina.fr/static/mobiiti_technique/DAT_AURA_GTFS_ExportAOM.zip
+    # https://gtech-transit-prod.apigee.net/v1/google/gtfs/odbl/lyon_tcl.zip?apikey=BasyG6OFZXgXnzWdQLTwJFGcGmeOs204&secret=gNo6F5PhQpsGRBCK

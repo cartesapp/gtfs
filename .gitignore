@@ -5,3 +5,4 @@ gtfs/*
 
 !db/.gitkeep
 !gtfs/.gitkeep
+input/

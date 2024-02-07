@@ -6,6 +6,14 @@ Pour l'instant, [seul le GTFS de la Bretagne est téléchargé](https://github.c
 
 Je vais mettre dans les issues les prochains développements à faire.
 
+# Création de la configuration
+
+D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
+
+```
+deno run --allow-net --allow-read --allow-write buildConfig.ts
+```
+
 # Déploiement
 
 J'ai d'abord testé Scalingo. Ça marche, mais à chaque déploiement il faut repeupler la DB, et ça commence à prendre beaucoup de temps. Les PaaS sont donc limitantes, et plus chères qu'un simple VPS.
