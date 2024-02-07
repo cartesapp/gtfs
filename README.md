@@ -10,8 +10,10 @@ Je vais mettre dans les issues les prochains développements à faire.
 
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
+Nécessite d'installer Deno.
+
 ```
-deno run --allow-net --allow-read --allow-write buildConfig.ts
+yarn build-config
 ```
 
 # Déploiement
@@ -31,3 +33,21 @@ Ainsi, héberger node-GTFS et Motis sur le même serveur VPS est intéressant. S
 Resterait donc à fusionner laem/motis et laem/gtfs, pour mettre en commun le dépôt et surtout la gestion des GTFS à télécharger et mettre à jour avec un CRON.
 
 Ensuite, trouver un moyen de déployer plusieurs serveurs pour scaler, ou retester l'expérience PaaS ou Edge, mais on verra ça quand on aura du succès.
+
+Pour lancer :
+
+```
+PORT=3001 pm2 start "yarn start"
+```
+
+Puis lancez la création de la DB par node-GTFS. Prend plusieurs minutes pour juste l'ouest de la France (config au moment où j'écris ces lignes).
+
+```
+localhost:3001/fetch
+```
+
+Regardez si ça marche
+
+```
+pm2 monit
+```
