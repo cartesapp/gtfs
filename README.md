@@ -1,12 +1,12 @@
 # Serveur GTFS des horaires et lignes de bus en France
 
-On utilise node-gtfs pour dézipper, parser et servir les bons JSON pour répondre aux besoins de [Voyage](https://github.com/laem/futureco/issues/162).
+On utilise node-gtfs pour dézipper, parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/futureco/issues/162).
 
-Pour l'instant, [seul le GTFS de la Bretagne est téléchargé](https://github.com/laem/gtfs/blob/master/server.js#L31). C'est vraiment basique.
+## Couverture
 
-Je vais mettre dans les issues les prochains développements à faire.
+Pour l'instant, on se concentre sur l'ouest de la France. La plus belle région du pays mérite ça :p
 
-# Création de la configuration
+## Création de la configuration
 
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
@@ -16,7 +16,7 @@ Nécessite d'installer Deno.
 yarn build-config
 ```
 
-# Déploiement
+## Déploiement
 
 J'ai d'abord testé Scalingo. Ça marche, mais à chaque déploiement il faut repeupler la DB, et ça commence à prendre beaucoup de temps. Les PaaS sont donc limitantes, et plus chères qu'un simple VPS.
 
