@@ -1,16 +1,16 @@
 {
     "agencies": [
         {
-            "path": "./input/Breizhgo-Bateaux-Bréhat.gtfs.zip"
-        },
-        {
-            "path": "./input/Breizhgo-Bateaux-Finistère.gtfs.zip"
-        },
-        {
             "path": "./input/Breizhgo-Bateaux-Morbihan.gtfs.zip"
         },
         {
             "path": "./input/Breizhgo-Bateaux-Arz.gtfs.zip"
+        },
+        {
+            "path": "./input/Breizhgo-Bateaux-Bréhat.gtfs.zip"
+        },
+        {
+            "path": "./input/Breizhgo-Bateaux-Finistère.gtfs.zip"
         },
         {
             "path": "./input/sncf-ter-gtfs.csv.gtfs.zip"

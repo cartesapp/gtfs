@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "build-config": "deno run --allow-net --allow-read --allow-write buildConfig.ts",
     "start": "node server.js"
   },
   "engines": {
