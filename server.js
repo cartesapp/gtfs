@@ -1,24 +1,24 @@
-import express from 'express'
 import cors from 'cors'
+import express from 'express'
+import { readFile } from 'fs/promises'
 import {
-  openDb,
   getStops,
-  closeDb,
+  getShapesAsGeoJSON,
+  getAgencies,
+  getCalendarDates,
+  getCalendars,
+  getFrequencies,
+  getRoutes,
   getStoptimes,
   getTrips,
-  getRoutes,
-  getFrequencies,
-  getCalendars,
-  getCalendarDates,
+  importGtfs,
+  openDb,
+  getStopsAsGeoJSON,
 } from 'gtfs'
-import { importGtfs } from 'gtfs'
-import { readFile } from 'fs/promises'
-import { pipeline } from 'stream/promises'
 
 const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
 )
-import fs from 'fs'
 const app = express()
 app.use(
   cors({
@@ -26,7 +26,6 @@ app.use(
   })
 )
 const port = process.env.PORT || 3000
-import { Readable } from 'node:stream'
 
 const fetchGTFS = async () => {
   console.log('will fetch gtfs zip and import in node-gtfs')
@@ -87,18 +86,94 @@ app.get('/stopTimes/:id', (req, res) => {
     )
 
     const routes = getRoutes({ route_id: tripRoutes })
-    res.json({ stops: stopsWithTrips, trips, routes })
+    const routesGeojson = routes.map((route) => ({
+      route,
+
+      shapes: getShapesAsGeoJSON({
+        route_id: route.route_id,
+      }),
+      stops: getStopsAsGeoJSON({
+        route_id: route.route_id,
+      }),
+    }))
+    res.json({
+      stops: stopsWithTrips,
+      trips,
+      routes,
+      routesGeojson,
+    })
 
     //  closeDb(db);
   } catch (error) {
     console.error(error)
   }
 })
+app.get('/routes/trip/:tripId', (req, res) => {
+  try {
+    const tripId = req.params.tripId
+    const db = openDb(config)
+    const routeIds = getTrips({ trip_id: [tripId] }).map((el) => el.route_id)
+    const routes = getRoutes({
+      route_id: routeIds,
+    })
+    res.json({ routes })
+
+    //  closeDb(db);
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/agencies', (req, res) => {
+  try {
+    const db = openDb(config)
+    const agencies = getAgencies()
+    res.json({ agencies })
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/geojson/route/:routeId', (req, res) => {
+  try {
+    const db = openDb(config)
+    const shapesGeojson = getShapesAsGeoJSON({
+      route_id: req.params.routeId,
+    })
+    res.json(shapesGeojson)
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
+  try {
+    const db = openDb(config)
+
+    const { lat, lon, distance } = req.params
+
+    console.log('Will query stops for lat ', lat, ' and lon ', lon)
+
+    const results = getStops(
+      {
+        stop_lat: lat,
+        stop_lon: lon,
+      },
+      [],
+      [],
+      { boundary_side_m: distance }
+    )
+
+    res.json(results)
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+/* Update files */
 app.get('/fetch', async (req, res) => {
   const alors = await fetchGTFS()
   res.send(alors)
 })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Cartes.app GTFS server listening on port ${port}`)
 })
