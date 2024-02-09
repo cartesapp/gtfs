@@ -43,7 +43,7 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
 
     const test = getStops(
       { "stop_lat": latitude, "stop_lon": longitude },
-      [], [], { "distance_m": distance }
+      [], [], { "bounding_box_side_m": distance }
     )
 
     if (test.length === 0) {
