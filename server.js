@@ -159,7 +159,7 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
       },
       [],
       [],
-      { boundary_side_m: distance }
+      { bounding_box_side_m: distance }
     )
 
     res.json(results)
