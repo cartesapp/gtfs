@@ -10,6 +10,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "gtfs": "https://github.com/BlinkTagInc/node-gtfs.git#3590d2a80f2183f595db5ccc3efef45c770be5f6"
+    "gtfs": "^4.7.0"
   }
 }
