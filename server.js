@@ -13,6 +13,7 @@ import {
   getTrips,
   importGtfs,
   openDb,
+  closeDb,
   getStopsAsGeoJSON,
 } from 'gtfs'
 
@@ -40,21 +41,24 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
     const distance = req.query.distance || 20
     const db = openDb(config)
 
-    const test = getStops(
-      { "stop_lat": latitude, "stop_lon": longitude },
-      [], [], { "bounding_box_side_m": distance }
-    )
+    const test = getStops({ stop_lat: latitude, stop_lon: longitude }, [], [], {
+      bounding_box_side_m: distance,
+    })
 
     if (test.length === 0) {
       res.json({ stopIds: null })
     } else {
       res.json({
         // Filters location_type=(0|null) to return only stop/platform
-        stopIds: test.filter((stop) => { return !stop.location_type; })
-                     .map((stop) => stop.stop_id)})
+        stopIds: test
+          .filter((stop) => {
+            return !stop.location_type
+          })
+          .map((stop) => stop.stop_id),
+      })
     }
 
-    closeDb(db);
+    closeDb(db)
   } catch (error) {
     console.error(error)
   }
@@ -67,7 +71,7 @@ app.get('/stopTimes/:id', (req, res) => {
     const stops = getStoptimes({
       stop_id: [id],
     })
-    const stopTrips = stops.reduce((memo, next) => [...memo, next.trip_id], [])
+    const stopTrips = stops.map((stop) => stop.trip_id)
 
     const trips = getTrips({ trip_id: stopTrips }).map((trip) => ({
       ...trip,
@@ -98,12 +102,11 @@ app.get('/stopTimes/:id', (req, res) => {
     }))
     res.json({
       stops: stopsWithTrips,
-      trips,
       routes,
       routesGeojson,
     })
 
-    //  closeDb(db);
+    closeDb(db)
   } catch (error) {
     console.error(error)
   }
