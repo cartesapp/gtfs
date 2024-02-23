@@ -79,10 +79,6 @@ app.get('/stopTimes/:id', (req, res) => {
       calendar: getCalendars({ service_id: trip.service_id }),
       calendarDates: getCalendarDates({ service_id: trip.service_id }),
     }))
-    const stopsWithTrips = stops.map((stop) => ({
-      ...stop,
-      trip: trips.find((el) => el.trip_id === stop.trip_id),
-    }))
 
     const tripRoutes = trips.reduce(
       (memo, next) => [...memo, next.route_id],
@@ -100,8 +96,10 @@ app.get('/stopTimes/:id', (req, res) => {
         route_id: route.route_id,
       }),
     }))
+
     res.json({
-      stops: stopsWithTrips,
+      stops: rejectNullValues(stops),
+      trips: rejectNullValues(trips),
       routes,
       routesGeojson,
     })
@@ -111,6 +109,15 @@ app.get('/stopTimes/:id', (req, res) => {
     console.error(error)
   }
 })
+const rejectNullValues = (list) =>
+  list.map((object) =>
+    Object.fromEntries(
+      Object.entries(object)
+        .map(([k, v]) => (v == null ? false : [k, v]))
+        .filter(Boolean)
+    )
+  )
+
 app.get('/routes/trip/:tripId', (req, res) => {
   try {
     const tripId = req.params.tripId
