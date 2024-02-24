@@ -71,7 +71,12 @@ const computeAgencyAreas = () => {
         )
       console.log(agency_id, bbox)
       const polylines = shapesGeojson.features.map((el) => fromGeoJSON(el))
-      agencyAreas[agency_id] = { polylines, bbox, name: agency_name }
+      agencyAreas[agency_id] = {
+        polylines,
+        bbox,
+        name: agency_name,
+        geojson: shapesGeojson,
+      }
     })
     cache
       .set('agencyAreas', agencyAreas)
@@ -89,9 +94,10 @@ app.get('/computeAgencyAreas', (req, res) => {
   res.send("Voilà c'est fait")
 })
 
-app.get('/agencyArea/:latitude/:longitude', async (req, res) => {
+app.get('/agencyArea/:latitude/:longitude/:format', async (req, res) => {
   try {
-    const { longitude, latitude } = req.params
+    //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
+    const { longitude, latitude, format = 'geojson' } = req.params
     const agencyAreas = await cache.get('agencyAreas')
     if (agencyAreas == null)
       return res.send(
@@ -117,7 +123,7 @@ app.get('/agencyArea/:latitude/:longitude', async (req, res) => {
       .filter(Boolean)
       .sort((a, b) => a.distance - b.distance)
 
-    res.json(withDistances)
+    res.json(withDistances[0].geojson)
   } catch (error) {
     console.error(error)
   }
