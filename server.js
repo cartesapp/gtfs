@@ -47,6 +47,20 @@ const fetchGTFS = async () => {
   return "C'est bon !"
 }
 
+const joinFeatureCollections = (elements) => ({
+  type: 'FeatureCollection',
+  features: elements.map((element) => element.features).flat(),
+})
+
+const filterFeatureCollection = (featureCollection, filter) => ({
+  type: 'FeatureCollection',
+  features: featureCollection.features.filter(filter),
+})
+const editFeatureCollection = (featureCollection, edit) => ({
+  type: 'FeatureCollection',
+  features: featureCollection.features.map(edit),
+})
+
 const computeAgencyAreas = () => {
   //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
   console.log(
@@ -57,27 +71,54 @@ const computeAgencyAreas = () => {
 
     const agencyAreas = {}
     const agencies = getAgencies()
-    agencies.map(({ agency_id, agency_name }) => {
-      const routes = getRoutes({ agency_id })
+    agencies
+      //.filter((agency) => agency.agency_id === 'PENNARBED')
+      .map(({ agency_id, agency_name }) => {
+        console.log(`Processing ${agency_id}`)
+        const routes = getRoutes({ agency_id })
 
-      const shapesGeojson = getShapesAsGeoJSON({
-        route_id: routes.map((route) => route.route_id),
+        const geojsons = routes.map((route) => {
+          const trips = getTrips({ route_id: route.route_id })
+          console.log('trips', trips.length)
+          const calendarDatesList = getCalendarDates({
+            service_id: trips.map((trip) => trip.service_id),
+          })
+          console.log(
+            'calendarDates',
+            calendarDatesList.length,
+            calendarDatesList[0]
+          )
+          const geojsonList = getShapesAsGeoJSON({
+            trip_id: trips.map((trip) => trip.trip_id),
+          })
+
+          return editFeatureCollection(geojsonList, (feature, index) => {
+            return {
+              ...feature,
+              properties: {
+                ...feature.properties,
+                calendarDates: calendarDatesList[index],
+              },
+            }
+          })
+        })
+
+        console.log(geojsons.length, geojsons[0])
+        const geojson = joinFeatureCollections(geojsons)
+        const bbox = turfBbox(geojson)
+        if (bbox.some((el) => el === Infinity || el === -Infinity))
+          return console.log(
+            `L'agence ${agency_id} a une aire de couverture infinie, on l'ignore`
+          )
+        console.log(agency_id, bbox)
+        //const polylines = geojsons.features.map((el) => fromGeoJSON(el))
+        agencyAreas[agency_id] = {
+          //polylines,
+          bbox,
+          name: agency_name,
+          geojson,
+        }
       })
-
-      const bbox = turfBbox(shapesGeojson)
-      if (bbox.some((el) => el === Infinity || el === -Infinity))
-        return console.log(
-          `L'agence ${agency_id} a une aire de couverture infinie, on l'ignore`
-        )
-      console.log(agency_id, bbox)
-      const polylines = shapesGeojson.features.map((el) => fromGeoJSON(el))
-      agencyAreas[agency_id] = {
-        polylines,
-        bbox,
-        name: agency_name,
-        geojson: shapesGeojson,
-      }
-    })
     cache
       .set('agencyAreas', agencyAreas)
       .then((result) => console.log('Cache enregistré'))
@@ -98,6 +139,7 @@ app.get('/agencyArea/:latitude/:longitude/:format', async (req, res) => {
   try {
     //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
     const { longitude, latitude, format = 'geojson' } = req.params
+    const { day } = req.query
     const agencyAreas = await cache.get('agencyAreas')
     if (agencyAreas == null)
       return res.send(
@@ -123,7 +165,16 @@ app.get('/agencyArea/:latitude/:longitude/:format', async (req, res) => {
       .filter(Boolean)
       .sort((a, b) => a.distance - b.distance)
 
-    res.json(withDistances[0].geojson)
+    // Return only the closest agency for now. No algorithm is perfect, so will need to let the user choose in a following iteration
+    const theOne = withDistances[0].geojson
+
+    const goodDay = day
+      ? filterFeatureCollection(
+          theOne,
+          (feature) => feature.properties.calendarDates.date === +day
+        )
+      : theOne
+    res.send(goodDay)
   } catch (error) {
     console.error(error)
   }
