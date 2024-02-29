@@ -200,8 +200,6 @@ const computeAgencyAreas = () => {
     Object.entries(byAgency)
       //.filter((agency) => agency.agency_id === 'PENNARBED')
       .map(([agency_id, geojsons]) => {
-        console.log('yo', geojsons)
-
         const geojson = { type: 'FeatureCollection', features: geojsons }
         const bbox = turfBbox(geojson)
         if (bbox.some((el) => el === Infinity || el === -Infinity))
@@ -319,6 +317,20 @@ app.get(
     }
   }
 )
+
+app.get('/agency/:agency_id?', (req, res) => {
+  try {
+    const { agency_id } = req.params
+    console.log(`Requesting agency by id ${agency_id}`)
+    const db = openDb(config)
+    if (agency_id == null) res.json(getAgencies())
+    else res.json(getAgencies({ agency_id })[0])
+
+    return closeDb(db)
+  } catch (error) {
+    console.error(error)
+  }
+})
 
 const point = (coordinates) => ({
   type: 'Feature',
