@@ -1,31 +1,19 @@
 {
     "agencies": [
         {
-            "path": "./input/Breizhgo-Bateaux-Bréhat.gtfs.zip"
+            "path": "./input/Breizhgo-Bateaux-Finistère.gtfs"
         },
         {
-            "path": "./input/Breizhgo-Bateaux-Finistère.gtfs.zip"
+            "path": "./input/Breizhgo-Bateaux-Arz.gtfs"
         },
         {
-            "path": "./input/Breizhgo-Bateaux-Morbihan.gtfs.zip"
+            "path": "./input/Breizhgo-Bateaux-Morbihan.gtfs"
         },
         {
-            "path": "./input/Breizhgo-Bateaux-Arz.gtfs.zip"
+            "path": "./input/Breizhgo-Bateaux-Bréhat.gtfs"
         },
         {
-            "path": "./input/sncf-ter-gtfs.csv.gtfs.zip"
-        },
-        {
-            "path": "./input/horaires-des-train-voyages-tgvinouiouigo.csv.gtfs.zip"
-        },
-        {
-            "path": "./input/sncf-intercites-gtfs.csv.gtfs.zip"
-        },
-        {
-            "path": "./input/GTFS-Destineo-Pays-de-la-Loire.gtfs.zip"
-        },
-        {
-            "path": "./input/KorriGo---Fichier-GTFS.gtfs.zip"
+            "path": "./input/KorriGo---Fichier-GTFS.gtfs"
         }
     ],
     "ignoreDuplicates": true,

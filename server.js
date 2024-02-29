@@ -1,25 +1,25 @@
+import polyline from '@mapbox/polyline'
+import turfBbox from '@turf/bbox'
+import turfDistance from '@turf/distance'
 import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
-import polyline from '@mapbox/polyline'
-const { fromGeoJSON } = polyline
-import turfBbox from '@turf/bbox'
-import turfDistance from '@turf/distance'
 import {
-  getStops,
-  getShapesAsGeoJSON,
+  closeDb,
   getAgencies,
   getCalendarDates,
   getCalendars,
   getFrequencies,
   getRoutes,
+  getShapesAsGeoJSON,
+  getStops,
+  getStopsAsGeoJSON,
   getStoptimes,
   getTrips,
   importGtfs,
   openDb,
-  closeDb,
-  getStopsAsGeoJSON,
 } from 'gtfs'
+const { fromGeoJSON } = polyline
 
 import Cache from 'file-system-cache'
 
@@ -61,16 +61,61 @@ const editFeatureCollection = (featureCollection, edit) => ({
   features: featureCollection.features.map(edit),
 })
 
-const computeAgencyAreas = () => {
+const computeAgencyAreasCustom = () => {
   //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
   console.log(
-    'For each agency, compute polylines and a bounding box, store it in a cache'
+    'For each agency, compute polylines and a bounding box, store it in a cache. It enables other functions to take as input coords and give as output the list of interesting agencies.'
   )
   try {
     const db = openDb(config)
 
     const agencyAreas = {}
     const agencies = getAgencies()
+
+    // Since the other function is slow, here I tried another way to get shapes from the DB directly.
+    // But I end up with an extremely long json list probably including lots of duplicates or irrelevant things
+    // to be continued...
+    const data = db
+      .prepare(
+        `SELECT DISTINCT trips.trip_id, trips.route_id, calendar_dates.date, routes.agency_id, trips.shape_id
+FROM trips
+JOIN calendar_dates ON trips.service_id = calendar_dates.service_id
+JOIN routes ON trips.route_id = routes.route_id
+WHERE routes.agency_id = 'PENNARBED'
+`
+
+        //WHERE trips.route_id = '${routeId}' AND calendar_dates.date = '${day}'
+        //AND end_date >= $date
+        //JOIN shapes ON trips.shape_id = shapes.shape_id
+      )
+      .all()
+
+    const shapeIds = [...new Set(data.map((trip) => trip.shape_id))]
+    console.log(shapeIds.length, shapeIds)
+    const shapes = shapeIds.map(
+      (id, index) =>
+        console.log(index) || [
+          id,
+          getShapesAsGeoJSON({
+            shape_id: id,
+          }),
+        ]
+    )
+
+    return shapes
+
+    // Too slow for this data volume
+    const perAgency = trips.reduce(
+      (memo, next) => ({
+        [next.agency_id]: [...(memo[next.agency_id] || []), next],
+      }),
+      {}
+    )
+    console.log('egencies mapped', Object.keys(perAgency))
+    const entries = Object.entries(perAgency).map(([k, v]) => {})
+    console.log(entries)
+
+    return
     agencies
       //.filter((agency) => agency.agency_id === 'PENNARBED')
       .map(({ agency_id, agency_name }) => {
@@ -130,9 +175,64 @@ const computeAgencyAreas = () => {
   }
 }
 
+const computeAgencyAreas = () => {
+  //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
+  console.log(
+    'For each agency, compute polylines and a bounding box, store it in a cache. It enables other functions to take as input coords and give as output the list of interesting agencies.'
+  )
+  try {
+    const db = openDb(config)
+
+    const agencyAreas = {}
+    const agencies = getAgencies()
+
+    const featureCollection = getShapesAsGeoJSON()
+    const byAgency = featureCollection.features.reduce((memo, next) => {
+      return {
+        ...memo,
+        [next.properties.agency_id]: [
+          ...(memo[next.properties.agency_id] || []),
+          next,
+        ],
+      }
+    }, {})
+
+    Object.entries(byAgency)
+      //.filter((agency) => agency.agency_id === 'PENNARBED')
+      .map(([agency_id, geojsons]) => {
+        console.log('yo', geojsons)
+
+        const geojson = { type: 'FeatureCollection', features: geojsons }
+        const bbox = turfBbox(geojson)
+        if (bbox.some((el) => el === Infinity || el === -Infinity))
+          return console.log(
+            `L'agence ${agency_id} a une aire de couverture infinie, on l'ignore`
+          )
+        console.log(agency_id, bbox)
+        //const polylines = geojsons.features.map((el) => fromGeoJSON(el))
+        agencyAreas[agency_id] = {
+          //polylines,
+          bbox,
+          agency: agencies.find((agency) => agency.agency_id === agency_id),
+          geojson,
+        }
+      })
+
+    cache
+      .set('agencyAreas', agencyAreas)
+      .then((result) => console.log('Cache enregistré'))
+      .catch((err) => console.log("Erreur dans l'enregistrement du cache"))
+
+    closeDb(db)
+    return agencyAreas
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 app.get('/computeAgencyAreas', (req, res) => {
-  computeAgencyAreas()
-  res.send("Voilà c'est fait")
+  const areas = computeAgencyAreas()
+  res.json(areas)
 })
 
 app.get('/agencyArea/:latitude/:longitude/:format', async (req, res) => {
@@ -146,6 +246,7 @@ app.get('/agencyArea/:latitude/:longitude/:format', async (req, res) => {
         `Construisez d'abord le cache des aires d'agences avec /computeAgencyAreas`
       )
     const entries = Object.entries(agencyAreas)
+
     const withDistances = entries
       .map(([agencyId, agency]) => {
         const { bbox } = agency
@@ -295,13 +396,50 @@ app.get('/agencies', (req, res) => {
   }
 })
 
-app.get('/geojson/route/:routeId', (req, res) => {
+app.get('/geojson/route/:routeid', (req, res) => {
   try {
+    const { routeId } = req.params
+    const { day } = req.query
+
     const db = openDb(config)
+
+    const trips = db
+      .prepare(
+        `SELECT trips.trip_id
+FROM trips
+JOIN calendar_dates ON trips.service_id = calendar_dates.service_id
+WHERE trips.route_id = '${routeId}' AND calendar_dates.date = '${day}'
+			  ` //AND end_date >= $date'
+      )
+      //JOIN shapes ON trips.shape_id = shapes.shape_id
+      .all({ day })
+
+    const featureCollections = trips.map(({ trip_id }) =>
+      getShapesAsGeoJSON({ trip_id })
+    )
+
+    return res.json(joinFeatureCollections(featureCollections))
+
     const shapesGeojson = getShapesAsGeoJSON({
       route_id: req.params.routeId,
     })
     res.json(shapesGeojson)
+    closeDb(db)
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/geojson/shape/:shapeId', (req, res) => {
+  try {
+    const { shapeId } = req.params
+
+    const db = openDb(config)
+
+    const result = getShapesAsGeoJSON({ shape_id: shapeId })
+
+    res.json(result)
+
+    closeDb(db)
   } catch (error) {
     console.error(error)
   }
