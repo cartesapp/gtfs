@@ -26,7 +26,7 @@ import {
   joinFeatureCollections,
   areDisjointBboxes,
   bboxArea,
-} from './utils'
+} from './utils.js'
 
 import Cache from 'file-system-cache'
 
@@ -54,6 +54,50 @@ const fetchGTFS = async () => {
   return "C'est bon !"
 }
 
+const computeAgencyGeojsons = (agency) => {
+  const routes = getRoutes({ agency_id: agency.agency_id })
+
+  const featureCollections = routes.map((route) => {
+    const trips = getTrips({ route_id: route.route_id })
+    //console.log(trips.slice(0, 2), trips.length)
+
+    const features = trips.map((trip) => {
+      const { trip_id } = trip
+      const stopTimes = getStoptimes({ trip_id })
+      const coordinates = stopTimes.map(({ stop_id }) => {
+        const stops = getStops({ stop_id })
+        if (stops.length > 1)
+          throw new Error('One stoptime should correspond to only one stop')
+
+        const { stop_lat, stop_lon } = stops[0]
+        return [stop_lon, stop_lat]
+      })
+
+      return {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates },
+        properties: trip,
+      }
+    })
+    return { type: 'FeatureCollection', features }
+  })
+
+  return joinFeatureCollections(featureCollections)
+}
+
+app.get('/agency/geojsons/:agency_id', (req, res) => {
+  try {
+    const db = openDb(config)
+    const { agency_id } = req.params
+    const agency = getAgencies({ agency_id })[0]
+    const geojsons = computeAgencyGeojsons(agency)
+    res.json(geojsons)
+    closeDb(db)
+  } catch (e) {
+    console.error(e)
+  }
+})
+
 const computeAgencyAreas = () => {
   //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
   console.log(
@@ -75,6 +119,17 @@ const computeAgencyAreas = () => {
         ],
       }
     }, {})
+
+    const agenciesWithShapes = Object.keys(byAgency)
+    const agenciesWithoutShapes = agencies.filter(
+      (agency) => !agenciesWithShapes.includes(agency.agency_id)
+    )
+
+    console.log(agenciesWithoutShapes.map((a) => a.agency_name))
+
+    const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
+
+    return
 
     Object.entries(byAgency)
       //.filter((agency) => agency.agency_id === 'PENNARBED')
