@@ -10,6 +10,7 @@
   "dependencies": {
     "@mapbox/polyline": "^1.2.1",
     "@turf/bbox": "^6.5.0",
+    "@turf/bezier-spline": "^6.5.0",
     "@turf/distance": "^6.5.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",

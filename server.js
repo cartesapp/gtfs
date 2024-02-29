@@ -19,14 +19,14 @@ import {
   importGtfs,
   openDb,
 } from 'gtfs'
-const { fromGeoJSON } = polyline
 import {
-  editFeatureCollection,
-  filterFeatureCollection,
-  joinFeatureCollections,
   areDisjointBboxes,
   bboxArea,
+  filterFeatureCollection,
+  joinFeatureCollections,
 } from './utils.js'
+const { fromGeoJSON } = polyline
+import bezierSpline from '@turf/bezier-spline'
 
 import Cache from 'file-system-cache'
 
@@ -57,30 +57,60 @@ const fetchGTFS = async () => {
 const computeAgencyGeojsons = (agency) => {
   const routes = getRoutes({ agency_id: agency.agency_id })
 
-  const featureCollections = routes.map((route) => {
-    const trips = getTrips({ route_id: route.route_id })
-    //console.log(trips.slice(0, 2), trips.length)
+  const featureCollections = routes
+    /*
+    .filter(
+      (route) =>
+        route.route_id === 'FR:Line::D6BAEC78-815E-4C9A-BC66-2B9D2C00E41F:'
+    )
+	*/
+    .filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
+    .map((route) => {
+      const trips = getTrips({ route_id: route.route_id })
+      //console.log(trips.slice(0, 2), trips.length)
 
-    const features = trips.map((trip) => {
-      const { trip_id } = trip
-      const stopTimes = getStoptimes({ trip_id })
-      const coordinates = stopTimes.map(({ stop_id }) => {
-        const stops = getStops({ stop_id })
-        if (stops.length > 1)
-          throw new Error('One stoptime should correspond to only one stop')
+      const features = trips.map((trip) => {
+        const { trip_id } = trip
+        const stopTimes = getStoptimes({ trip_id })
 
-        const { stop_lat, stop_lon } = stops[0]
-        return [stop_lon, stop_lat]
+        const coordinates = stopTimes.map(({ stop_id }) => {
+          const stops = getStops({ stop_id })
+          if (stops.length > 1)
+            throw new Error('One stoptime should correspond to only one stop')
+
+          const { stop_lat, stop_lon } = stops[0]
+          return [stop_lon, stop_lat]
+        })
+
+        const feature = {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates },
+          properties: trip,
+        }
+        //beautiful, but not really useful I'm afraid...
+        //return bezierSpline(feature)
+        return feature
       })
 
+      /* Very simple and potentially erroneous way to avoid straight lines that don't show stops where the trains don't stop.
+       * Not effective : lots of straight lines persist through routes that cross France*/
+      const mostStops = features.reduce(
+        (memo, next) => {
+          const memoNum = memo.geometry.coordinates.length,
+            nextNum = next.geometry.coordinates.length
+          return memoNum > nextNum ? memo : next
+        },
+        { geometry: { coordinates: [] } }
+      )
+
       return {
-        type: 'Feature',
-        geometry: { type: 'LineString', coordinates },
-        properties: trip,
+        type: 'FeatureCollection',
+        features: [
+          //bezierSpline(mostStops),
+          mostStops,
+        ],
       }
     })
-    return { type: 'FeatureCollection', features }
-  })
 
   return joinFeatureCollections(featureCollections)
 }
