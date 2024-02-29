@@ -235,51 +235,90 @@ app.get('/computeAgencyAreas', (req, res) => {
   res.json(areas)
 })
 
-app.get('/agencyArea/:latitude/:longitude/:format', async (req, res) => {
-  try {
-    //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
-    const { longitude, latitude, format = 'geojson' } = req.params
-    const { day } = req.query
-    const agencyAreas = await cache.get('agencyAreas')
-    if (agencyAreas == null)
-      return res.send(
-        `Construisez d'abord le cache des aires d'agences avec /computeAgencyAreas`
-      )
-    const entries = Object.entries(agencyAreas)
+function areDisjointBboxes(bbox1, bbox2) {
+  const [longitudeA1, latitudeA1, longitudeA2, latitudeA2] = bbox1,
+    [longitudeB1, latitudeB1, longitudeB2, latitudeB2] = bbox2
 
-    const withDistances = entries
-      .map(([agencyId, agency]) => {
-        const { bbox } = agency
-        const isIncluded =
-          longitude > bbox[0] &&
-          longitude < bbox[2] &&
-          latitude > bbox[1] &&
-          latitude < bbox[3]
-        if (!isIncluded) return false
-        const bboxCenter = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
-        const distance = turfDistance(
-          point(bboxCenter),
-          point([longitude, latitude])
+  return (
+    (longitudeA2 < longitudeB1 || longitudeB2 < longitudeA1) &&
+    (latitudeA2 < latitudeB1 || latitudeB2 < latitudeA1)
+  )
+}
+const bboxArea = (bbox) => {
+  const [longitudeA1, latitudeA1, longitudeA2, latitudeA2] = bbox
+
+  return (longitudeA2 - longitudeA1) * (latitudeA2 - latitudeA1)
+}
+
+app.get(
+  '/agencyArea/:latitude/:longitude/:latitude2/:longitude2/:format',
+  async (req, res) => {
+    try {
+      //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
+      const {
+          longitude,
+          latitude,
+          latitude2,
+          longitude2,
+          format = 'geojson',
+        } = req.params,
+        userBbox = [longitude, latitude, longitude2, latitude2]
+
+      const { day } = req.query
+      const agencyAreas = await cache.get('agencyAreas')
+      if (agencyAreas == null)
+        return res.send(
+          `Construisez d'abord le cache des aires d'agences avec /computeAgencyAreas`
         )
-        return { agencyId, ...agency, bboxCenter, distance }
+
+      const entries = Object.entries(agencyAreas)
+
+      const selectedAgencies = entries.filter(([id, agency]) => {
+        const disjointBboxes = areDisjointBboxes(agency.bbox, userBbox)
+
+        const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
+          isRatioSmallEnough = bboxRatio < 3
+
+        console.log(id, disjointBboxes, bboxRatio)
+        return !disjointBboxes && isRatioSmallEnough
       })
-      .filter(Boolean)
-      .sort((a, b) => a.distance - b.distance)
 
-    // Return only the closest agency for now. No algorithm is perfect, so will need to let the user choose in a following iteration
-    const theOne = withDistances[0].geojson
+      return res.json(selectedAgencies)
 
-    const goodDay = day
-      ? filterFeatureCollection(
-          theOne,
-          (feature) => feature.properties.calendarDates.date === +day
-        )
-      : theOne
-    res.send(goodDay)
-  } catch (error) {
-    console.error(error)
+      const withDistances = entries
+        .map(([agencyId, agency]) => {
+          const { bbox } = agency
+          const isIncluded =
+            longitude > bbox[0] &&
+            longitude < bbox[2] &&
+            latitude > bbox[1] &&
+            latitude < bbox[3]
+          if (!isIncluded) return false
+          const bboxCenter = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
+          const distance = turfDistance(
+            point(bboxCenter),
+            point([longitude, latitude])
+          )
+          return { agencyId, ...agency, bboxCenter, distance }
+        })
+        .filter(Boolean)
+        .sort((a, b) => a.distance - b.distance)
+
+      // Return only the closest agency for now. No algorithm is perfect, so will need to let the user choose in a following iteration
+      const theOne = withDistances[0].geojson
+
+      const goodDay = day
+        ? filterFeatureCollection(
+            theOne,
+            (feature) => feature.properties.calendarDates.date === +day
+          )
+        : theOne
+      res.send(goodDay)
+    } catch (error) {
+      console.error(error)
+    }
   }
-})
+)
 
 const point = (coordinates) => ({
   type: 'Feature',
