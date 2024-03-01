@@ -198,7 +198,7 @@ app.get('/computeAgencyAreas', (req, res) => {
 })
 
 app.get(
-  '/agencyArea/:latitude/:longitude/:latitude2/:longitude2/:format',
+  '/agencyArea/:latitude/:longitude/:latitude2/:longitude2/:format/:selection?',
   async (req, res) => {
     try {
       //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
@@ -207,6 +207,7 @@ app.get(
           latitude,
           latitude2,
           longitude2,
+          selection,
           format = 'geojson',
         } = req.params,
         userBbox = [longitude, latitude, longitude2, latitude2]
@@ -226,10 +227,14 @@ app.get(
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
           isRatioSmallEnough = bboxRatio < 3
 
+        const inSelection = !selection || selection.split('|').includes(id)
+
         console.log(id, disjointBboxes, bboxRatio)
-        return !disjointBboxes && isRatioSmallEnough
+        return !disjointBboxes && isRatioSmallEnough && inSelection
       })
 
+      if (format === 'prefetch')
+        return res.json(selectedAgencies.map(([id]) => id))
       return res.json(selectedAgencies)
 
       const withDistances = entries
@@ -391,6 +396,17 @@ app.get('/agencies', (req, res) => {
     const db = openDb(config)
     const agencies = getAgencies()
     res.json({ agencies })
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/routes/:routeIds', (req, res) => {
+  const { routeIds } = req.params
+  try {
+    const db = openDb(config)
+    const routes = getRoutes({ route_id: routeIds.split('|') })
+    res.json(routes)
+    closeDb(db)
   } catch (error) {
     console.error(error)
   }
