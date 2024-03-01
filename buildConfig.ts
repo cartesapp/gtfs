@@ -5,6 +5,7 @@ import { exec } from 'https://deno.land/x/exec/mod.ts'
 await exec(
   'wget https://github.com/patrickbr/gtfstidy/releases/download/v0.2/gtfstidy.v0.2.linux.amd64'
 )
+await exec('chmod +x gtfstidy.v0.2.linux.amd64')
 
 const yamlLoader = new YamlLoader()
 const input = await yamlLoader.parseFile('./input.yaml')
