@@ -2,6 +2,10 @@ import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
 import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
 
+await exec(
+  'wget https://github.com/patrickbr/gtfstidy/releases/download/v0.2/gtfstidy.v0.2.linux.amd64'
+)
+
 const yamlLoader = new YamlLoader()
 const input = await yamlLoader.parseFile('./input.yaml')
 
