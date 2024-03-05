@@ -1,6 +1,8 @@
 # Serveur GTFS des horaires et lignes de bus en France
 
-On utilise node-gtfs pour dézipper, parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/futureco/issues/162).
+On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/futureco/issues/162).
+
+Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous intéressent avec un script Deno. Il est donc la source des données pour laem/motis, qui lui gère le routage.
 
 ## Couverture
 
@@ -13,7 +15,17 @@ D'abord lancer le téléchargement des fichiers GTFS et la création de la confi
 Nécessite d'installer Deno.
 
 ```
+cd gtfs
 yarn build-config
+```
+
+Ensuite c'est simple, mais pas encore automatisé :
+
+```
+PORT=3001 pm2 start "yarn start"
+# URL/fetch pour que node-GTFS avale les GTFS
+cd ../motis # après avoir installé laem/motis
+./start.sh # ou systemctl start motis.service si installé via démon
 ```
 
 ## Déploiement
