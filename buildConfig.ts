@@ -2,6 +2,9 @@ import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
 import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
 
+const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
+
+log('will download gtfstidy')
 await exec(
   'wget https://github.com/patrickbr/gtfstidy/releases/download/v0.2/gtfstidy.v0.2.linux.amd64'
 )
@@ -15,8 +18,6 @@ const { datasets: rawDatasets } = input
 const datasets = rawDatasets.map((dataset) =>
   typeof dataset === 'string' ? { slug: dataset } : dataset
 )
-
-const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
 
 const doFetch = async () => {
   const panRequest = await fetch('https://transport.data.gouv.fr/api/datasets/')

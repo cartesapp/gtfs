@@ -407,7 +407,7 @@ base64-js@^1.3.1:
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
 
-better-sqlite3@^9.4.1:
+better-sqlite3@^9.4.1, better-sqlite3@^9.4.3:
   version "9.4.3"
   resolved "https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-9.4.3.tgz"
   integrity sha512-ud0bTmD9O3uWJGuXDltyj3R47Nz0OHX8iqPOT5PMspGqlu/qQFn+5S2eFBUCrySpavTjFXbi4EgrfVvPAHlImw==
@@ -680,12 +680,12 @@ css-what@^6.0.1:
   resolved "https://registry.npmjs.org/css-what/-/css-what-6.1.0.tgz"
   integrity sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==
 
-csv-parse@^5.5.3:
+csv-parse@^5.5.3, csv-parse@^5.5.5:
   version "5.5.5"
   resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.5.5.tgz#68a271a9092877b830541805e14c8a80e6a22517"
   integrity sha512-erCk7tyU3yLWAhk6wvKxnyPtftuy/6Ak622gOO7BCJ05+TYffnPCJF905wmOQm+BpkX54OdAl8pveJwUdpnCXQ==
 
-csv-stringify@^6.4.5:
+csv-stringify@^6.4.5, csv-stringify@^6.4.6:
   version "6.4.6"
   resolved "https://registry.yarnpkg.com/csv-stringify/-/csv-stringify-6.4.6.tgz#9ccf87cb8b017c96673a9fa061768c8ba83e8b98"
   integrity sha512-h2V2XZ3uOTLilF5dPIptgUfN/o2ia/80Ie0Lly18LAnw5s8Eb7kt8rfxSUy24AztJZas9f6DPZpVlzDUtFt/ag==
@@ -1163,7 +1163,7 @@ gtfs-to-geojson@^3.4.4:
     yargs "^17.7.2"
     yoctocolors "^1.0.0"
 
-gtfs@^4.5.0, gtfs@^4.7.1:
+gtfs@^4.5.0:
   version "4.7.1"
   resolved "https://registry.npmjs.org/gtfs/-/gtfs-4.7.1.tgz"
   integrity sha512-HV3ncxWSOIsDtG07Z69lV7P9AYNa5sk+kothibCIw2i5HatNLWYTa4u8hdZ6if5DLg4XDjtUY5oDFYvPlELeEw==
@@ -1188,6 +1188,32 @@ gtfs@^4.5.0, gtfs@^4.7.1:
     untildify "^5.0.0"
     yargs "^17.7.2"
     yoctocolors "^1.0.0"
+
+gtfs@^4.7.2:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.7.2.tgz#111d7690bd8db45211da50b53a6b9f75c4673768"
+  integrity sha512-oM6uvRRLVuAHLiZfDGmrnR3GGCvHzEszctr1m1a5oUvrjSeAVzErtcld5yC90guC6Di8omGqpDlsYJtvS7x6mg==
+  dependencies:
+    "@turf/helpers" "^6.5.0"
+    better-sqlite3 "^9.4.3"
+    csv-parse "^5.5.5"
+    csv-stringify "^6.4.6"
+    gtfs-realtime-bindings "^1.1.1"
+    lodash-es "^4.17.21"
+    long "^5.2.3"
+    node-fetch "^3.3.2"
+    node-stream-zip "^1.15.0"
+    pluralize "^8.0.0"
+    pretty-error "^4.0.0"
+    promise-map-series "^0.3.0"
+    recursive-copy "^2.0.14"
+    sanitize-filename "^1.6.3"
+    sqlstring-sqlite "^0.1.1"
+    strip-bom-stream "^5.0.0"
+    tmp-promise "^3.0.3"
+    untildify "^5.0.0"
+    yargs "^17.7.2"
+    yoctocolors "^2.0.0"
 
 hard-rejection@^2.1.0:
   version "2.1.0"
@@ -2585,6 +2611,11 @@ yoctocolors@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/yoctocolors/-/yoctocolors-1.0.0.tgz"
   integrity sha512-qJNAmSF77lWjfRVwCZK3PcKYWrr+55RUQTiXDxXHGbxzf8WuuRgftIB3hqZ5fykjOF/MC62cazsG/2ZDBedOnQ==
+
+yoctocolors@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/yoctocolors/-/yoctocolors-2.0.0.tgz#f6cd83f1fd0b211594810a6de413202d6d177075"
+  integrity sha512-esbDnt0Z1zI1KgvOZU90hJbL6BkoUbrP9yy7ArNZ6TmxBxydMJTYMf9FZjmwwcA8ZgEQzriQ3hwZ0NYXhlFo8Q==
 
 zip-stream@^5.0.1:
   version "5.0.2"

@@ -25,8 +25,9 @@ import {
   filterFeatureCollection,
   joinFeatureCollections,
 } from './utils.js'
-const { fromGeoJSON } = polyline
-import bezierSpline from '@turf/bezier-spline'
+import { exec as rawExec } from 'child_process'
+import util from 'util'
+const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
 
@@ -485,11 +486,19 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
   }
 })
 
-/* Update files */
+/* Update the DB from the local GTFS files */
 app.get('/fetch', async (req, res) => {
   const alors = await fetchGTFS()
 
   res.send(alors)
+})
+
+app.get('/update', async (req, res) => {
+  const { stdout, stderr } = await exec('yarn build-config')
+  await fetchGTFS()
+  const { stdout, stderr } = await exec('systemctl restart motis.service')
+  console.log('stdout:', stdout)
+  console.log('stderr:', stderr)
 })
 
 app.listen(port, () => {

@@ -7,22 +7,10 @@
             "path": "./input/Breizhgo-Bateaux-Arz.gtfs"
         },
         {
-            "path": "./input/Breizhgo-Bateaux-Finistère.gtfs"
-        },
-        {
             "path": "./input/Breizhgo-Bateaux-Morbihan.gtfs"
         },
         {
-            "path": "./input/KorriGo---Fichier-GTFS.gtfs"
-        },
-        {
-            "path": "./input/sncf-ter-gtfs.csv.gtfs"
-        },
-        {
-            "path": "./input/horaires-des-train-voyages-tgvinouiouigo.csv.gtfs"
-        },
-        {
-            "path": "./input/sncf-intercites-gtfs.csv.gtfs"
+            "path": "./input/Breizhgo-Bateaux-Finistère.gtfs"
         }
     ],
     "ignoreDuplicates": true,
