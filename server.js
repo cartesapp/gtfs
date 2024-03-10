@@ -491,7 +491,7 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
 
 /* Update the DB from the local GTFS files */
 app.get('/fetch', async (req, res) => {
-  const alors = await fetchGTFS()
+  const alors = await loadGTFS()
 
   res.send(alors)
 })
