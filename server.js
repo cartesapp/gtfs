@@ -496,9 +496,11 @@ app.get('/fetch', async (req, res) => {
 app.get('/update', async (req, res) => {
   const { stdout, stderr } = await exec('yarn build-config')
   await fetchGTFS()
-  const { stdout, stderr } = await exec('systemctl restart motis.service')
   console.log('stdout:', stdout)
   console.log('stderr:', stderr)
+  const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+  console.log('stdout:', stdout2)
+  console.log('stderr:', stderr2)
 })
 
 app.listen(port, () => {
