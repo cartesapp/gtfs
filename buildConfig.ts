@@ -48,7 +48,13 @@ const doFetch = async () => {
     const gtfsResources = next.resources.filter(
       (resource) => resource.format === 'GTFS' && resource.is_available
     )
-    return [...memo, ...gtfsResources]
+    const uniqueTitle = Object.values(
+      Object.fromEntries(gtfsResources.map((el) => [el.title, el]))
+    )
+    return [
+      ...memo,
+      ...uniqueTitle.map((resource) => ({ slug: next.slug, ...resource })),
+    ]
   }, [])
 
   log(`Expanded to ${resources.length} resources (GTFS files)`)
@@ -57,6 +63,8 @@ const doFetch = async () => {
     resources.map(async (resource) => {
       try {
         const filename =
+          resource.slug +
+          '|' +
           resource.title.replace(/\s/g, '-') +
           (resource.format === 'GTFS' ? '.gtfs.zip' : '.unknown')
         // NOTE : You need to ensure that the directory you pass exists.
