@@ -48,8 +48,8 @@ app.use(
 )
 const port = process.env.PORT || 3000
 
-const fetchGTFS = async () => {
-  console.log('will fetch gtfs zip and import in node-gtfs')
+const loadGTFS = async () => {
+  console.log('will load GTFS files in node-gtfs')
   await importGtfs(config)
   computeAgencyAreas()
   return "C'est bon !"
@@ -495,12 +495,19 @@ app.get('/fetch', async (req, res) => {
 
 app.get('/update', async (req, res) => {
   const { stdout, stderr } = await exec('yarn build-config')
-  await fetchGTFS()
+  console.log('-------------------------------')
+  console.log('Build config OK')
   console.log('stdout:', stdout)
   console.log('stderr:', stderr)
+  await loadGTFS()
+  console.log('-------------------------------')
+  console.log('Load GTFS in node-gtfs DB OK')
   const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+  console.log('-------------------------------')
+  console.log('Restart Motis OK')
   console.log('stdout:', stdout2)
   console.log('stderr:', stderr2)
+  res.send({ ok: true })
 })
 
 app.listen(port, () => {
