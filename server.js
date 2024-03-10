@@ -156,7 +156,10 @@ const computeAgencyAreas = () => {
       (agency) => !agenciesWithShapes.includes(agency.agency_id)
     )
 
-    console.log(agenciesWithoutShapes.map((a) => a.agency_name))
+    console.log(
+      'Agencies without shapes',
+      agenciesWithoutShapes.map((a) => a.agency_name)
+    )
 
     //const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
 
