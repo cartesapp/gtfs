@@ -36,6 +36,7 @@ const doFetch = async () => {
     const found = panDatasets.find(({ slug, page_url, id }) =>
       [slug, page_url, id].find((el) => el === dataset.slug)
     )
+    // After all, we gtfstidyfy everyting, this is not used
     if (dataset.gtfstidy) return { ...found, gtfstidy: true }
     return found
   })
@@ -45,7 +46,7 @@ const doFetch = async () => {
   )
   const resources = interestingDatasets.reduce((memo, next) => {
     const gtfsResources = next.resources.filter(
-      (resource) => resource.format === 'GTFS'
+      (resource) => resource.format === 'GTFS' && resource.is_available
     )
     return [...memo, ...gtfsResources]
   }, [])
