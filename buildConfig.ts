@@ -1,14 +1,21 @@
 import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
 import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
+import { existsSync } from 'https://deno.land/std/fs/mod.ts'
 
 const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
 
-log('will download gtfstidy')
-await exec(
-  'wget https://github.com/patrickbr/gtfstidy/releases/download/v0.2/gtfstidy.v0.2.linux.amd64'
-)
-await exec('chmod +x gtfstidy.v0.2.linux.amd64')
+const tidyFilename = 'gtfstidy.v0.2.linux.amd64'
+const pathFound = existsSync(tidyFilename)
+if (pathFound) log('gtfstidy already present')
+else {
+  log('will download gtfstidy')
+
+  await exec(
+    'wget https://github.com/patrickbr/gtfstidy/releases/download/v0.2/gtfstidy.v0.2.linux.amd64'
+  )
+  await exec('chmod +x gtfstidy.v0.2.linux.amd64')
+}
 
 const yamlLoader = new YamlLoader()
 const input = await yamlLoader.parseFile('./input.yaml')
