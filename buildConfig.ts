@@ -138,7 +138,7 @@ ${filenames
       }:../gtfs/${filename}`
   )
   .join('\n')}
-paths=osm:input/bretagne.osm.pbf
+paths=osm:input/cartes.osm.pbf
 
 [ppr]
 profile=motis/ppr-profiles/default.json
