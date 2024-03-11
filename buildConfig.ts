@@ -120,8 +120,8 @@ const doFetch = async () => {
   await Deno.writeTextFile(
     motisConfigFile,
     `modules=intermodal
-modules=address
-modules=tiles
+#modules=address
+#modules=tiles
 modules=ppr
 modules=nigiri
 
@@ -143,8 +143,8 @@ paths=osm:input/cartes.osm.pbf
 [ppr]
 profile=motis/ppr-profiles/default.json
 
-[tiles]
-profile=motis/tiles-profiles/background.lua
+#[tiles]
+#profile=motis/tiles-profiles/background.lua
 `
   )
   log(`Wrote motis config file ${motisConfigFile}`)
