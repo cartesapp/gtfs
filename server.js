@@ -1,6 +1,6 @@
-import polyline from '@mapbox/polyline'
 import turfBbox from '@turf/bbox'
 import turfDistance from '@turf/distance'
+import { exec as rawExec } from 'child_process'
 import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
@@ -19,14 +19,13 @@ import {
   importGtfs,
   openDb,
 } from 'gtfs'
+import util from 'util'
 import {
   areDisjointBboxes,
   bboxArea,
   filterFeatureCollection,
   joinFeatureCollections,
 } from './utils.js'
-import { exec as rawExec } from 'child_process'
-import util from 'util'
 const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
@@ -83,10 +82,12 @@ const computeAgencyGeojsons = (agency) => {
           return [stop_lon, stop_lat]
         })
 
+        const dates = getCalendarDates({ service_id: trip.service_id })
+
         const feature = {
           type: 'Feature',
           geometry: { type: 'LineString', coordinates },
-          properties: trip,
+          properties: { ...route, ...trip, dates },
         }
         //beautiful, but not really useful I'm afraid...
         //return bezierSpline(feature)
@@ -106,10 +107,9 @@ const computeAgencyGeojsons = (agency) => {
 
       return {
         type: 'FeatureCollection',
-        features: [
-          //bezierSpline(mostStops),
-          mostStops,
-        ],
+        features,
+        //bezierSpline(mostStops),
+        //mostStops,
       }
     })
 
@@ -161,13 +161,25 @@ const computeAgencyAreas = () => {
       agenciesWithoutShapes.map((a) => a.agency_name)
     )
 
-    //const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
+    const withoutShapesEntries = agenciesWithoutShapes.map((agency) => [
+      agency.agency_id,
+      computeAgencyGeojsons(agency),
+    ])
+    const entries =
+      //const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
+      [
+        ...Object.entries(byAgency).map(([k, v]) => ({
+          type: 'FeatureCollection',
+          features: v,
+        })),
+        ...withoutShapesEntries,
+      ]
 
-    Object.entries(byAgency)
+    console.log(withoutShapesEntries)
+    entries
       //.filter((agency) => agency.agency_id === 'PENNARBED')
-      .map(([agency_id, geojsons]) => {
-        const geojson = { type: 'FeatureCollection', features: geojsons }
-        const bbox = turfBbox(geojson)
+      .map(([agency_id, featureCollection]) => {
+        const bbox = turfBbox(featureCollection)
         if (bbox.some((el) => el === Infinity || el === -Infinity))
           return console.log(
             `L'agence ${agency_id} a une aire de couverture infinie, on l'ignore`
@@ -178,13 +190,15 @@ const computeAgencyAreas = () => {
           //polylines,
           bbox,
           agency: agencies.find((agency) => agency.agency_id === agency_id),
-          geojson,
+          geojson: featureCollection,
         }
       })
 
     cache
       .set('agencyAreas', agencyAreas)
-      .then((result) => console.log('Cache enregistré'))
+      .then((result) => {
+        console.log('Cache enregistré')
+      })
       .catch((err) => console.log("Erreur dans l'enregistrement du cache"))
 
     closeDb(db)
