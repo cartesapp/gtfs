@@ -84,10 +84,12 @@ const computeAgencyGeojsons = (agency) => {
 
         const dates = getCalendarDates({ service_id: trip.service_id })
 
+        const properties = rejectNullValues({ ...route, ...trip, dates })
+
         const feature = {
           type: 'Feature',
           geometry: { type: 'LineString', coordinates },
-          properties: { ...route, ...trip, dates },
+          properties,
         }
         //beautiful, but not really useful I'm afraid...
         //return bezierSpline(feature)
@@ -372,8 +374,8 @@ app.get('/stopTimes/:id', (req, res) => {
     }))
 
     res.json({
-      stops: rejectNullValues(stops),
-      trips: rejectNullValues(trips),
+      stops: stops.map(rejectNullValues),
+      trips: trips.map(rejectNullValues),
       routes,
       routesGeojson,
     })
@@ -383,13 +385,11 @@ app.get('/stopTimes/:id', (req, res) => {
     console.error(error)
   }
 })
-const rejectNullValues = (list) =>
-  list.map((object) =>
-    Object.fromEntries(
-      Object.entries(object)
-        .map(([k, v]) => (v == null ? false : [k, v]))
-        .filter(Boolean)
-    )
+const rejectNullValues = (object) =>
+  Object.fromEntries(
+    Object.entries(object)
+      .map(([k, v]) => (v == null ? false : [k, v]))
+      .filter(Boolean)
   )
 
 app.get('/routes/trip/:tripId', (req, res) => {
