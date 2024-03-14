@@ -188,7 +188,9 @@ const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
       })
     }, {})
 
-  const features = [...segmentMap.entries()].map(([segmentId, value]) => {
+  const segmentEntries = [...segmentMap.entries()]
+
+  const lines = segmentEntries.map(([segmentId, value]) => {
     const [a, b] = segmentId.split(' -> ')
     const pointA = segmentCoordinatesMap.get(a),
       pointB = segmentCoordinatesMap.get(b)
@@ -200,7 +202,21 @@ const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
       type: 'Feature',
     }
   })
-  return { type: 'FeatureCollection', features }
+  const points = [...segmentCoordinatesMap.entries()].map(([id, value]) => ({
+    type: 'Feature',
+    properties: {
+      count: segmentEntries
+        .filter(([k]) => k.includes(id))
+        .reduce((memo, next) => memo + next[1], 0),
+    },
+    geometry: {
+      type: 'Point',
+      coordinates: value,
+    },
+  }))
+
+  console.log('POINTS', points)
+  return { type: 'FeatureCollection', features: [...lines, ...points] }
   return joinFeatureCollections(featureCollections)
 }
 
@@ -317,8 +333,6 @@ app.get(
         userBbox = [longitude, latitude, longitude2, latitude2]
 
       const { day } = req.query
-      const areas = computeAgencyAreas()
-      console.log('AREAS', areas)
       const agencyAreas = await cache.get('agencyAreas')
       if (agencyAreas == null)
         return res.send(
