@@ -188,15 +188,15 @@ const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
       })
     }, {})
 
-  console.log('SM', segmentMap)
-
   const features = [...segmentMap.entries()].map(([segmentId, value]) => {
     const [a, b] = segmentId.split(' -> ')
     const pointA = segmentCoordinatesMap.get(a),
       pointB = segmentCoordinatesMap.get(b)
     return {
       geometry: { type: 'LineString', coordinates: [pointA, pointB] },
-      properties: {},
+      properties: {
+        count: value,
+      },
       type: 'Feature',
     }
   })
@@ -251,7 +251,7 @@ const computeAgencyAreas = () => {
 
     const withoutShapesEntries = agenciesWithoutShapes.map((agency) => [
       agency.agency_id,
-      computeAgencyGeojsonsPerRoute(agency),
+      computeAgencyGeojsonsPerWeightedSegment(agency),
     ])
     const entries =
       //const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
@@ -263,7 +263,7 @@ const computeAgencyAreas = () => {
         ...withoutShapesEntries,
       ]
 
-    console.log(withoutShapesEntries)
+    console.log({ withoutShapesEntries })
     entries
       //.filter((agency) => agency.agency_id === 'PENNARBED')
       .map(([agency_id, featureCollection]) => {
@@ -317,6 +317,8 @@ app.get(
         userBbox = [longitude, latitude, longitude2, latitude2]
 
       const { day } = req.query
+      const areas = computeAgencyAreas()
+      console.log('AREAS', areas)
       const agencyAreas = await cache.get('agencyAreas')
       if (agencyAreas == null)
         return res.send(
@@ -336,6 +338,8 @@ app.get(
         console.log(id, disjointBboxes, bboxRatio)
         return !disjointBboxes && isRatioSmallEnough && inSelection
       })
+
+      console.log('SELECTED', selectedAgencies)
 
       if (format === 'prefetch')
         return res.json(selectedAgencies.map(([id]) => id))
