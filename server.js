@@ -54,7 +54,7 @@ const loadGTFS = async () => {
   return "C'est bon !"
 }
 
-const computeAgencyGeojsons = (agency) => {
+const computeAgencyGeojsonsPerRoute = (agency) => {
   const routes = getRoutes({ agency_id: agency.agency_id })
 
   const featureCollections = routes
@@ -79,6 +79,7 @@ const computeAgencyGeojsons = (agency) => {
             throw new Error('One stoptime should correspond to only one stop')
 
           const { stop_lat, stop_lon } = stops[0]
+          console.log(stops[0])
           return [stop_lon, stop_lat]
         })
 
@@ -117,13 +118,98 @@ const computeAgencyGeojsons = (agency) => {
 
   return joinFeatureCollections(featureCollections)
 }
+const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
+  const routes = getRoutes({ agency_id: agency.agency_id })
+
+  const segmentMap = new Map()
+  const segmentCoordinatesMap = new Map()
+  const featureCollections = routes
+    /*
+    .filter(
+      (route) =>
+        route.route_id === 'FR:Line::D6BAEC78-815E-4C9A-BC66-2B9D2C00E41F:'
+    )
+	*/
+    // What's that ?
+    .filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
+    .forEach((route) => {
+      const trips = getTrips({ route_id: route.route_id })
+
+      const features = trips.map((trip) => {
+        const { trip_id } = trip
+        const stopTimes = getStoptimes({ trip_id })
+
+        const points = stopTimes.map(({ stop_id }) => {
+          const stops = getStops({ stop_id })
+          if (stops.length > 1)
+            throw new Error('One stoptime should correspond to only one stop')
+
+          const { stop_lat, stop_lon, stop_name } = stops[0]
+          const coordinates = [stop_lon, stop_lat]
+          if (!segmentCoordinatesMap.has(stop_id))
+            segmentCoordinatesMap.set(stop_id, coordinates)
+          return {
+            coordinates,
+            stop: { id: stop_id, name: stop_name },
+          }
+        })
+
+        const dates = getCalendarDates({ service_id: trip.service_id })
+
+        const segments = points
+          .map(
+            (point, index) =>
+              index > 0 && [
+                point.stop.id + ' -> ' + points[index - 1].stop.id,
+                dates.length,
+              ]
+          )
+          .filter(Boolean)
+
+        segments.forEach(([segmentKey, tripCount]) =>
+          segmentMap.set(
+            segmentKey,
+            (segmentMap.get(segmentKey) || 0) + tripCount
+          )
+        )
+
+        /*
+        const properties = rejectNullValues({ ...route, ...trip, dates })
+
+        const feature = {
+          type: 'Feature',
+          geometry: { type: 'LineString', coordinates },
+          properties,
+        }
+		*/
+        //beautiful, but not really useful I'm afraid...
+        //return bezierSpline(feature)
+        //return feature
+      })
+    }, {})
+
+  console.log('SM', segmentMap)
+
+  const features = [...segmentMap.entries()].map(([segmentId, value]) => {
+    const [a, b] = segmentId.split(' -> ')
+    const pointA = segmentCoordinatesMap.get(a),
+      pointB = segmentCoordinatesMap.get(b)
+    return {
+      geometry: { type: 'LineString', coordinates: [pointA, pointB] },
+      properties: {},
+      type: 'Feature',
+    }
+  })
+  return { type: 'FeatureCollection', features }
+  return joinFeatureCollections(featureCollections)
+}
 
 app.get('/agency/geojsons/:agency_id', (req, res) => {
   try {
     const db = openDb(config)
     const { agency_id } = req.params
     const agency = getAgencies({ agency_id })[0]
-    const geojsons = computeAgencyGeojsons(agency)
+    const geojsons = computeAgencyGeojsonsPerWeightedSegment(agency)
     res.json(geojsons)
     closeDb(db)
   } catch (e) {
@@ -165,7 +251,7 @@ const computeAgencyAreas = () => {
 
     const withoutShapesEntries = agenciesWithoutShapes.map((agency) => [
       agency.agency_id,
-      computeAgencyGeojsons(agency),
+      computeAgencyGeojsonsPerRoute(agency),
     ])
     const entries =
       //const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
