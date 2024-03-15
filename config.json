@@ -1,6 +1,21 @@
 {
   "agencies": [
     {
+      "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Bréhat.gtfs"
+    },
+    {
+      "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Finistère.gtfs"
+    },
+    {
+      "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Morbihan.gtfs"
+    },
+    {
+      "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Arz.gtfs"
+    },
+    {
+      "path": "./input/base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs|KorriGo---Fichier-GTFS.gtfs"
+    },
+    {
       "path": "./input/horaires-des-lignes-ter-sncf|sncf-ter-gtfs.csv.gtfs"
     },
     {
@@ -13,3 +28,4 @@
   "ignoreDuplicates": true,
   "sqlitePath": "db/gtfs"
 }
+
