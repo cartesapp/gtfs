@@ -135,7 +135,7 @@ const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
     .forEach((route) => {
       const trips = getTrips({ route_id: route.route_id })
 
-      const features = trips.map((trip) => {
+      trips.forEach((trip) => {
         const { trip_id } = trip
         const stopTimes = getStoptimes({ trip_id })
 
@@ -161,17 +161,23 @@ const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
             (point, index) =>
               index > 0 && [
                 point.stop.id + ' -> ' + points[index - 1].stop.id,
-                dates.length,
+                { count: dates.length, tripId: trip_id },
               ]
           )
           .filter(Boolean)
 
-        segments.forEach(([segmentKey, tripCount]) =>
-          segmentMap.set(
-            segmentKey,
-            (segmentMap.get(segmentKey) || 0) + tripCount
-          )
-        )
+        segments.forEach(([segmentKey, trip]) => {
+          const current = segmentMap.get(segmentKey) || {
+            count: 0,
+            tripIds: [],
+          }
+
+          const newTrip = {
+            count: current.count + trip.count,
+            tripIds: [...current.tripIds, trip.tripId],
+          }
+          segmentMap.set(segmentKey, newTrip)
+        })
 
         /*
         const properties = rejectNullValues({ ...route, ...trip, dates })
@@ -190,21 +196,21 @@ const computeAgencyGeojsonsPerWeightedSegment = (agency) => {
 
   const segmentEntries = [...segmentMap.entries()]
 
-  const lines = segmentEntries.map(([segmentId, value]) => {
+  const lines = segmentEntries.map(([segmentId, properties]) => {
     const [a, b] = segmentId.split(' -> ')
     const pointA = segmentCoordinatesMap.get(a),
       pointB = segmentCoordinatesMap.get(b)
     return {
       geometry: { type: 'LineString', coordinates: [pointA, pointB] },
-      properties: {
-        count: value,
-      },
+      properties,
       type: 'Feature',
     }
   })
+
   const points = [...segmentCoordinatesMap.entries()].map(([id, value]) => ({
     type: 'Feature',
     properties: {
+      stopId: id,
       count: segmentEntries
         .filter(([k]) => k.includes(id))
         .reduce((memo, next) => memo + next[1], 0),
