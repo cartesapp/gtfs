@@ -327,7 +327,7 @@ app.get('/computeAgencyAreas', (req, res) => {
 })
 
 app.get(
-  '/agencyArea/:latitude/:longitude/:latitude2/:longitude2/:format/:selection?',
+  '/agencyArea/:latitude/:longitude2/:latitude2/:longitude/:format/:selection?',
   async (req, res) => {
     try {
       //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
@@ -339,7 +339,7 @@ app.get(
           selection,
           format = 'geojson',
         } = req.params,
-        userBbox = [longitude, latitude, longitude2, latitude2]
+        userBbox = [+longitude, +latitude, +longitude2, +latitude2]
 
       const { day } = req.query
       const agencyAreas = await cache.get('agencyAreas')
@@ -354,12 +354,18 @@ app.get(
         const disjointBboxes = areDisjointBboxes(agency.bbox, userBbox)
 
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
-          isRatioSmallEnough = bboxRatio < 3
+          isAgencyBigEnough = Math.sqrt(bboxRatio) < 3
 
         const inSelection = !selection || selection.split('|').includes(id)
 
-        console.log(id, disjointBboxes, bboxRatio)
-        return !disjointBboxes && isRatioSmallEnough && inSelection
+        console.log(
+          id,
+          disjointBboxes,
+          userBbox,
+          agency.bbox,
+          isAgencyBigEnough
+        )
+        return !disjointBboxes && isAgencyBigEnough && inSelection
       })
 
       console.log('SELECTED', selectedAgencies)
