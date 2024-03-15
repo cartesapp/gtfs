@@ -278,14 +278,17 @@ const computeAgencyAreas = () => {
     const entries =
       //const results = agenciesWithoutShapes.map(computeAgencyGeojsons(agency))
       [
-        ...Object.entries(byAgency).map(([k, v]) => ({
-          type: 'FeatureCollection',
-          features: v,
-        })),
+        ...Object.entries(byAgency).map(([k, v]) => [
+          k,
+          {
+            type: 'FeatureCollection',
+            features: v,
+          },
+        ]),
         ...withoutShapesEntries,
       ]
 
-    console.log({ withoutShapesEntries })
+    console.log({ entries })
     entries
       //.filter((agency) => agency.agency_id === 'PENNARBED')
       .map(([agency_id, featureCollection]) => {
