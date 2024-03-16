@@ -368,8 +368,6 @@ app.get(
         return !disjointBboxes && isAgencyBigEnough && inSelection
       })
 
-      console.log('SELECTED', selectedAgencies)
-
       if (format === 'prefetch')
         return res.json(selectedAgencies.map(([id]) => id))
       return res.json(selectedAgencies)
