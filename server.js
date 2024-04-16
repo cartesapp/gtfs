@@ -3,6 +3,7 @@ import turfDistance from '@turf/distance'
 import { exec as rawExec } from 'child_process'
 import cors from 'cors'
 import express from 'express'
+import compression from 'compression'
 import { readFile } from 'fs/promises'
 import {
   closeDb,
