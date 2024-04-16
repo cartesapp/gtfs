@@ -45,6 +45,7 @@ app.use(
     origin: '*',
   })
 )
+app.use(compression())
 const port = process.env.PORT || 3001
 
 const loadGTFS = async () => {
