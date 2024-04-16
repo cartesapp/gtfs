@@ -3,8 +3,10 @@ export function areDisjointBboxes(bbox1, bbox2) {
     [longitudeB1, latitudeB1, longitudeB2, latitudeB2] = bbox2
 
   return (
-    (longitudeA2 < longitudeB1 || longitudeB2 < longitudeA1) &&
-    (latitudeA2 < latitudeB1 || latitudeB2 < latitudeA1)
+    longitudeA2 < longitudeB1 ||
+    longitudeB2 < longitudeA1 ||
+    latitudeA2 < latitudeB1 ||
+    latitudeB2 < latitudeA1
   )
 }
 export const bboxArea = (bbox) => {
