@@ -5,6 +5,7 @@ import cors from 'cors'
 import express from 'express'
 import compression from 'compression'
 import { readFile } from 'fs/promises'
+import mapboxPolylines from '@mapbox/polyline'
 import {
   closeDb,
   getAgencies,
@@ -311,9 +312,13 @@ const computeAgencyAreas = () => {
             `L'agence ${agency_id} a une aire de couverture infinie, on l'ignore`
           )
         console.log(agency_id, bbox)
-        //const polylines = geojsons.features.map((el) => fromGeoJSON(el))
+        /*
+        const polylines = featureCollection.features.map((el) =>
+          mapboxPolylines.fromGeoJSON(el)
+        )
+		*/
         agencyAreas[agency_id] = {
-          //polylines,
+          // polylines,
           bbox,
           agency: agencies.find((agency) => agency.agency_id === agency_id),
           geojson: featureCollection,
@@ -388,7 +393,32 @@ app.get(
 
       if (format === 'prefetch')
         return res.json(selectedAgencies.map(([id]) => id))
-      return res.json(selectedAgencies)
+      return res.json(
+        selectedAgencies.map(([id, agency]) => {
+          console.log('AGENCY', agency)
+          // TODO do this in the computeAgencyAreas step, once
+          const polylines = agency.geojson.features
+            .filter((f) => f.geometry.type === 'LineString')
+            .map((lineString) => ({
+              ...lineString.properties,
+              polyline: mapboxPolylines.fromGeoJSON(lineString),
+            }))
+          // These are points generated when we build geojsons for agencies that have no shapes
+          const otherGeojsons = agency.geojson.features.filter(
+            (el) => el.geometry.type !== 'LineString'
+          )
+
+          return [
+            id,
+            {
+              bbox: agency.bbox,
+              agency: agency.agency,
+              polylines,
+              otherGeojsons,
+            },
+          ]
+        })
+      )
 
       const withDistances = entries
         .map(([agencyId, agency]) => {
