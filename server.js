@@ -37,6 +37,17 @@ const cache = Cache.default({
   ttl: month, // (optional) A time-to-live (in secs) on how long an item remains cached.
 })
 
+const runtimeCache = { agencyAreas: null }
+// This because retrieving the cache takes 1 sec
+
+cache
+  .get('agencyAreas')
+  .then((result) => {
+    runtimeCache.agencyAreas = result // This because retrieving the cache takes 1 sec
+    console.log('runtimecache depuis cache')
+  })
+  .catch((err) => console.log('Erreur dans le chargement du runtime cache'))
+
 const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
 )
@@ -312,6 +323,7 @@ const computeAgencyAreas = () => {
     cache
       .set('agencyAreas', agencyAreas)
       .then((result) => {
+        runtimeCache.agencyAreas = agencyAreas // This because retrieving the cache takes 1 sec
         console.log('Cache enregistré')
       })
       .catch((err) => console.log("Erreur dans l'enregistrement du cache"))
@@ -344,7 +356,9 @@ app.get(
         userBbox = [+longitude, +latitude, +longitude2, +latitude2]
 
       const { day } = req.query
-      const agencyAreas = await cache.get('agencyAreas')
+      console.time('opening cache' + userBbox.join(''))
+      const agencyAreas = runtimeCache.agencyAreas
+      console.timeLog('opening cache' + userBbox.join(''))
       if (agencyAreas == null)
         return res.send(
           `Construisez d'abord le cache des aires d'agences avec /computeAgencyAreas`
@@ -360,6 +374,7 @@ app.get(
 
         const inSelection = !selection || selection.split('|').includes(id)
 
+        /*
         console.log(
           id,
           disjointBboxes,
@@ -367,6 +382,7 @@ app.get(
           agency.bbox,
           isAgencyBigEnough
         )
+		*/
         return !disjointBboxes && isAgencyBigEnough && inSelection
       })
 
