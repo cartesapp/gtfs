@@ -122,7 +122,24 @@ export const buildAgencyGeojsonsPerRoute = (agency) => {
       }
     })
 
-  return { type: 'FeatureCollection', features, properties: { agency }, agency }
+  // Now we've got a stopList for each route, good but lots of routes share a same path, the map is difficult to read since direct routes draw far from their real path
+  // So we'll group them, and show the routes on click. Also, points will vary in size to denote important stations where the train *stops* a lot, instead of passing without stopping
+  // Unfortunately, it's impossible. If one route is C -> A -> B with a real rail, another is C -> B with a real rail too, we can't know if the second one really has a real rail only based on its stops !
+  // Thing is, we don't have shapes, and my attempt to use Pfaedle to create shapes failed (france.osm too big on my robust computer). + not sure it could.
+  // The map of rail lines is not really pertinent. E.g. there can be a rail line but no train 10 month of the year. Or their can be no rail line but a very frequent bus, more in the future with electric buses.
+  // The most important is the GTFS file, but I' haven't found a way yet to display it
+
+  return {
+    type: 'FeatureCollection',
+    features,
+    /*
+    features: features.filter((feature) =>
+      feature.properties.stopList.includes('Rennes')
+    ),
+	*/
+    properties: { agency },
+    agency,
+  }
 }
 
 export const buildAgencyGeojsonsPerWeightedSegment = (agency) => {
