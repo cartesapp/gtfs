@@ -26,12 +26,13 @@ import {
   bboxArea,
   filterFeatureCollection,
   joinFeatureCollections,
+  rejectNullValues,
 } from './utils.js'
+import { buildAgencyGeojsonsPerRoute } from './buildAgencyGeojsons.js'
 const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
 import { buildAgencyAreas } from './buildAgencyAreas.js'
-import { buildAgencyGeojsonsPerWeightedSegment } from './buildAgencyGeojsons.js'
 
 const month = 60 * 60 * 24 * 30
 const cache = Cache.default({
@@ -74,7 +75,7 @@ app.get('/agency/geojsons/:agency_id', (req, res) => {
     const db = openDb(config)
     const { agency_id } = req.params
     const agency = getAgencies({ agency_id })[0]
-    const geojsons = buildAgencyGeojsonsPerWeightedSegment(agency)
+    const geojsons = buildAgencyGeojsonsPerRoute(agency)
     res.json(geojsons)
     closeDb(db)
   } catch (e) {
@@ -101,6 +102,15 @@ app.get(
           format = 'geojson',
         } = req.params,
         userBbox = [+longitude, +latitude, +longitude2, +latitude2]
+
+      if (format === 'geojson') {
+        const db = openDb(config)
+        const agency = getAgencies({ agency_id: '1187' })[0]
+        console.log('got agency 1187', agency)
+        const geojsons = buildAgencyGeojsonsPerRoute(agency)
+        console.log('geojsons', geojsons)
+        return res.json([['1187', geojsons]])
+      }
 
       const { day } = req.query
       console.time('opening cache' + userBbox.join(''))
@@ -292,12 +302,6 @@ app.get('/stopTimes/:id', (req, res) => {
     console.error(error)
   }
 })
-const rejectNullValues = (object) =>
-  Object.fromEntries(
-    Object.entries(object)
-      .map(([k, v]) => (v == null ? false : [k, v]))
-      .filter(Boolean)
-  )
 
 app.get('/routes/trip/:tripId', (req, res) => {
   try {

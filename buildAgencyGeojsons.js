@@ -1,4 +1,5 @@
-import { joinFeatureCollections } from './utils.js'
+import { joinFeatureCollections, rejectNullValues } from './utils.js'
+import toposort from 'toposort'
 
 import {
   getCalendarDates,
@@ -11,35 +12,50 @@ import {
 export const buildAgencyGeojsonsPerRoute = (agency) => {
   const routes = getRoutes({ agency_id: agency.agency_id })
 
-  const featureCollections = routes
+  const features = routes
     /*
     .filter(
       (route) =>
         route.route_id === 'FR:Line::D6BAEC78-815E-4C9A-BC66-2B9D2C00E41F:'
     )
 	*/
-    .filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
+    //what's that ? Filtering TGV lines ?
+    //.filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
     .map((route) => {
       const trips = getTrips({ route_id: route.route_id })
       //console.log(trips.slice(0, 2), trips.length)
+
+      const stopsMap = {}
 
       const features = trips.map((trip) => {
         const { trip_id } = trip
         const stopTimes = getStoptimes({ trip_id })
 
-        const coordinates = stopTimes.map(({ stop_id }) => {
+        const stops = stopTimes.map(({ stop_id }) => {
           const stops = getStops({ stop_id })
           if (stops.length > 1)
             throw new Error('One stoptime should correspond to only one stop')
 
-          const { stop_lat, stop_lon } = stops[0]
-          console.log(stops[0])
-          return [stop_lon, stop_lat]
+          const stop = stops[0]
+
+          if (!stopsMap[stop.stop_name]) stopsMap[stop.stop_name] = stop
+
+          return stop
         })
+        const coordinates = stops.map(({ stop_lon, stop_lat }) => [
+            stop_lon,
+            stop_lat,
+          ]),
+          stopList = stops.map(({ stop_name }) => stop_name)
 
-        const dates = getCalendarDates({ service_id: trip.service_id })
+        const dates = null //getCalendarDates({ service_id: trip.service_id })
 
-        const properties = rejectNullValues({ ...route, ...trip, dates })
+        const properties = rejectNullValues({
+          ...route,
+          ...trip,
+          dates,
+          stopList,
+        })
 
         const feature = {
           type: 'Feature',
@@ -51,16 +67,52 @@ export const buildAgencyGeojsonsPerRoute = (agency) => {
         return feature
       })
 
-      /* Very simple and potentially erroneous way to avoid straight lines that don't show stops where the trains don't stop.
-       * Not effective : lots of straight lines persist through routes that cross France*/
-      const mostStops = features.reduce(
-        (memo, next) => {
-          const memoNum = memo.geometry.coordinates.length,
-            nextNum = next.geometry.coordinates.length
-          return memoNum > nextNum ? memo : next
-        },
-        { geometry: { coordinates: [] } }
-      )
+      const mostStops = features.sort(
+        (a, b) => b.geometry.coordinates.length - a.geometry.coordinates.length
+      )[0]
+
+      const mostStopsLength = mostStops.geometry.coordinates.length,
+        stopsLength = Object.keys(stopsMap).length
+      if (false)
+        console.log(
+          'Number of stops ',
+          stopsLength,
+          ' and number of stops for the trip with most stops ',
+          mostStopsLength
+        )
+      if (mostStopsLength === stopsLength)
+        return {
+          type: 'Feature',
+          geometry: mostStops.geometry,
+          properties: mostStops.properties,
+        }
+      else {
+        return mostStops
+        /* Old comment : Very simple and potentially erroneous way to avoid straight lines that don't show stops where the trains don't stop.
+         * Not effective : lots of straight lines persist through routes that cross France*/
+        /* New comment : the line with the most stops does not necessarily include all stops, so we still need the order.
+         * We need toposort as recommended by https://github.com/BlinkTagInc/gtfs-to-geojson/issues/24#issuecomment-1974415400
+         * */
+        const graph = features.map((feature) => feature.properties.stopList)
+        try {
+          const fullStopList = toposort(graph)
+
+          return {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: fullStopList.map((name) => {
+                const stop = stopsMap[name]
+                return [stop.stop_lon, stop.stop_lat]
+              }),
+            },
+            properties: { fullStopList, ...route },
+          }
+        } catch (e) {
+          console.log(e)
+          return mostStops
+        }
+      }
 
       return {
         type: 'FeatureCollection',
@@ -70,7 +122,7 @@ export const buildAgencyGeojsonsPerRoute = (agency) => {
       }
     })
 
-  return joinFeatureCollections(featureCollections)
+  return { type: 'FeatureCollection', features, properties: { agency }, agency }
 }
 
 export const buildAgencyGeojsonsPerWeightedSegment = (agency) => {
