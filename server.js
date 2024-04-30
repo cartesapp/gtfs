@@ -1,3 +1,5 @@
+import apicache from 'apicache'
+let cacheMiddleware = apicache.middleware
 import mapboxPolylines from '@mapbox/polyline'
 import turfDistance from '@turf/distance'
 import { exec as rawExec } from 'child_process'
@@ -60,6 +62,7 @@ app.use(
     origin: '*',
   })
 )
+app.use(cacheMiddleware('5 minutes'))
 app.use(compression())
 const port = process.env.PORT || 3001
 
@@ -88,20 +91,18 @@ app.get('/computeAgencyAreas', (req, res) => {
   res.json(areas)
 })
 
-app.get('/dev30avril', (req, res) => {
+app.get('/dev-agency', (req, res) => {
   const db = openDb(config)
-  const { gathered } = req.params
-  const areas = buildAgencyGeojsonsPerRoute(
-    { agency_id: '1187' },
-    gathered !== null
-  )
-  res.json(areas)
+  const areas = buildAgencyGeojsonsPerRoute({ agency_id: '1187' })
+  //res.json(areas)
+  return res.json([['1187', areas]])
 })
 
 app.get(
   '/agencyArea/:latitude/:longitude2/:latitude2/:longitude/:format/:selection?',
   async (req, res) => {
     try {
+      const db = openDb(config)
       //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
       const {
           longitude,
@@ -113,13 +114,11 @@ app.get(
         } = req.params,
         userBbox = [+longitude, +latitude, +longitude2, +latitude2]
 
-      if (format === 'geojson') {
-        const db = openDb(config)
-        const agency = getAgencies({ agency_id: '1187' })[0]
-        console.log('got agency 1187', agency)
-        const geojsons = buildAgencyGeojsonsPerRoute(agency)
-        console.log('geojsons', geojsons)
-        return res.json([['1187', geojsons]])
+      if (selection === '1187') {
+        const agency = buildAgencyGeojsonsPerRoute({ agency_id: '1187' }, true)
+
+        //res.json(areas)
+        return res.json([['1187', agency]])
       }
 
       const { day } = req.query

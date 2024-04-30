@@ -14,6 +14,8 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
   const routes = getRoutes({ agency_id: agency.agency_id })
   console.timeLog('get routes')
 
+  const stopsMap = {}
+
   const features = routes
     /*
     .filter(
@@ -26,8 +28,6 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
     .map((route) => {
       const trips = getTrips({ route_id: route.route_id })
       //console.log(trips.slice(0, 2), trips.length)
-
-      const stopsMap = {}
 
       const features = trips.map((trip) => {
         const { trip_id } = trip
@@ -44,6 +44,34 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
 
           return stop
         })
+        const sncfTrainType = stops.reduce((memo, stop) => {
+          const key = 'StopPoint:OCE'
+          const probe = stop.stop_id.startsWith(key)
+
+          if (!probe) return memo || null
+          const type = stop.stop_id.replace(key, '').split('-')[0]
+          if (
+            ![
+              'TGV INOUI',
+              'OUIGO',
+              'Lyria',
+              'Train',
+              'Train TER',
+              'Car TER',
+              'Car',
+              'Navette',
+              'INTERCITES',
+              'INTERCITES de nuit',
+              'TramTrain',
+              'ICE',
+            ].includes(type)
+          ) {
+            console.log(stop.stop_id)
+            throw new Error('Unknown SNCF train stop type ' + type)
+          }
+          return memo || type
+        }, null)
+
         const coordinates = stops.map(({ stop_lon, stop_lat }) => [
             stop_lon,
             stop_lat,
@@ -57,6 +85,7 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
           ...trip,
           dates,
           stopList,
+          sncfTrainType,
         })
 
         const feature = {
@@ -134,7 +163,13 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
   // The map of rail lines is not really pertinent. E.g. there can be a rail line but no train 10 month of the year. Or their can be no rail line but a very frequent bus, more in the future with electric buses.
   // The most important is the GTFS file, but I' haven't found a way yet to display it
 
-  if (!shouldGather) return features
+  if (!shouldGather)
+    return {
+      type: 'FeatureCollection',
+      features: features,
+      properties: { agency },
+      agency,
+    }
 
   const gathered = features
     .map((feature, featureIndex) => {
@@ -170,19 +205,24 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
         else return couple
       })
       if (extendedCouples.find((list) => list.length > 2))
-        return { ...feature.properties, extendedCouples }
-      else return false
+        return {
+          type: 'Feature',
+          properties: { ...feature.properties, extended: true },
+          geometry: {
+            coordinates: extendedCouples.flat().map((stopName) => {
+              const stop = stopsMap[stopName]
+              return [stop.stop_lon, stop.stop_lat]
+            }),
+            type: 'LineString',
+          },
+        }
+      else return feature
     })
     .filter(Boolean)
 
-  return gathered
-
   return {
     type: 'FeatureCollection',
-    //features,
-    features: features.filter((feature) =>
-      feature.properties.stopList.includes('Nice-Ville')
-    ),
+    features: gathered,
     properties: { agency },
     agency,
   }

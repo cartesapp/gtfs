@@ -354,6 +354,11 @@ ansi-styles@^6.1.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.2.1.tgz#0e62320cf99c21afff3b3012192546aacbfb05c5"
   integrity sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==
 
+apicache@^1.6.3:
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/apicache/-/apicache-1.6.3.tgz#4441aa40f2a48c9dd6f11c73be937d563405355b"
+  integrity sha512-jS3VfUFpQ9BesFQZcdd1vVYg3ZsO2kGPmTJHqycIYPAQs54r74CRiyj8DuzJpwzLwIfCBYzh4dy9Jt8xYbo27w==
+
 archiver-utils@^5.0.0, archiver-utils@^5.0.2:
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/archiver-utils/-/archiver-utils-5.0.2.tgz#63bc719d951803efc72cf961a56ef810760dd14d"
