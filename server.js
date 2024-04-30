@@ -88,6 +88,16 @@ app.get('/computeAgencyAreas', (req, res) => {
   res.json(areas)
 })
 
+app.get('/dev30avril', (req, res) => {
+  const db = openDb(config)
+  const { gathered } = req.params
+  const areas = buildAgencyGeojsonsPerRoute(
+    { agency_id: '1187' },
+    gathered !== null
+  )
+  res.json(areas)
+})
+
 app.get(
   '/agencyArea/:latitude/:longitude2/:latitude2/:longitude/:format/:selection?',
   async (req, res) => {

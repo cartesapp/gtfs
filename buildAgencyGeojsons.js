@@ -9,8 +9,10 @@ import {
   getTrips,
 } from 'gtfs'
 
-export const buildAgencyGeojsonsPerRoute = (agency) => {
+export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
+  console.time('get routes')
   const routes = getRoutes({ agency_id: agency.agency_id })
+  console.timeLog('get routes')
 
   const features = routes
     /*
@@ -125,18 +127,62 @@ export const buildAgencyGeojsonsPerRoute = (agency) => {
   // Now we've got a stopList for each route, good but lots of routes share a same path, the map is difficult to read since direct routes draw far from their real path
   // So we'll group them, and show the routes on click. Also, points will vary in size to denote important stations where the train *stops* a lot, instead of passing without stopping
   // Unfortunately, it's impossible. If one route is C -> A -> B with a real rail, another is C -> B with a real rail too, we can't know if the second one really has a real rail only based on its stops !
+  // Wait ! In theory, this situation happens. But in practice ? Rennes->Nantes could be misplaced on Rennes->Angers-Nantes, but there's Rennes->Redon->Nantes, so we just need to pick the shortest. There's also Rennes->Chateaubriand->Nantes that is even shorter, but no route. Most direct routes that we want to simplify won't have a very long alternative with a route.
+  // So in practice, this strategy might work and be the best compromis.
+  //
   // Thing is, we don't have shapes, and my attempt to use Pfaedle to create shapes failed (france.osm too big on my robust computer). + not sure it could.
   // The map of rail lines is not really pertinent. E.g. there can be a rail line but no train 10 month of the year. Or their can be no rail line but a very frequent bus, more in the future with electric buses.
   // The most important is the GTFS file, but I' haven't found a way yet to display it
 
+  if (!shouldGather) return features
+
+  const gathered = features
+    .map((feature, featureIndex) => {
+      const stopList = feature.properties.stopList
+
+      const couples = stopList
+        .slice(0, -1)
+        .map((el, i) => [stopList[i], stopList[i + 1]])
+
+      const extendedCouples = couples.map((couple) => {
+        const coupleExtension = features
+          .map((otherFeature, otherFeatureIndex) => {
+            const otherList = otherFeature.properties.stopList
+
+            const indexA = otherList.indexOf(couple[0])
+            const indexB = otherList.indexOf(couple[1])
+            const diff = Math.abs(indexA - indexB)
+            const notFound =
+              otherFeatureIndex === featureIndex ||
+              indexA === -1 ||
+              indexB === -1 ||
+              diff === 1
+            if (notFound) return false
+            else {
+              if (indexB > indexA) return otherList.slice(indexA, indexB + 1)
+              else return [...otherList.slice(indexB, indexA + 1)].reverse()
+            }
+          })
+          .filter(Boolean)
+          .sort((a, b) => b.length - a.length)[0]
+
+        if (coupleExtension) return coupleExtension
+        else return couple
+      })
+      if (extendedCouples.find((list) => list.length > 2))
+        return { ...feature.properties, extendedCouples }
+      else return false
+    })
+    .filter(Boolean)
+
+  return gathered
+
   return {
     type: 'FeatureCollection',
-    features,
-    /*
+    //features,
     features: features.filter((feature) =>
-      feature.properties.stopList.includes('Rennes')
+      feature.properties.stopList.includes('Nice-Ville')
     ),
-	*/
     properties: { agency },
     agency,
   }
