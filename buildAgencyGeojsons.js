@@ -40,7 +40,12 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
 
           const stop = stops[0]
 
-          if (!stopsMap[stop.stop_name]) stopsMap[stop.stop_name] = stop
+          if (!stopsMap[stop.stop_name])
+            stopsMap[stop.stop_name] = { ...stop, count: 1 }
+          else {
+            const oldStop = stopsMap[stop.stop_name]
+            stopsMap[stop.stop_name] = { ...oldStop, count: oldStop.count + 1 }
+          }
 
           return stop
         })
@@ -102,6 +107,11 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
         (a, b) => b.geometry.coordinates.length - a.geometry.coordinates.length
       )[0]
 
+      const mostStopsWithCount = {
+        ...mostStops,
+        properties: { ...mostStops.properties, count: trips.length },
+      }
+
       const mostStopsLength = mostStops.geometry.coordinates.length,
         stopsLength = Object.keys(stopsMap).length
       if (false)
@@ -115,10 +125,10 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
         return {
           type: 'Feature',
           geometry: mostStops.geometry,
-          properties: mostStops.properties,
+          properties: mostStopsWithCount.properties,
         }
       else {
-        return mostStops
+        return mostStopsWithCount
         /* Old comment : Very simple and potentially erroneous way to avoid straight lines that don't show stops where the trains don't stop.
          * Not effective : lots of straight lines persist through routes that cross France*/
         /* New comment : the line with the most stops does not necessarily include all stops, so we still need the order.
@@ -246,6 +256,7 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
       properties: {
         id: stop.stop_id,
         name: stop.stop_name,
+        count: stop.count,
         /*
       count: segmentEntries
         .filter(([k]) => k.includes(id))
