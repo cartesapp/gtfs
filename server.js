@@ -62,7 +62,7 @@ app.use(
     origin: '*',
   })
 )
-app.use(cacheMiddleware('5 minutes'))
+app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
 const port = process.env.PORT || 3001
 

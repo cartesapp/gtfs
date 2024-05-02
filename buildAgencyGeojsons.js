@@ -220,14 +220,54 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
     })
     .filter(Boolean)
 
+  const stops = Object.values(stopsMap).map((stop) =>
+    /*
+		   {
+  stop_id: 'StopPoint:OCEOUIGO-87681825',
+  stop_code: null,
+  stop_name: 'Villeneuve-Saint-Georges',
+  tts_stop_name: null,
+  stop_desc: null,
+  stop_lat: 48.731182,
+  stop_lon: 2.446434,
+  zone_id: null,
+  stop_url: null,
+  location_type: null,
+  parent_station: 'StopArea:OCE87681825',
+  stop_timezone: null,
+  wheelchair_boarding: null,
+  level_id: null,
+  platform_code: null
+}
+*/
+
+    ({
+      type: 'Feature',
+      properties: {
+        id: stop.stop_id,
+        name: stop.stop_name,
+        /*
+      count: segmentEntries
+        .filter(([k]) => k.includes(id))
+        .reduce((memo, next) => memo + next[1], 0),
+		*/
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: [stop.stop_lon, stop.stop_lat],
+      },
+    })
+  )
+
   return {
     type: 'FeatureCollection',
-    features: gathered,
+    features: [...gathered, ...stops],
     properties: { agency },
     agency,
   }
 }
 
+/* This is our first algorithm. It simply creates LineString symbolic shapes for each route, and counts their importance by their frequency */
 export const buildAgencyGeojsonsPerWeightedSegment = (agency) => {
   const routes = getRoutes({ agency_id: agency.agency_id })
 
