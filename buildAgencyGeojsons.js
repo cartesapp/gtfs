@@ -3,15 +3,17 @@ import toposort from 'toposort'
 
 import {
   getCalendarDates,
+  getCalendars,
   getRoutes,
   getStops,
   getStoptimes,
   getTrips,
 } from 'gtfs'
+import { computeFrequencyPerDay } from './computeFrequency.js'
 
-export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
+export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
   console.time('get routes')
-  const routes = getRoutes({ agency_id: agency.agency_id })
+  const routes = getRoutes({ agency_id })
   console.timeLog('get routes')
 
   const stopsMap = {}
@@ -30,7 +32,14 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
       //console.log(trips.slice(0, 2), trips.length)
 
       const features = trips.map((trip) => {
-        const { trip_id } = trip
+        const { trip_id, service_id } = trip
+
+        const calendarDates = getCalendarDates({ service_id })
+        const calendars = getCalendars({ service_id })
+        // trips stopTimes defines trips *per day*. Then calendars define which days the trip happens. Frequency needs both. We're defining a frequency per day. Each agency can be defined on arbitrary periods, hence the need to divide
+
+        const perDay = computeFrequencyPerDay(calendars, calendarDates)
+
         const stopTimes = getStoptimes({ trip_id })
 
         const stops = stopTimes.map(({ stop_id }) => {
@@ -41,10 +50,13 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
           const stop = stops[0]
 
           if (!stopsMap[stop.stop_name])
-            stopsMap[stop.stop_name] = { ...stop, count: 1 }
+            stopsMap[stop.stop_name] = { ...stop, perDay }
           else {
             const oldStop = stopsMap[stop.stop_name]
-            stopsMap[stop.stop_name] = { ...oldStop, count: oldStop.count + 1 }
+            stopsMap[stop.stop_name] = {
+              ...oldStop,
+              perDay: oldStop.perDay + perDay,
+            }
           }
 
           return stop
@@ -91,6 +103,7 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
           dates,
           stopList,
           sncfTrainType,
+          perDay,
         })
 
         const feature = {
@@ -103,13 +116,19 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
         return feature
       })
 
+      if (!features.length) return null
+
+      const perDay = features.reduce(
+        (memo, next) => memo + next.properties.perDay,
+        0
+      )
       const mostStops = features.sort(
         (a, b) => b.geometry.coordinates.length - a.geometry.coordinates.length
       )[0]
 
       const mostStopsWithCount = {
         ...mostStops,
-        properties: { ...mostStops.properties, count: trips.length },
+        properties: { ...mostStops.properties, perDay: trips.length * perDay },
       }
 
       const mostStopsLength = mostStops.geometry.coordinates.length,
@@ -162,6 +181,47 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
         //mostStops,
       }
     })
+    .filter(Boolean)
+
+  const stops = Object.values(stopsMap).map((stop) =>
+    /*
+		   {
+  stop_id: 'StopPoint:OCEOUIGO-87681825',
+  stop_code: null,
+  stop_name: 'Villeneuve-Saint-Georges',
+  tts_stop_name: null,
+  stop_desc: null,
+  stop_lat: 48.731182,
+  stop_lon: 2.446434,
+  zone_id: null,
+  stop_url: null,
+  location_type: null,
+  parent_station: 'StopArea:OCE87681825',
+  stop_timezone: null,
+  wheelchair_boarding: null,
+  level_id: null,
+  platform_code: null
+}
+*/
+
+    ({
+      type: 'Feature',
+      properties: {
+        id: stop.stop_id,
+        name: stop.stop_name,
+        perDay: stop.perDay,
+        /*
+      count: segmentEntries
+        .filter(([k]) => k.includes(id))
+        .reduce((memo, next) => memo + next[1], 0),
+		*/
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: [stop.stop_lon, stop.stop_lat],
+      },
+    })
+  )
 
   // Now we've got a stopList for each route, good but lots of routes share a same path, the map is difficult to read since direct routes draw far from their real path
   // So we'll group them, and show the routes on click. Also, points will vary in size to denote important stations where the train *stops* a lot, instead of passing without stopping
@@ -173,12 +233,10 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
   // The map of rail lines is not really pertinent. E.g. there can be a rail line but no train 10 month of the year. Or their can be no rail line but a very frequent bus, more in the future with electric buses.
   // The most important is the GTFS file, but I' haven't found a way yet to display it
 
-  if (!shouldGather)
+  if (noGathering)
     return {
       type: 'FeatureCollection',
-      features: features,
-      properties: { agency },
-      agency,
+      features: [...features, ...stops],
     }
 
   const gathered = features
@@ -230,117 +288,66 @@ export const buildAgencyGeojsonsPerRoute = (agency, shouldGather) => {
     })
     .filter(Boolean)
 
-  const stops = Object.values(stopsMap).map((stop) =>
-    /*
-		   {
-  stop_id: 'StopPoint:OCEOUIGO-87681825',
-  stop_code: null,
-  stop_name: 'Villeneuve-Saint-Georges',
-  tts_stop_name: null,
-  stop_desc: null,
-  stop_lat: 48.731182,
-  stop_lon: 2.446434,
-  zone_id: null,
-  stop_url: null,
-  location_type: null,
-  parent_station: 'StopArea:OCE87681825',
-  stop_timezone: null,
-  wheelchair_boarding: null,
-  level_id: null,
-  platform_code: null
-}
-*/
-
-    ({
-      type: 'Feature',
-      properties: {
-        id: stop.stop_id,
-        name: stop.stop_name,
-        count: stop.count,
-        /*
-      count: segmentEntries
-        .filter(([k]) => k.includes(id))
-        .reduce((memo, next) => memo + next[1], 0),
-		*/
-      },
-      geometry: {
-        type: 'Point',
-        coordinates: [stop.stop_lon, stop.stop_lat],
-      },
-    })
-  )
-
   return {
     type: 'FeatureCollection',
     features: [...gathered, ...stops],
-    properties: { agency },
-    agency,
   }
 }
 
-/* This is our first algorithm. It simply creates LineString symbolic shapes for each route, and counts their importance by their frequency */
-export const buildAgencyGeojsonsPerWeightedSegment = (agency) => {
-  const routes = getRoutes({ agency_id: agency.agency_id })
+/* This is our first algorithm. It creates a map of segments collected from trips, and attaches a tripIds property, and counts their importance by their frequency */
+export const buildAgencyGeojsons = (agency_id) => {
+  const routes = getRoutes({ agency_id })
 
   const segmentMap = new Map()
   const segmentCoordinatesMap = new Map()
-  const featureCollections = routes
-    /*
-    .filter(
-      (route) =>
-        route.route_id === 'FR:Line::D6BAEC78-815E-4C9A-BC66-2B9D2C00E41F:'
-    )
-	*/
-    // What's that ?
-    //    .filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
-    .forEach((route) => {
-      const trips = getTrips({ route_id: route.route_id })
+  const featureCollections = routes.forEach((route) => {
+    const trips = getTrips({ route_id: route.route_id })
 
-      trips.forEach((trip) => {
-        const { trip_id } = trip
-        const stopTimes = getStoptimes({ trip_id })
+    trips.forEach((trip) => {
+      const { trip_id } = trip
+      const stopTimes = getStoptimes({ trip_id })
 
-        const points = stopTimes.map(({ stop_id }) => {
-          const stops = getStops({ stop_id })
-          if (stops.length > 1)
-            throw new Error('One stoptime should correspond to only one stop')
+      const points = stopTimes.map(({ stop_id }) => {
+        const stops = getStops({ stop_id })
+        if (stops.length > 1)
+          throw new Error('One stoptime should correspond to only one stop')
 
-          const { stop_lat, stop_lon, stop_name } = stops[0]
-          const coordinates = [stop_lon, stop_lat]
-          if (!segmentCoordinatesMap.has(stop_id))
-            segmentCoordinatesMap.set(stop_id, coordinates)
-          return {
-            coordinates,
-            stop: { id: stop_id, name: stop_name },
-          }
-        })
+        const { stop_lat, stop_lon, stop_name } = stops[0]
+        const coordinates = [stop_lon, stop_lat]
+        if (!segmentCoordinatesMap.has(stop_id))
+          segmentCoordinatesMap.set(stop_id, coordinates)
+        return {
+          coordinates,
+          stop: { id: stop_id, name: stop_name },
+        }
+      })
 
-        const dates = getCalendarDates({ service_id: trip.service_id })
+      const dates = getCalendarDates({ service_id: trip.service_id })
 
-        const segments = points
-          .map(
-            (point, index) =>
-              index > 0 && [
-                point.stop.id + ' -> ' + points[index - 1].stop.id,
-                { count: dates.length, tripId: trip_id },
-              ]
-          )
-          .filter(Boolean)
+      const segments = points
+        .map(
+          (point, index) =>
+            index > 0 && [
+              point.stop.id + ' -> ' + points[index - 1].stop.id,
+              { count: dates.length, tripId: trip_id },
+            ]
+        )
+        .filter(Boolean)
 
-        segments.forEach(([segmentKey, trip]) => {
-          const current = segmentMap.get(segmentKey) || {
-            count: 0,
-            tripIds: [],
-          }
+      segments.forEach(([segmentKey, trip]) => {
+        const current = segmentMap.get(segmentKey) || {
+          count: 0,
+          tripIds: [],
+        }
 
-          const newTrip = {
-            count: current.count + trip.count,
-            tripIds: [...current.tripIds, trip.tripId],
-          }
-          segmentMap.set(segmentKey, newTrip)
-        })
+        const newTrip = {
+          count: current.count + trip.count,
+          tripIds: [...current.tripIds, trip.tripId],
+        }
+        segmentMap.set(segmentKey, newTrip)
+      })
 
-        /*
+      /*
         const properties = rejectNullValues({ ...route, ...trip, dates })
 
         const feature = {
@@ -349,11 +356,11 @@ export const buildAgencyGeojsonsPerWeightedSegment = (agency) => {
           properties,
         }
 		*/
-        //beautiful, but not really useful I'm afraid...
-        //return bezierSpline(feature)
-        //return feature
-      })
-    }, {})
+      //beautiful, but not really useful I'm afraid...
+      //return bezierSpline(feature)
+      //return feature
+    })
+  }, {})
 
   const segmentEntries = [...segmentMap.entries()]
 
@@ -382,7 +389,6 @@ export const buildAgencyGeojsonsPerWeightedSegment = (agency) => {
     },
   }))
 
-  console.log('POINTS', points)
   return { type: 'FeatureCollection', features: [...lines, ...points] }
   return joinFeatureCollections(featureCollections)
 }

@@ -1,7 +1,6 @@
-import apicache from 'apicache'
-let cacheMiddleware = apicache.middleware
 import mapboxPolylines from '@mapbox/polyline'
 import turfDistance from '@turf/distance'
+import apicache from 'apicache'
 import { exec as rawExec } from 'child_process'
 import compression from 'compression'
 import cors from 'cors'
@@ -24,13 +23,17 @@ import {
 } from 'gtfs'
 import util from 'util'
 import {
+  buildAgencyGeojsons,
+  buildAgencyGeojsonsForRail,
+} from './buildAgencyGeojsons.js'
+import {
   areDisjointBboxes,
   bboxArea,
   filterFeatureCollection,
   joinFeatureCollections,
   rejectNullValues,
 } from './utils.js'
-import { buildAgencyGeojsonsPerRoute } from './buildAgencyGeojsons.js'
+let cacheMiddleware = apicache.middleware
 const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
@@ -78,7 +81,7 @@ app.get('/agency/geojsons/:agency_id', (req, res) => {
     const db = openDb(config)
     const { agency_id } = req.params
     const agency = getAgencies({ agency_id })[0]
-    const geojsons = buildAgencyGeojsonsPerRoute(agency)
+    const geojsons = buildAgencyGeojsonsForRail(agency)
     res.json(geojsons)
     closeDb(db)
   } catch (e) {
@@ -93,7 +96,7 @@ app.get('/computeAgencyAreas', (req, res) => {
 
 app.get('/dev-agency', (req, res) => {
   const db = openDb(config)
-  const areas = buildAgencyGeojsonsPerRoute({ agency_id: '1187' })
+  const areas = buildAgencyGeojsonsForRail({ agency_id: '1187' })
   //res.json(areas)
   return res.json([['1187', areas]])
 })
@@ -114,11 +117,23 @@ app.get(
         } = req.params,
         userBbox = [+longitude, +latitude, +longitude2, +latitude2]
 
-      if (selection === '1187') {
-        const agency = buildAgencyGeojsonsPerRoute({ agency_id: '1187' }, true)
+      const { noCache = false } = req.query
+
+      const selectionList = selection?.split('|')
+      if (selection && noCache) {
+        const agencies = getAgencies({ agency_id: selectionList })
+        console.log('Will build geojson shapes for ', selection)
+        const result = agencies.map((agency) => {
+          const agency_id = agency.agency_id
+          const geojson =
+            agency_id == '1187'
+              ? buildAgencyGeojsonsForRail(agency_id)
+              : buildAgencyGeojsonsForRail(agency_id, true)
+          return [agency_id, { agency, geojson }]
+        })
 
         //res.json(areas)
-        return res.json([['1187', agency]])
+        return res.json(result)
       }
 
       const { day } = req.query
@@ -138,7 +153,7 @@ app.get(
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
           isAgencyBigEnough = Math.sqrt(bboxRatio) < 3
 
-        const inSelection = !selection || selection.split('|').includes(id)
+        const inSelection = !selection || selectionList.includes(id)
 
         /*
         console.log(

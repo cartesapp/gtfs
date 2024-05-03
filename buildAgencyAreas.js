@@ -1,5 +1,8 @@
 import { closeDb, getAgencies, getShapesAsGeoJSON, openDb } from 'gtfs'
-import { buildAgencyGeojsonsPerWeightedSegment } from './buildAgencyGeojsons.js'
+import {
+  buildAgencyGeojsons,
+  buildAgencyGeojsonsForRail,
+} from './buildAgencyGeojsons.js'
 
 export const buildAgencyAreas = () => {
   //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
