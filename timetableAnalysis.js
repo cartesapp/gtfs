@@ -47,7 +47,7 @@ export const dateFromString = (d) => {
   return date
 }
 
-export const isMorning = (h) => h >= 6 && h < 9
+export const isMorning = (h) => h >= 6 && h <= 9
 export const isAfternoon = (h) => h > 16 && h < 19
 export const isLunch = (h) => h >= 12 && h < 15
 export function computeIsSchool(calendars, calendarDates, stopTimes) {
