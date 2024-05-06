@@ -9,7 +9,11 @@ import {
   getStoptimes,
   getTrips,
 } from 'gtfs'
-import { computeFrequencyPerDay, computeIsNight } from './timetableAnalysis.js'
+import {
+  computeFrequencyPerDay,
+  computeIsNight,
+  computeIsSchool,
+} from './timetableAnalysis.js'
 
 export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
   console.time('get routes')
@@ -42,6 +46,7 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
 
         const stopTimes = getStoptimes({ trip_id })
 
+        const isSchool = computeIsSchool(calendars, calendarDates, stopTimes)
         const isNight = computeIsNight(stopTimes)
 
         const stops = stopTimes.map(({ stop_id }) => {
@@ -107,6 +112,7 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
           sncfTrainType,
           perDay,
           isNight,
+          isSchool,
         })
 
         const feature = {
@@ -131,13 +137,19 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
         ).length >
         0.8 * tripLineStrings.length
 
+      const isSchool =
+        tripLineStrings.filter(
+          ({ properties: { isSchool } }) => isSchool === true
+        ).length ===
+        1 * tripLineStrings.length
+
       const mostStops = tripLineStrings.sort(
         (a, b) => b.geometry.coordinates.length - a.geometry.coordinates.length
       )[0]
 
       const mostStopsWithCount = {
         ...mostStops,
-        properties: { ...mostStops.properties, perDay, isNight },
+        properties: { ...mostStops.properties, perDay, isNight, isSchool },
       }
 
       const mostStopsLength = mostStops.geometry.coordinates.length,

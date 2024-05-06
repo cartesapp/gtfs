@@ -38,6 +38,13 @@ const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
 import { buildAgencyAreas } from './buildAgencyAreas.js'
+import {
+  dateFromString,
+  getWeekday,
+  isAfternoon,
+  isLunch,
+  isMorning,
+} from './timetableAnalysis.js'
 
 const month = 60 * 60 * 24 * 30
 const cache = Cache.default({
@@ -347,6 +354,40 @@ app.get('/agencies', (req, res) => {
     const db = openDb(config)
     const agencies = getAgencies()
     res.json({ agencies })
+  } catch (error) {
+    console.error(error)
+  }
+})
+app.get('/route/:routeId', (req, res) => {
+  const { routeId: route_id } = req.params
+  try {
+    const db = openDb(config)
+    const route = getRoutes({ route_id })[0]
+    const trips = getTrips({ route_id })
+    const times = getStoptimes({
+      trip_id: trips.map((trip) => trip.trip_id),
+    }).map((el) => {
+      const h = +el.departure_time.slice(0, 2)
+      return {
+        ...el,
+        isMorning: isMorning(h),
+        isAfternoon: isAfternoon(h),
+        isLunch: isLunch(h),
+      }
+    })
+    const calendarDates = getCalendarDates({
+      service_id: trips.map((el) => el.service_id),
+    }).map((el) => {
+      const day = {
+        ...el,
+        date_o: dateFromString('' + el.date),
+        weekday: getWeekday(dateFromString('' + el.date)),
+      }
+      return day
+    })
+
+    res.json({ route, trips, calendarDates, times })
+    closeDb(db)
   } catch (error) {
     console.error(error)
   }
