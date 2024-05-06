@@ -21,3 +21,15 @@ export function computeFrequencyPerDay(calendars, calendarDates) {
 
   return dates.length / daysRange
 }
+
+export function computeIsNight(stopTimes) {
+  //departure_time: '08:10:00'
+  const nightDepartures = stopTimes.filter(({ departure_time }) => {
+    const hour = +departure_time.slice(0, 2)
+
+    const condition = hour >= 22 || hour < 7
+
+    return condition
+  })
+  return nightDepartures.length > 0.8 * stopTimes.length
+}

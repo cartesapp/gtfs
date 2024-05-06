@@ -9,7 +9,7 @@ import {
   getStoptimes,
   getTrips,
 } from 'gtfs'
-import { computeFrequencyPerDay } from './computeFrequency.js'
+import { computeFrequencyPerDay, computeIsNight } from './timetableAnalysis.js'
 
 export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
   console.time('get routes')
@@ -31,7 +31,7 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
       const trips = getTrips({ route_id: route.route_id })
       //console.log(trips.slice(0, 2), trips.length)
 
-      const features = trips.map((trip) => {
+      const tripLineStrings = trips.map((trip) => {
         const { trip_id, service_id } = trip
 
         const calendarDates = getCalendarDates({ service_id })
@@ -41,6 +41,8 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
         const perDay = computeFrequencyPerDay(calendars, calendarDates)
 
         const stopTimes = getStoptimes({ trip_id })
+
+        const isNight = computeIsNight(stopTimes)
 
         const stops = stopTimes.map(({ stop_id }) => {
           const stops = getStops({ stop_id })
@@ -104,6 +106,7 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
           stopList,
           sncfTrainType,
           perDay,
+          isNight,
         })
 
         const feature = {
@@ -116,19 +119,25 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
         return feature
       })
 
-      if (!features.length) return null
+      if (!tripLineStrings.length) return null
 
-      const perDay = features.reduce(
+      const perDay = tripLineStrings.reduce(
         (memo, next) => memo + next.properties.perDay,
         0
       )
-      const mostStops = features.sort(
+      const isNight =
+        tripLineStrings.filter(
+          ({ properties: { isNight } }) => isNight === true
+        ).length >
+        0.8 * tripLineStrings.length
+
+      const mostStops = tripLineStrings.sort(
         (a, b) => b.geometry.coordinates.length - a.geometry.coordinates.length
       )[0]
 
       const mostStopsWithCount = {
         ...mostStops,
-        properties: { ...mostStops.properties, perDay: trips.length * perDay },
+        properties: { ...mostStops.properties, perDay, isNight },
       }
 
       const mostStopsLength = mostStops.geometry.coordinates.length,

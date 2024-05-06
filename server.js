@@ -52,7 +52,7 @@ cache
   .get('agencyAreas')
   .then((result) => {
     runtimeCache.agencyAreas = result // This because retrieving the cache takes 1 sec
-    console.log('runtimecache depuis cache')
+    console.log('runtimecache chargé depuis cache')
   })
   .catch((err) => console.log('Erreur dans le chargement du runtime cache'))
 
