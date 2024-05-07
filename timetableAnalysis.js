@@ -49,7 +49,7 @@ export const dateFromString = (d) => {
 }
 
 export const isMorning = (h) => h >= 6 && h <= 9
-export const isAfternoon = (h) => h > 16 && h < 19
+export const isAfternoon = (h) => h >= 16 && h < 19
 export const isLunch = (h) => h >= 12 && h < 15
 export function computeIsSchool(calendars, calendarDates, stopTimes) {
   // the Bretagne region does not use calendars, whereas Saint-Malo, a source of Bretagne GTFS, uses it. Good to know for debugging

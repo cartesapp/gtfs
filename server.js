@@ -379,7 +379,10 @@ app.get('/route/:routeId', (req, res) => {
       const h = +el.departure_time.slice(0, 2)
       return {
         ...el,
-        debugSchool: isMorning(h) || isAfternoon(h) || isLunch(h),
+        debugSchool:
+          isMorning(h) || isAfternoon(h) || isLunch(h)
+            ? 'school'
+            : 'not school',
         isMorning: isMorning(h),
         isAfternoon: isAfternoon(h),
         isLunch: isLunch(h),
