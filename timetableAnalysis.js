@@ -27,7 +27,8 @@ export function computeIsNight(stopTimes) {
   const nightDepartures = stopTimes.filter(({ departure_time }) => {
     const hour = +departure_time.slice(0, 2)
 
-    const condition = hour >= 22 || hour < 7
+    // Saint-Malo (agency_id:MAT) has "bus de soir" starting at 19h20
+    const condition = hour >= 19 || hour < 7
 
     return condition
   })
