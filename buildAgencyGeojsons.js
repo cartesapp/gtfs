@@ -56,14 +56,18 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
 
           const stop = stops[0]
 
+          // This strategy is good to simplify lines, handle at the same time both directions, and gather lines on a map...
+          // ... but it fails when trying to find the exact bus stop and seeing precise shapes when the user zooms
           if (!stopsMap[stop.stop_name])
-            stopsMap[stop.stop_name] = { ...stop, perDay }
+            stopsMap[stop.stop_name] = {
+              ...stop,
+              perDay,
+              ids: new Set([stop.stop_id]),
+            }
           else {
             const oldStop = stopsMap[stop.stop_name]
-            stopsMap[stop.stop_name] = {
-              ...oldStop,
-              perDay: oldStop.perDay + perDay,
-            }
+            oldStop.perDay = oldStop.perDay + perDay
+            oldStop.ids.add(stop.stop_id)
           }
 
           return stop
@@ -228,7 +232,7 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
     ({
       type: 'Feature',
       properties: {
-        id: stop.stop_id,
+        ids: [...stop.ids],
         name: stop.stop_name,
         perDay: stop.perDay,
         /*
