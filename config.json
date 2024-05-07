@@ -1,37 +1,7 @@
 {
     "agencies": [
         {
-            "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Bréhat.gtfs"
-        },
-        {
-            "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Arz.gtfs"
-        },
-        {
-            "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Morbihan.gtfs"
-        },
-        {
-            "path": "./input/breizhgo-bateaux|Breizhgo-Bateaux-Finistère.gtfs"
-        },
-        {
             "path": "./input/base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs|KorriGo---Fichier-GTFS.gtfs"
-        },
-        {
-            "path": "./input/horaires-des-lignes-ter-sncf|sncf-ter-gtfs.csv.gtfs"
-        },
-        {
-            "path": "./input/horaires-des-tgv|horaires-des-train-voyages-tgvinouiouigo.csv.gtfs"
-        },
-        {
-            "path": "./input/horaires-des-lignes-intercites-sncf|sncf-intercites-gtfs.csv.gtfs"
-        },
-        {
-            "path": "./input/arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1|GTFS-Destineo-Pays-de-la-Loire.gtfs"
-        },
-        {
-            "path": "./input/agregat-oura|Agrégat-Oùra.gtfs"
-        },
-        {
-            "path": "./input/horaires-theoriques-du-reseau-transports-en-commun-lyonnais|GTFS-modifié.gtfs"
         }
     ],
     "ignoreDuplicates": true,

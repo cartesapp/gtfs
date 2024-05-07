@@ -22,10 +22,7 @@ import {
   openDb,
 } from 'gtfs'
 import util from 'util'
-import {
-  buildAgencyGeojsons,
-  buildAgencyGeojsonsForRail,
-} from './buildAgencyGeojsons.js'
+import { buildAgencyGeojsonsForRail } from './buildAgencyGeojsons.js'
 import {
   areDisjointBboxes,
   bboxArea,
@@ -79,7 +76,7 @@ const port = process.env.PORT || 3001
 const loadGTFS = async () => {
   console.log('will load GTFS files in node-gtfs')
   await importGtfs(config)
-  buildAgencyAreas()
+  //TODO buildAgencyAreas()
   return "C'est bon !"
 }
 
@@ -505,11 +502,19 @@ app.get('/update', async (req, res) => {
   console.log('Build config OK')
   console.log('stdout:', stdout)
   console.log('stderr:', stderr)
+
+  const { stdout3, stderr3 } = await exec('rm db/gtfs')
+  console.log('-------------------------------')
+  console.log('Deleted DB') // It looks like region Bretagne's GTFS reuses old ids, which may cause wrong route times analysis !
+  console.log('stdout:', stdout3)
+  console.log('stderr:', stderr3)
+
   const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
   console.log('-------------------------------')
   console.log('Restart Motis OK')
   console.log('stdout:', stdout2)
   console.log('stderr:', stderr2)
+
   await loadGTFS()
   console.log('-------------------------------')
   console.log('Load GTFS in node-gtfs DB OK')
