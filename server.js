@@ -288,46 +288,55 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
   }
 })
 
-app.get('/stopTimes/:id', (req, res) => {
+app.get('/stopTimes/:ids', (req, res) => {
   try {
-    const id = req.params.id
+    const ids = req.params.ids.split('|')
+
     const db = openDb(config)
-    const stops = getStoptimes({
-      stop_id: [id],
+    const results = ids.map((id) => {
+      const stops = getStoptimes({
+        stop_id: [id],
+      })
+      const stopTrips = stops.map((stop) => stop.trip_id)
+
+      const trips = getTrips({ trip_id: stopTrips }).map((trip) => ({
+        ...trip,
+        frequencies: getFrequencies({ trip_id: trip.trip_id }),
+        calendar: getCalendars({ service_id: trip.service_id }),
+        calendarDates: getCalendarDates({ service_id: trip.service_id }),
+      }))
+
+      const tripRoutes = trips.reduce(
+        (memo, next) => [...memo, next.route_id],
+        []
+      )
+
+      const routes = getRoutes({ route_id: tripRoutes }).map((route) => ({
+        ...route,
+        tripsCount: trips.filter((trip) => trip.route_id === route.route_id)
+          .length,
+      }))
+      const routesGeojson = routes.map((route) => ({
+        route,
+
+        shapes: getShapesAsGeoJSON({
+          route_id: route.route_id,
+        }),
+        stops: getStopsAsGeoJSON({
+          route_id: route.route_id,
+        }),
+      }))
+
+      const result = {
+        stops: stops.map(rejectNullValues),
+        trips: trips.map(rejectNullValues),
+        routes,
+        routesGeojson,
+      }
+      return [id, result]
     })
-    const stopTrips = stops.map((stop) => stop.trip_id)
 
-    const trips = getTrips({ trip_id: stopTrips }).map((trip) => ({
-      ...trip,
-      frequencies: getFrequencies({ trip_id: trip.trip_id }),
-      calendar: getCalendars({ service_id: trip.service_id }),
-      calendarDates: getCalendarDates({ service_id: trip.service_id }),
-    }))
-
-    const tripRoutes = trips.reduce(
-      (memo, next) => [...memo, next.route_id],
-      []
-    )
-
-    const routes = getRoutes({ route_id: tripRoutes })
-    const routesGeojson = routes.map((route) => ({
-      route,
-
-      shapes: getShapesAsGeoJSON({
-        route_id: route.route_id,
-      }),
-      stops: getStopsAsGeoJSON({
-        route_id: route.route_id,
-      }),
-    }))
-
-    res.json({
-      stops: stops.map(rejectNullValues),
-      trips: trips.map(rejectNullValues),
-      routes,
-      routesGeojson,
-    })
-
+    res.json(results)
     closeDb(db)
   } catch (error) {
     console.error(error)
