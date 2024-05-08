@@ -264,6 +264,8 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
       features: [...features, ...stops],
     }
 
+  console.log('built ', features.length, ' features before gathering')
+
   const gathered = features
     .map((feature, featureIndex) => {
       const stopList = feature.properties.stopList

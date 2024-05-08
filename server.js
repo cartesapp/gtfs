@@ -126,7 +126,12 @@ app.get(
       const selectionList = selection?.split('|')
       if (selection && noCache) {
         const agencies = getAgencies({ agency_id: selectionList })
-        console.log('Will build geojson shapes for ', selection)
+        console.log(
+          'Will build geojson shapes for ',
+          selection,
+          '. Agencies found : ',
+          agencies
+        )
         const result = agencies.map((agency) => {
           const agency_id = agency.agency_id
           const geojson =
