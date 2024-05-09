@@ -22,7 +22,7 @@ import {
   openDb,
 } from 'gtfs'
 import util from 'util'
-import { buildAgencyGeojsonsForRail } from './buildAgencyGeojsons.js'
+import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
 import {
   areDisjointBboxes,
   bboxArea,
@@ -56,11 +56,11 @@ cache
   .get('agencyAreas')
   .then((result) => {
     runtimeCache.agencyAreas = result // This because retrieving the cache takes 1 sec
-    console.log('runtimecache chargé depuis cache')
+    console.log('runtimeCache chargé depuis cache')
   })
   .catch((err) => console.log('Erreur dans le chargement du runtime cache'))
 
-const config = JSON.parse(
+export const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
 )
 const app = express()
@@ -76,7 +76,7 @@ const port = process.env.PORT || 3001
 const loadGTFS = async () => {
   console.log('will load GTFS files in node-gtfs')
   await importGtfs(config)
-  //TODO buildAgencyAreas()
+  //TODO buildAgencyAreas(cache, runtimeCache)
   return "C'est bon !"
 }
 
@@ -85,7 +85,7 @@ app.get('/agency/geojsons/:agency_id', (req, res) => {
     const db = openDb(config)
     const { agency_id } = req.params
     const agency = getAgencies({ agency_id })[0]
-    const geojsons = buildAgencyGeojsonsForRail(agency)
+    const geojsons = buildAgencySymbolicGeojsons(db, agency)
     res.json(geojsons)
     closeDb(db)
   } catch (e) {
@@ -93,14 +93,20 @@ app.get('/agency/geojsons/:agency_id', (req, res) => {
   }
 })
 
-app.get('/computeAgencyAreas', (req, res) => {
-  const areas = buildAgencyAreas()
-  res.json(areas)
+app.get('/buildAgencyAreas', (req, res) => {
+  try {
+    const db = openDb(config)
+    const areas = buildAgencyAreas(db, cache, runtimeCache)
+    closeDb(db)
+    res.json(areas)
+  } catch (e) {
+    console.error(e)
+  }
 })
 
 app.get('/dev-agency', (req, res) => {
   const db = openDb(config)
-  const areas = buildAgencyGeojsonsForRail({ agency_id: '1187' })
+  const areas = buildAgencySymbolicGeojsons(db, { agency_id: '1187' })
   //res.json(areas)
   return res.json([['1187', areas]])
 })
@@ -121,7 +127,7 @@ app.get(
         } = req.params,
         userBbox = [+longitude, +latitude, +longitude2, +latitude2]
 
-      const { noCache = false } = req.query
+      const { noCache } = req.query
 
       const selectionList = selection?.split('|')
       if (selection && noCache) {
@@ -136,8 +142,8 @@ app.get(
           const agency_id = agency.agency_id
           const geojson =
             agency_id == '1187'
-              ? buildAgencyGeojsonsForRail(agency_id)
-              : buildAgencyGeojsonsForRail(agency_id, true)
+              ? buildAgencySymbolicGeojsons(db, agency_id)
+              : buildAgencySymbolicGeojsons(db, agency_id, true)
           return [agency_id, { agency, geojson }]
         })
 
@@ -146,12 +152,11 @@ app.get(
       }
 
       const { day } = req.query
-      console.time('opening cache' + userBbox.join(''))
-      const agencyAreas = runtimeCache.agencyAreas
-      console.timeLog('opening cache' + userBbox.join(''))
+
+      const { agencyAreas } = runtimeCache
       if (agencyAreas == null)
         return res.send(
-          `Construisez d'abord le cache des aires d'agences avec /computeAgencyAreas`
+          `Construisez d'abord le cache des aires d'agences avec /buildAgencyAreas`
         )
 
       const entries = Object.entries(agencyAreas)
@@ -178,32 +183,7 @@ app.get(
 
       if (format === 'prefetch')
         return res.json(selectedAgencies.map(([id]) => id))
-      return res.json(
-        selectedAgencies.map(([id, agency]) => {
-          console.log('AGENCY', agency)
-          // TODO do this in the computeAgencyAreas step, once
-          const polylines = agency.geojson.features
-            .filter((f) => f.geometry.type === 'LineString')
-            .map((lineString) => ({
-              ...lineString.properties,
-              polyline: mapboxPolylines.fromGeoJSON(lineString),
-            }))
-          // These are points generated when we build geojsons for agencies that have no shapes
-          const otherGeojsons = agency.geojson.features.filter(
-            (el) => el.geometry.type !== 'LineString'
-          )
-
-          return [
-            id,
-            {
-              bbox: agency.bbox,
-              agency: agency.agency,
-              polylines,
-              otherGeojsons,
-            },
-          ]
-        })
-      )
+      return res.json(selectedAgencies)
 
       const withDistances = entries
         .map(([agencyId, agency]) => {

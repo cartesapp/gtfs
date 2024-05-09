@@ -455,6 +455,14 @@ better-sqlite3@^9.4.3:
     bindings "^1.5.0"
     prebuild-install "^7.1.1"
 
+better-sqlite3@^9.4.4:
+  version "9.6.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-9.6.0.tgz#b01e58ba7c48abcdc0383b8301206ee2ab81d271"
+  integrity sha512-yR5HATnqeYNVnkaUTf4bOP2dJSnyhP4puJN/QPRyx4YkBEEUxib422n2XzPqDEHjQQqazoYoADdAm5vE15+dAQ==
+  dependencies:
+    bindings "^1.5.0"
+    prebuild-install "^7.1.1"
+
 bindings@^1.5.0:
   version "1.5.0"
   resolved "https://registry.npmjs.org/bindings/-/bindings-1.5.0.tgz"
@@ -1284,6 +1292,32 @@ gtfs-to-geojson@^3.6.0:
     sqlstring-sqlite "^0.1.1"
     timer-machine "^1.1.0"
     toposort "^2.0.2"
+    yargs "^17.7.2"
+    yoctocolors "^2.0.0"
+
+gtfs@^4.10.2:
+  version "4.10.2"
+  resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.10.2.tgz#548ad17a26c6f1d6da7fdb9a50fd6b9083ecc0c3"
+  integrity sha512-whkqpTB9ZB8DPWqiAGYZ67CqedDtUQUjUcWvDuHljeJGe9FviAWqGM+5YYmfusji/YjE1U5kLPBDhwRK+00QRw==
+  dependencies:
+    "@turf/helpers" "^6.5.0"
+    better-sqlite3 "^9.4.4"
+    csv-parse "^5.5.5"
+    csv-stringify "^6.4.6"
+    gtfs-realtime-bindings "^1.1.1"
+    lodash-es "^4.17.21"
+    long "^5.2.3"
+    node-fetch "^3.3.2"
+    node-stream-zip "^1.15.0"
+    pluralize "^8.0.0"
+    pretty-error "^4.0.0"
+    promise-map-series "^0.3.0"
+    recursive-copy "^2.0.14"
+    sanitize-filename "^1.6.3"
+    sqlstring-sqlite "^0.1.1"
+    strip-bom-stream "^5.0.0"
+    tmp-promise "^3.0.3"
+    untildify "^5.0.0"
     yargs "^17.7.2"
     yoctocolors "^2.0.0"
 

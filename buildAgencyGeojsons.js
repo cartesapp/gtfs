@@ -1,5 +1,5 @@
-import { joinFeatureCollections, rejectNullValues } from './utils.js'
 import toposort from 'toposort'
+import { joinFeatureCollections, rejectNullValues } from './utils.js'
 
 import {
   getCalendarDates,
@@ -15,10 +15,12 @@ import {
   computeIsSchool,
 } from './timetableAnalysis.js'
 
-export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
-  console.time('get routes')
+export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
+  console.log('Will build agency symbolic geojson for agency ', agency_id)
+  console.time(agency_id)
+  console.time('get routes for agency ', agency_id)
   const routes = getRoutes({ agency_id })
-  console.timeLog('get routes')
+  console.timeLog('get routes for agency ', agency_id)
 
   const stopsMap = {}
 
@@ -258,11 +260,13 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
   // The map of rail lines is not really pertinent. E.g. there can be a rail line but no train 10 month of the year. Or their can be no rail line but a very frequent bus, more in the future with electric buses.
   // The most important is the GTFS file, but I' haven't found a way yet to display it
 
-  if (noGathering)
+  if (noGathering) {
+    console.time(agency_id)
     return {
       type: 'FeatureCollection',
       features: [...features, ...stops],
     }
+  }
 
   console.log('built ', features.length, ' features before gathering')
 
@@ -315,6 +319,7 @@ export const buildAgencyGeojsonsForRail = (agency_id, noGathering) => {
     })
     .filter(Boolean)
 
+  console.time(agency_id)
   return {
     type: 'FeatureCollection',
     features: [...gathered, ...stops],
