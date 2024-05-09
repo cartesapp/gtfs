@@ -49,6 +49,11 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
       ),
     ])
 
+  console.log(
+    'Agency geojsons built for ',
+    agencies.map((a) => a.agency_id).join(', ')
+  )
+
   // Now compute bboxes for each agency's geojsons
   entries.map(([agency_id, featureCollection]) => {
     const bbox = turfBbox(featureCollection)
