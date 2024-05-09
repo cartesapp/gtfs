@@ -27,3 +27,9 @@ export const editFeatureCollection = (featureCollection, edit) => ({
   type: 'FeatureCollection',
   features: featureCollection.features.map(edit),
 })
+export const rejectNullValues = (object) =>
+  Object.fromEntries(
+    Object.entries(object)
+      .map(([k, v]) => (v == null ? false : [k, v]))
+      .filter(Boolean)
+  )

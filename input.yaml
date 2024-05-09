@@ -1,12 +1,12 @@
 datasets:
-  - breizhgo-bateaux
-  - base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
   # Au 10 mars 2024, l'agrégat Korrigo ne contient plus de routes STAR, lol
   # Ça semble revenu
   # - versions-des-horaires-theoriques-des-lignes-de-bus-et-de-metro-du-reseau-star-au-format-gtfs
+  #  - breizhgo-bateaux
+  - base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
   - horaires-des-lignes-ter-sncf
   - horaires-des-tgv
   - horaires-des-lignes-intercites-sncf
-  - arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
-  - agregat-oura
-  - horaires-theoriques-du-reseau-transports-en-commun-lyonnais
+  #- arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+  #- agregat-oura
+  #- horaires-theoriques-du-reseau-transports-en-commun-lyonnais
