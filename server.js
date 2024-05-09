@@ -298,22 +298,22 @@ app.get('/stopTimes/:ids', (req, res) => {
         tripsCount: trips.filter((trip) => trip.route_id === route.route_id)
           .length,
       }))
-      const routesGeojson = routes.map((route) => ({
-        route,
-
-        shapes: getShapesAsGeoJSON({
-          route_id: route.route_id,
-        }),
-        stops: getStopsAsGeoJSON({
-          route_id: route.route_id,
-        }),
-      }))
+      const features = routes
+        .map((route) => [
+          ...getShapesAsGeoJSON({
+            route_id: route.route_id,
+          }).features,
+          ...getStopsAsGeoJSON({
+            route_id: route.route_id,
+          }).features,
+        ])
+        .flat()
 
       const result = {
         stops: stops.map(rejectNullValues),
         trips: trips.map(rejectNullValues),
         routes,
-        routesGeojson,
+        features,
       }
       return [id, result]
     })
