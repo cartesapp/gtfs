@@ -488,11 +488,15 @@ app.get('/update', async (req, res) => {
   console.log('stdout:', stdout)
   console.log('stderr:', stderr)
 
-  const { stdout3, stderr3 } = await exec('rm db/gtfs')
+  const { stdout3, stderr3 } = await exec('rm -f db/gtfs')
   console.log('-------------------------------')
   console.log('Deleted DB') // It looks like region Bretagne's GTFS reuses old ids, which may cause wrong route times analysis !
   console.log('stdout:', stdout3)
   console.log('stderr:', stderr3)
+
+  await loadGTFS()
+  console.log('-------------------------------')
+  console.log('Load GTFS in node-gtfs DB OK')
 
   const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
   console.log('-------------------------------')
@@ -500,9 +504,6 @@ app.get('/update', async (req, res) => {
   console.log('stdout:', stdout2)
   console.log('stderr:', stderr2)
 
-  await loadGTFS()
-  console.log('-------------------------------')
-  console.log('Load GTFS in node-gtfs DB OK')
   res.send({ ok: true })
 })
 
