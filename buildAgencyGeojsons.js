@@ -22,7 +22,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
   const routes = getRoutes({ agency_id })
   console.timeLog('get routes for agency ' + agency_id)
 
-  const stopsMap = {}
+  const stopsMap = new Map()
 
   const features = routes
     /*
@@ -55,50 +55,32 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
         const isSchool = computeIsSchool(calendars, calendarDates, stopTimes)
 
         const stops = stopTimes.map(({ stop_id }) => {
-          const stops = getStops({ stop_id })
-          if (stops.length > 1)
-            throw new Error('One stoptime should correspond to only one stop')
-
-          const stop = stops[0]
+          const stop = getStops({ stop_id })[0]
 
           // This strategy is good to simplify lines, handle at the same time both directions, and gather lines on a map...
           // ... but it fails when trying to find the exact bus stop and seeing precise shapes when the user zooms
-          if (!stopsMap[stop.stop_name])
-            stopsMap[stop.stop_name] = {
+          const stopValue = stopsMap.get(stop.stop_name)
+          if (!stopValue)
+            stopsMap.set(stop.stop_name, {
               ...stop,
               perDay,
               ids: new Set([stop.stop_id]),
-            }
+            })
           else {
-            const oldStop = stopsMap[stop.stop_name]
-            oldStop.perDay = oldStop.perDay + perDay
-            oldStop.ids.add(stop.stop_id)
+            stopValue.perDay = stopValue.perDay + perDay
+            stopValue.ids.add(stop.stop_id)
           }
 
           return stop
         })
+
         const sncfTrainType = stops.reduce((memo, stop) => {
           const key = 'StopPoint:OCE'
           const probe = stop.stop_id.startsWith(key)
 
           if (!probe) return memo || null
           const type = stop.stop_id.replace(key, '').split('-')[0]
-          if (
-            ![
-              'TGV INOUI',
-              'OUIGO',
-              'Lyria',
-              'Train',
-              'Train TER',
-              'Car TER',
-              'Car',
-              'Navette',
-              'INTERCITES',
-              'INTERCITES de nuit',
-              'TramTrain',
-              'ICE',
-            ].includes(type)
-          ) {
+          if (!sncfTrainTypeList.includes(type)) {
             console.log(stop.stop_id)
             throw new Error('Unknown SNCF train stop type ' + type)
           }
@@ -166,7 +148,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
       }
 
       const mostStopsLength = mostStops.geometry.coordinates.length,
-        stopsLength = Object.keys(stopsMap).length
+        stopsLength = stopsMap.keys().length
       if (false)
         console.log(
           'Number of stops ',
@@ -217,7 +199,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
     })
     .filter(Boolean)
 
-  const stops = Object.values(stopsMap).map((stop) =>
+  const stops = stopsMap.values().map((stop) =>
     /*
 		   {
   stop_id: 'StopPoint:OCEOUIGO-87681825',
@@ -316,7 +298,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
           properties: { ...feature.properties, extended: true },
           geometry: {
             coordinates: extendedCouples.flat().map((stopName) => {
-              const stop = stopsMap[stopName]
+              const stop = stopsMap.get(stopName)
               return [stop.stop_lon, stop.stop_lat]
             }),
             type: 'LineString',
@@ -431,3 +413,18 @@ export const buildAgencyGeojsons = (agency_id) => {
   return { type: 'FeatureCollection', features: [...lines, ...points] }
   return joinFeatureCollections(featureCollections)
 }
+
+const sncfTrainTypeList = [
+  'TGV INOUI',
+  'OUIGO',
+  'Lyria',
+  'Train',
+  'Train TER',
+  'Car TER',
+  'Car',
+  'Navette',
+  'INTERCITES',
+  'INTERCITES de nuit',
+  'TramTrain',
+  'ICE',
+]
