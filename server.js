@@ -79,10 +79,9 @@ app.use(compression())
 
 const port = process.env.PORT || 3001
 
-const loadGTFS = async (newDbName) => {
+const parseGTFS = async (newDbName) => {
   console.log('will load GTFS files in node-gtfs')
   await importGtfs({ ...config, sqlitePath: 'db/' + newDbName })
-  //TODO buildAgencyAreas(cache, runtimeCache)
   return "C'est bon !"
 }
 
@@ -168,12 +167,14 @@ app.get(
       const entries = Object.entries(agencyAreas)
 
       const selectedAgencies = entries.filter(([id, agency]) => {
+        const inSelection = !selection || selectionList.includes(id)
+        if (!inSelection) return false
         const disjointBboxes = areDisjointBboxes(agency.bbox, userBbox)
+        if (disjointBboxes) return false
 
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
-          isAgencyBigEnough = Math.sqrt(bboxRatio) < 3
-
-        const inSelection = !selection || selectionList.includes(id)
+          zoomedEnough = Math.sqrt(bboxRatio) < 3,
+          notTooZoomed = Math.sqrt(bboxRatio) > 0.02
 
         /*
         console.log(
@@ -184,7 +185,7 @@ app.get(
           isAgencyBigEnough
         )
 		*/
-        return !disjointBboxes && isAgencyBigEnough && inSelection
+        return zoomedEnough && notTooZoomed
       })
 
       if (format === 'prefetch')
@@ -482,7 +483,7 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
 
 /* Update the DB from the local GTFS files */
 app.get('/parse', async (req, res) => {
-  const alors = await loadGTFS(dateHourMinutes())
+  const alors = await parseGTFS(dateHourMinutes())
 
   res.send(alors)
 })
@@ -503,13 +504,21 @@ app.get('/update', async (req, res) => {
 
   const newDbName = dateHourMinutes()
   cache.set('dbName', newDbName)
-  await loadGTFS(newDbName)
+  await parseGTFS(newDbName)
+
   console.log('-------------------------------')
   console.log(`Parsed GTFS in new node-gtfs DB ${newDbName} OK`)
   config.sqlitePath = 'db/' + newDbName
 
-  apicache.clear()
+  console.log(
+    'Will build agency areas, long not optimized step for now, ~ 30 minutes for SNCF + STAR + TAN'
+  )
+
   closeDb(oldDb)
+  const db = openDb(config)
+  buildAgencyAreas(db, cache, runtimeCache)
+
+  apicache.clear()
   const { stdout4, stderr4 } = await exec(
     `find db/ ! -name '${newDbName}' -type f -exec rm -f {} +`
   )
@@ -528,6 +537,7 @@ app.get('/update', async (req, res) => {
     console.log("Couldn't restart Motis service, may be not present", e)
   }
 
+  closeDb(db)
   res.send({ ok: true })
 })
 
