@@ -18,9 +18,7 @@ import {
 export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
   console.log('Will build agency symbolic geojson for agency ', agency_id)
   console.time(agency_id)
-  console.time('get routes for agency ' + agency_id)
   const routes = getRoutes({ agency_id })
-  console.timeLog('get routes for agency ' + agency_id)
 
   const stopsMap = new Map()
 
@@ -35,11 +33,12 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
     //.filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
     .map((route) => {
       const trips = getTrips({ route_id: route.route_id })
-      //console.log(trips.slice(0, 2), trips.length)
 
+      /*
       console.time(
         'build trip features for agency ' + agency_id + route.route_id
       )
+	  */
       const tripLineStrings = trips.map((trip) => {
         const { trip_id, service_id } = trip
 
@@ -119,9 +118,11 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
         return feature
       })
 
+      /*
       console.timeLog(
         'build trip features for agency ' + agency_id + route.route_id
       )
+	  */
 
       if (!tripLineStrings.length) return null
 
@@ -251,7 +252,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
   // The most important is the GTFS file, but I' haven't found a way yet to display it
 
   if (noGathering) {
-    console.time(agency_id)
+    console.timeLog(agency_id)
     return {
       type: 'FeatureCollection',
       features: [...features, ...stops],
@@ -309,7 +310,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
     })
     .filter(Boolean)
 
-  console.time(agency_id)
+  console.timeLog(agency_id)
   return {
     type: 'FeatureCollection',
     features: [...gathered, ...stops],

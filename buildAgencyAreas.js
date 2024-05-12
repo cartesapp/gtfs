@@ -4,6 +4,7 @@ import { getAgencies } from 'gtfs'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
 
 export const buildAgencyAreas = (db, cache, runtimeCache) => {
+  console.time('Traitement des agences')
   //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
   // so I use a cache library which does a great job but needs to be doubled by an in-memory cache which is also fine and simpler than a relational DB
   console.log(
@@ -38,20 +39,25 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
 
 	*/
 
-  const entries = agencies
-    .filter(({ agency_id: id }) => ['STAR'].includes(id))
-    .map((agency) => [
+  const filtered = agencies.filter(({ agency_id: id }) => {
+    if (id === 'SNCF') return false
+    // This comes from the Bretagne dataset, no interest compared to SNCF dataset 1187
+    return true
+    return ['STAR', 'TAN', 'BIBUS', '1187'].includes(id)
+  })
+
+  const entries = filtered.map((agency) => [
+    agency.agency_id,
+    buildAgencySymbolicGeojsons(
+      db,
       agency.agency_id,
-      buildAgencySymbolicGeojsons(
-        db,
-        agency.agency_id,
-        agency.agency_id == '1187' ? false : true
-      ),
-    ])
+      agency.agency_id == '1187' ? false : true
+    ),
+  ])
 
   console.log(
     'Agency geojsons built for ',
-    agencies.map((a) => a.agency_id).join(', ')
+    filtered.map((a) => a.agency_id).join(', ')
   )
 
   // Now compute bboxes for each agency's geojsons
@@ -89,6 +95,7 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
     .set('agencyAreas', agencyAreas)
     .then((result) => {
       runtimeCache.agencyAreas = agencyAreas // This because retrieving the cache takes 1 sec
+      console.timeLog('Traitement des agences')
       console.log('Cache enregistré')
     })
     .catch((err) => console.log("Erreur dans l'enregistrement du cache"))
