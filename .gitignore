@@ -4,6 +4,7 @@ db/*
 gtfs/*
 
 
+!db/keep
 !db/keep/.gitkeep
 !gtfs/.gitkeep
 input/
