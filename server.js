@@ -26,6 +26,7 @@ import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
 import {
   areDisjointBboxes,
   bboxArea,
+  dateHourMinutes,
   filterFeatureCollection,
   joinFeatureCollections,
   rejectNullValues,
@@ -63,6 +64,10 @@ cache
 export const config = JSON.parse(
   await readFile(new URL('./config.json', import.meta.url))
 )
+const dbName = await cache.get('dbName', dateHourMinutes())
+config.sqlitePath = 'db/' + dbName
+console.log(`set db name ${dbName} from disc cache`)
+
 const app = express()
 app.use(
   cors({
@@ -71,11 +76,12 @@ app.use(
 )
 app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
+
 const port = process.env.PORT || 3001
 
-const loadGTFS = async () => {
+const loadGTFS = async (newDbName) => {
   console.log('will load GTFS files in node-gtfs')
-  await importGtfs(config)
+  await importGtfs({ ...config, sqlitePath: 'db/' + newDbName })
   //TODO buildAgencyAreas(cache, runtimeCache)
   return "C'est bon !"
 }
@@ -475,13 +481,14 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
 })
 
 /* Update the DB from the local GTFS files */
-app.get('/fetch', async (req, res) => {
-  const alors = await loadGTFS()
+app.get('/parse', async (req, res) => {
+  const alors = await loadGTFS(dateHourMinutes())
 
   res.send(alors)
 })
 
 app.get('/update', async (req, res) => {
+  const oldDb = openDb(config)
   const { stdout, stderr } = await exec('yarn build-config')
   console.log('-------------------------------')
   console.log('Build config OK')
@@ -494,15 +501,32 @@ app.get('/update', async (req, res) => {
   console.log('stdout:', stdout3)
   console.log('stderr:', stderr3)
 
-  await loadGTFS()
+  const newDbName = dateHourMinutes()
+  cache.set('dbName', newDbName)
+  await loadGTFS(newDbName)
   console.log('-------------------------------')
-  console.log('Load GTFS in node-gtfs DB OK')
+  console.log(`Parsed GTFS in new node-gtfs DB ${newDbName} OK`)
+  config.sqlitePath = 'db/' + newDbName
 
-  const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+  apicache.clear()
+  closeDb(oldDb)
+  const { stdout4, stderr4 } = await exec(
+    `find db/ ! -name '${newDbName}' -type f -exec rm -f {} +`
+  )
   console.log('-------------------------------')
-  console.log('Restart Motis OK')
-  console.log('stdout:', stdout2)
-  console.log('stderr:', stderr2)
+  console.log('Removed older dbs')
+  console.log('stdout:', stdout4)
+  console.log('stderr:', stderr4)
+
+  try {
+    const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+    console.log('-------------------------------')
+    console.log('Restart Motis OK')
+    console.log('stdout:', stdout2)
+    console.log('stderr:', stderr2)
+  } catch (e) {
+    console.log("Couldn't restart Motis service, may be not present", e)
+  }
 
   res.send({ ok: true })
 })

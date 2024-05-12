@@ -109,7 +109,6 @@ const doFetch = async () => {
           path,
         })),
         ignoreDuplicates: true,
-        sqlitePath: 'db/gtfs',
       },
       null,
       4

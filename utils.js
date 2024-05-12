@@ -33,3 +33,16 @@ export const rejectNullValues = (object) =>
       .map(([k, v]) => (v == null ? false : [k, v]))
       .filter(Boolean)
   )
+
+export const dateHourMinutes = () => {
+  const date = new Date()
+
+  const date2 = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000)
+  return (
+    date2.toISOString().split('T')[0] +
+    '-' +
+    date2.getHours() +
+    '-' +
+    date2.getMinutes()
+  )
+}

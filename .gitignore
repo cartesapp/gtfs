@@ -4,7 +4,7 @@ db/*
 gtfs/*
 
 
-!db/.gitkeep
+!db/keep/.gitkeep
 !gtfs/.gitkeep
 input/
 gtfstidy.v0.2.linux.amd64
