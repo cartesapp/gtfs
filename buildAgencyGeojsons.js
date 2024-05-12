@@ -54,9 +54,12 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
         const isNight = computeIsNight(stopTimes)
         const isSchool = computeIsSchool(calendars, calendarDates, stopTimes)
 
-        const stops = stopTimes.map(({ stop_id }) => {
-          const stop = getStops({ stop_id })[0]
+        const stopIds = stopTimes.map((stop) => stop.stop_id)
+        const gtfsStops = getStops({ stop_id: stopIds }).sort(
+          (a, b) => stopIds.indexOf(a.stop_id) - stopIds.indexOf(b.stop_id)
+        )
 
+        const stops = gtfsStops.map((stop) => {
           // This strategy is good to simplify lines, handle at the same time both directions, and gather lines on a map...
           // ... but it fails when trying to find the exact bus stop and seeing precise shapes when the user zooms
           const stopValue = stopsMap.get(stop.stop_name)
@@ -132,11 +135,9 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
         ).length >
         0.8 * tripLineStrings.length
 
-      const isSchool =
-        tripLineStrings.filter(
-          ({ properties: { isSchool } }) => isSchool === true
-        ).length ===
-        1 * tripLineStrings.length
+      const isSchool = tripLineStrings.every(
+        ({ properties: { isSchool } }) => isSchool === true
+      )
 
       const mostStops = tripLineStrings.sort(
         (a, b) => b.geometry.coordinates.length - a.geometry.coordinates.length
@@ -199,7 +200,7 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
     })
     .filter(Boolean)
 
-  const stops = stopsMap.values().map((stop) =>
+  const stops = [...stopsMap.values()].map((stop) =>
     /*
 		   {
   stop_id: 'StopPoint:OCEOUIGO-87681825',
