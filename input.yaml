@@ -7,6 +7,6 @@ datasets:
   - horaires-des-lignes-ter-sncf
   - horaires-des-tgv
   - horaires-des-lignes-intercites-sncf
-  #- arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+  - arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
   #- agregat-oura
   #- horaires-theoriques-du-reseau-transports-en-commun-lyonnais

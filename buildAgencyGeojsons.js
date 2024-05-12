@@ -18,9 +18,9 @@ import {
 export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
   console.log('Will build agency symbolic geojson for agency ', agency_id)
   console.time(agency_id)
-  console.time('get routes for agency ', agency_id)
+  console.time('get routes for agency ' + agency_id)
   const routes = getRoutes({ agency_id })
-  console.timeLog('get routes for agency ', agency_id)
+  console.timeLog('get routes for agency ' + agency_id)
 
   const stopsMap = {}
 
@@ -37,6 +37,9 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
       const trips = getTrips({ route_id: route.route_id })
       //console.log(trips.slice(0, 2), trips.length)
 
+      console.time(
+        'build trip features for agency ' + agency_id + route.route_id
+      )
       const tripLineStrings = trips.map((trip) => {
         const { trip_id, service_id } = trip
 
@@ -48,8 +51,8 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
 
         const stopTimes = getStoptimes({ trip_id })
 
-        const isSchool = computeIsSchool(calendars, calendarDates, stopTimes)
         const isNight = computeIsNight(stopTimes)
+        const isSchool = computeIsSchool(calendars, calendarDates, stopTimes)
 
         const stops = stopTimes.map(({ stop_id }) => {
           const stops = getStops({ stop_id })
@@ -130,6 +133,10 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
         //return bezierSpline(feature)
         return feature
       })
+
+      console.timeLog(
+        'build trip features for agency ' + agency_id + route.route_id
+      )
 
       if (!tripLineStrings.length) return null
 

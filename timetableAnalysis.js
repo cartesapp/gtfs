@@ -51,6 +51,9 @@ export const dateFromString = (d) => {
 export const isMorning = (h) => h >= 6 && h <= 9
 export const isAfternoon = (h) => h >= 16 && h <= 19
 export const isLunch = (h) => h >= 12 && h < 15
+
+// string date to date object mapping to cache date creation between agencies
+const weekdaysMap = new Map()
 export function computeIsSchool(calendars, calendarDates, stopTimes) {
   // the Bretagne region does not use calendars, whereas Saint-Malo, a source of Bretagne GTFS, uses it. Good to know for debugging
   if (calendars.length > 0) return null // not handled yet TODO
@@ -58,8 +61,11 @@ export function computeIsSchool(calendars, calendarDates, stopTimes) {
   const weekdaysSet = new Set(
     calendarDates.map((el) => {
       //20240427
+      const found = weekdaysMap.get(el.date)
+      if (found) return found
       const date = dateFromString('' + el.date)
       const weekday = getWeekday(date)
+      weekdaysMap.set(el.date, weekday)
       return weekday
     })
   )

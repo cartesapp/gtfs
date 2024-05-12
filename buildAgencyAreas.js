@@ -39,7 +39,7 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
 	*/
 
   const entries = agencies
-    .filter(({ agency_id: id }) => ['1187', 'MAT', 'STAR'].includes(id))
+    .filter(({ agency_id: id }) => ['STAR'].includes(id))
     .map((agency) => [
       agency.agency_id,
       buildAgencySymbolicGeojsons(

@@ -61,10 +61,18 @@ cache
   })
   .catch((err) => console.log('Erreur dans le chargement du runtime cache'))
 
-export const config = JSON.parse(
-  await readFile(new URL('./config.json', import.meta.url))
-)
-const dbName = await cache.get('dbName', dateHourMinutes())
+let config
+
+const readConfig = async () => {
+  const newConfig = await JSON.parse(
+    await readFile(new URL('./config.json', import.meta.url))
+  )
+  config = newConfig
+  return newConfig
+}
+await readConfig()
+
+const dbName = await cache.get('dbName', dateHourMinutes)
 config.sqlitePath = 'db/' + dbName
 console.log(`set db name ${dbName} from disc cache`)
 
@@ -80,8 +88,11 @@ app.use(compression())
 const port = process.env.PORT || 3001
 
 const parseGTFS = async (newDbName) => {
+  const config = await readConfig()
   console.log('will load GTFS files in node-gtfs')
-  await importGtfs({ ...config, sqlitePath: 'db/' + newDbName })
+  const newConfig = { ...config, sqlitePath: 'db/' + newDbName }
+  console.log('new config for parsing', config, newConfig)
+  await importGtfs(newConfig)
   return "C'est bon !"
 }
 
