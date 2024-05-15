@@ -3,10 +3,15 @@ datasets:
   # Ça semble revenu
   # - versions-des-horaires-theoriques-des-lignes-de-bus-et-de-metro-du-reseau-star-au-format-gtfs
   #  - breizhgo-bateaux
-  - base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
-  - horaires-des-lignes-ter-sncf
-  - horaires-des-tgv
-  - horaires-des-lignes-intercites-sncf
-  - arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+  - slug: base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
+    prefix: bzh
+  - slug: horaires-des-lignes-ter-sncf
+    prefix: ter
+  - slug: horaires-des-tgv
+    prefix: tgv
+  - slug: horaires-des-lignes-intercites-sncf
+    prefix: intercites
+  - slug: arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+    prefix: pdll
   #- agregat-oura
   #- horaires-theoriques-du-reseau-transports-en-commun-lyonnais

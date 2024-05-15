@@ -36,9 +36,7 @@ const doFetch = async () => {
     const found = panDatasets.find(({ slug, page_url, id }) =>
       [slug, page_url, id].find((el) => el === dataset.slug)
     )
-    // After all, we gtfstidyfy everyting, this is not used
-    if (dataset.gtfstidy) return { ...found, gtfstidy: true }
-    return found
+    return { ...found, prefix: dataset.prefix }
   })
 
   log(
@@ -53,7 +51,11 @@ const doFetch = async () => {
     )
     return [
       ...memo,
-      ...uniqueTitle.map((resource) => ({ slug: next.slug, ...resource })),
+      ...uniqueTitle.map((resource) => ({
+        slug: next.slug,
+        prefix: next.prefix,
+        ...resource,
+      })),
     ]
   }, [])
 
@@ -63,7 +65,7 @@ const doFetch = async () => {
     resources.map(async (resource) => {
       try {
         const filename =
-          resource.slug +
+          (resource.prefix || resource.slug) +
           '|' +
           resource.title.replace(/\s/g, '-') +
           (resource.format === 'GTFS' ? '.gtfs.zip' : '.unknown')
@@ -82,18 +84,15 @@ const doFetch = async () => {
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
         await download(resource.original_url, destination)
         log(`Downloaded file ${resource.title}`)
-        if (true || resource.gtfstidy) {
-          const extractedFileName = filename.split('.zip')[0]
-          await exec(
-            `./gtfstidy.v0.2.linux.amd64 input/${filename} --fix -o input/${extractedFileName}`
-          )
-          log(
-            `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
-          )
-          return './input/' + extractedFileName
-        }
-
-        return './input/' + filename
+        // We gtfstidy everything, motis expects this and we had problems with node-gtfs before gtfstidying
+        const extractedFileName = filename.split('.zip')[0]
+        await exec(
+          `./gtfstidy.v0.2.linux.amd64 input/${filename} --fix -o input/${extractedFileName}`
+        )
+        log(
+          `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
+        )
+        return { path: './input/' + extractedFileName, prefix: resource.prefix }
       } catch (err) {
         console.log(err)
       }
@@ -105,9 +104,7 @@ const doFetch = async () => {
     nodeGtfsConfigFile,
     JSON.stringify(
       {
-        agencies: filenames.map((path) => ({
-          path,
-        })),
+        agencies: filenames,
         ignoreDuplicates: true,
       },
       null,
@@ -133,8 +130,8 @@ ${filenames
   .map(
     (filename) =>
       `paths=schedule-${
-        filename.split('/')[2].split('.gtfs')[0]
-      }:../gtfs/${filename}`
+        filename.path.split('/')[2].split('.gtfs')[0]
+      }:../gtfs/${filename.path}`
   )
   .join('\n')}
 paths=osm:input/cartes.osm.pbf
