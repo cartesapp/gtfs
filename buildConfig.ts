@@ -2,6 +2,7 @@ import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
 import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
 import { existsSync } from 'https://deno.land/std/fs/mod.ts'
+import { prefixGtfsServiceIds } from './gtfsUtils.ts'
 
 const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
 
@@ -92,7 +93,11 @@ const doFetch = async () => {
         log(
           `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
         )
-        return { path: './input/' + extractedFileName, prefix: resource.prefix }
+
+        const path = './input/' + extractedFileName
+        prefixGtfsServiceIds(path, resource.prefix + '-')
+
+        return { path, prefix: resource.prefix }
       } catch (err) {
         console.log(err)
       }
@@ -104,7 +109,7 @@ const doFetch = async () => {
     nodeGtfsConfigFile,
     JSON.stringify(
       {
-        agencies: filenames,
+        agencies: filenames.map(({ path }) => path), // We tried using the prefix option of node-GTFS to make service_ids unique, but it rewrites STAR:1235 with bzhSTAR:1235 which breaks external discovery e.g. OSM tag of a bus stop
         ignoreDuplicates: true,
       },
       null,
