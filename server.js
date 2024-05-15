@@ -82,7 +82,8 @@ app.use(
     origin: '*',
   })
 )
-app.use(cacheMiddleware('20 minutes'))
+// Désactivation temporaire pour régler nos pb de multiples entrées db
+//app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
 
 const port = process.env.PORT || 3001
@@ -125,6 +126,11 @@ app.get('/dev-agency', (req, res) => {
   const areas = buildAgencySymbolicGeojsons(db, { agency_id: '1187' })
   //res.json(areas)
   return res.json([['1187', areas]])
+})
+
+app.get('/agencyAreas', async (req, res) => {
+  const { agencyAreas } = runtimeCache
+  return res.json(agencyAreas)
 })
 
 app.get(
@@ -296,6 +302,7 @@ app.get('/stopTimes/:ids/:day?', (req, res) => {
 
     const db = openDb(config)
     const results = ids.map((id) => {
+      console.time('stoptimes')
       const stops = getStoptimes({
         stop_id: [id],
       })
@@ -318,6 +325,9 @@ app.get('/stopTimes/:ids/:day?', (req, res) => {
         tripsCount: trips.filter((trip) => trip.route_id === route.route_id)
           .length,
       }))
+
+      console.timeLog('stoptimes')
+      console.time('shapes')
       const features = routes
         .map((route) => [
           ...getShapesAsGeoJSON({
@@ -328,6 +338,7 @@ app.get('/stopTimes/:ids/:day?', (req, res) => {
           }).features,
         ])
         .flat()
+      console.timeLog('shapes')
 
       const result = {
         stops: stops.map(rejectNullValues),
