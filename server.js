@@ -288,9 +288,11 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
   }
 })
 
-app.get('/stopTimes/:ids', (req, res) => {
+app.get('/stopTimes/:ids/:day?', (req, res) => {
   try {
     const ids = req.params.ids.split('|')
+    // TODO implement this, to reduce radically the weight of the payload returned to the client for the basic usage of displaying stop times at the present or another future date
+    const day = req.params.day
 
     const db = openDb(config)
     const results = ids.map((id) => {
@@ -506,12 +508,6 @@ app.get('/update', async (req, res) => {
   console.log('Build config OK')
   console.log('stdout:', stdout)
   console.log('stderr:', stderr)
-
-  const { stdout3, stderr3 } = await exec('rm -f db/gtfs')
-  console.log('-------------------------------')
-  console.log('Deleted DB') // It looks like region Bretagne's GTFS reuses old ids, which may cause wrong route times analysis !
-  console.log('stdout:', stdout3)
-  console.log('stderr:', stderr3)
 
   const newDbName = dateHourMinutes()
   cache.set('dbName', newDbName)
