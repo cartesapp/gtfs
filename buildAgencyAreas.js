@@ -12,7 +12,7 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
   )
 
   const agencyAreas = {}
-  const agencies = getAgencies()
+  const agencies = getAgencies(undefined, undefined, undefined, { db })
 
   /*
     // get all shapes as geojson

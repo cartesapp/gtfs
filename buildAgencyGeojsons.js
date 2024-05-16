@@ -18,7 +18,7 @@ import {
 export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
   console.log('Will build agency symbolic geojson for agency ', agency_id)
   console.time(agency_id)
-  const routes = getRoutes({ agency_id })
+  const routes = getRoutes({ agency_id }, undefined, undefined, { db })
 
   const stopsMap = new Map()
 
@@ -32,7 +32,12 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
     //what's that ? Filtering TGV lines ?
     //.filter(({ route_short_name }) => route_short_name.match(/^\d.+/g))
     .map((route) => {
-      const trips = getTrips({ route_id: route.route_id })
+      const trips = getTrips(
+        { route_id: route.route_id },
+        undefined,
+        undefined,
+        { db }
+      )
 
       /*
       console.time(
@@ -42,19 +47,34 @@ export const buildAgencySymbolicGeojsons = (db, agency_id, noGathering) => {
       const tripLineStrings = trips.map((trip) => {
         const { trip_id, service_id } = trip
 
-        const calendarDates = getCalendarDates({ service_id })
-        const calendars = getCalendars({ service_id })
+        const calendarDates = getCalendarDates(
+          { service_id },
+          undefined,
+          undefined,
+          {
+            db,
+          }
+        )
+
+        const calendars = getCalendars({ service_id }, undefined, undefined, {
+          db,
+        })
+
         // trips stopTimes defines trips *per day*. Then calendars define which days the trip happens. Frequency needs both. We're defining a frequency per day. Each agency can be defined on arbitrary periods, hence the need to divide
 
         const perDay = computeFrequencyPerDay(calendars, calendarDates)
 
-        const stopTimes = getStoptimes({ trip_id })
+        const stopTimes = getStoptimes({ trip_id }, undefined, undefined, {
+          db,
+        })
 
         const isNight = computeIsNight(stopTimes)
         const isSchool = computeIsSchool(calendars, calendarDates, stopTimes)
 
         const stopIds = stopTimes.map((stop) => stop.stop_id)
-        const gtfsStops = getStops({ stop_id: stopIds }).sort(
+        const gtfsStops = getStops({ stop_id: stopIds }, undefined, undefined, {
+          db,
+        }).sort(
           (a, b) => stopIds.indexOf(a.stop_id) - stopIds.indexOf(b.stop_id)
         )
 
