@@ -142,6 +142,7 @@ ${filenames
 paths=osm:input/cartes.osm.pbf
 
 [ppr]
+profile=motis/ppr-profiles/distance_only.json
 profile=motis/ppr-profiles/default.json
 
 #[tiles]
