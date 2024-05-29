@@ -46,3 +46,8 @@ export const dateHourMinutes = () => {
     date2.getMinutes()
   )
 }
+const createPoint = (coordinates) => ({
+  type: 'Feature',
+  geometry: { type: 'Point', coordinates },
+  properties: {},
+})

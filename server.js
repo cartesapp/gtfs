@@ -7,6 +7,7 @@ import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
 import {
+  updateGtfsRealtime,
   closeDb,
   getAgencies,
   getCalendarDates,
@@ -20,6 +21,8 @@ import {
   getTrips,
   importGtfs,
   openDb,
+  getStopTimeUpdates,
+  getTripUpdates,
 } from 'gtfs'
 import util from 'util'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
@@ -72,7 +75,11 @@ const readConfig = async () => {
 }
 await readConfig()
 
-const dbName = await cache.get('dbName', dateHourMinutes)
+let dbName = await cache.get('dbName', null)
+if (!dbName) {
+  dbName = dateHourMinutes()
+  await cache.set('dbName', dbName)
+}
 config.sqlitePath = 'db/' + dbName
 console.log(`set db name ${dbName} from disc cache`)
 
@@ -91,9 +98,9 @@ const port = process.env.PORT || 3001
 const parseGTFS = async (newDbName) => {
   const config = await readConfig()
   console.log('will load GTFS files in node-gtfs')
-  const newConfig = { ...config, sqlitePath: 'db/' + newDbName }
-  console.log('new config for parsing', config, newConfig)
-  await importGtfs(newConfig)
+  config.sqlitePath = 'db/' + newDbName
+  await importGtfs(config)
+  await updateGtfsRealtime(config)
   return "C'est bon !"
 }
 
@@ -220,8 +227,8 @@ app.get(
           if (!isIncluded) return false
           const bboxCenter = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
           const distance = turfDistance(
-            point(bboxCenter),
-            point([longitude, latitude])
+            createPoint(bboxCenter),
+            createPoint([longitude, latitude])
           )
           return { agencyId, ...agency, bboxCenter, distance }
         })
@@ -258,12 +265,32 @@ app.get('/agency/:agency_id?', (req, res) => {
   }
 })
 
-const point = (coordinates) => ({
-  type: 'Feature',
-  geometry: { type: 'Point', coordinates },
-  properties: {},
+app.get('/agency/:agency_id?', (req, res) => {
+  try {
+    const { agency_id } = req.params
+    console.log(`Requesting agency by id ${agency_id}`)
+    const db = openDb(config)
+    if (agency_id == null) res.json(getAgencies())
+    else res.json(getAgencies({ agency_id })[0])
+
+    return closeDb(db)
+  } catch (error) {
+    console.error(error)
+  }
 })
 
+app.get('/stop/:stop_id?', (req, res) => {
+  try {
+    const { stop_id } = req.params
+    console.log(`Requesting agency by id ${stop_id}`)
+    const db = openDb(config)
+    res.json(getStops({ stop_id })[0])
+
+    return closeDb(db)
+  } catch (error) {
+    console.error(error)
+  }
+})
 app.get('/getStopIdsAroundGPS', (req, res) => {
   try {
     const latitude = req.query.latitude
@@ -313,6 +340,7 @@ app.get('/stopTimes/:ids/:day?', (req, res) => {
         frequencies: getFrequencies({ trip_id: trip.trip_id }),
         calendar: getCalendars({ service_id: trip.service_id }),
         calendarDates: getCalendarDates({ service_id: trip.service_id }),
+        //realtime: getStopTimeUpdates({ trip_id: trip.trip_id }),
       }))
 
       const tripRoutes = trips.reduce(
@@ -354,6 +382,13 @@ app.get('/stopTimes/:ids/:day?', (req, res) => {
   } catch (error) {
     console.error(error)
   }
+})
+
+app.get('/realtime/getStopTimeUpdates', async (req, res) => {
+  const db = openDb(config)
+  await updateGtfsRealtime(config)
+  res.json(getStopTimeUpdates())
+  return closeDb(db)
 })
 
 app.get('/routes/trip/:tripId', (req, res) => {
@@ -526,7 +561,6 @@ app.get('/update', async (req, res) => {
 
   console.log('-------------------------------')
   console.log(`Parsed GTFS in new node-gtfs DB ${newDbName} OK`)
-  config.sqlitePath = 'db/' + newDbName
 
   console.log(
     'Will build agency areas, long not optimized step for now, ~ 30 minutes for SNCF + STAR + TAN'
