@@ -128,7 +128,6 @@ modules=nigiri
 
 intermodal.router=nigiri
 server.static_path=motis/web
-dataset.no_schedule=true
 
 [import]
 ${filenames
