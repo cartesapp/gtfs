@@ -1,4 +1,3 @@
-import mapboxPolylines from '@mapbox/polyline'
 import turfDistance from '@turf/distance'
 import apicache from 'apicache'
 import { exec as rawExec } from 'child_process'
@@ -7,7 +6,6 @@ import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
 import {
-  updateGtfsRealtime,
   closeDb,
   getAgencies,
   getCalendarDates,
@@ -15,14 +13,14 @@ import {
   getFrequencies,
   getRoutes,
   getShapesAsGeoJSON,
+  getStopTimeUpdates,
   getStops,
   getStopsAsGeoJSON,
   getStoptimes,
   getTrips,
   importGtfs,
   openDb,
-  getStopTimeUpdates,
-  getTripUpdates,
+  updateGtfsRealtime,
 } from 'gtfs'
 import util from 'util'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
@@ -92,6 +90,7 @@ app.use(
 // Désactivation temporaire pour régler nos pb de multiples entrées db
 //app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
+app.use(express.static('data/pmtiles'))
 
 const port = process.env.PORT || 3001
 
