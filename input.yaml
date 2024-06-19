@@ -13,5 +13,9 @@ datasets:
     prefix: intercites
   - slug: arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
     prefix: pdll
+  - slug: blablacar-bus-horaires-theoriques-et-temps-reel-du-reseau-europeen
+    prefix: blablabus
+  - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
+    prefix: flixbus
   #- agregat-oura
   #- horaires-theoriques-du-reseau-transports-en-commun-lyonnais
