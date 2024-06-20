@@ -37,7 +37,11 @@ const doFetch = async () => {
     const found = panDatasets.find(({ slug, page_url, id }) =>
       [slug, page_url, id].find((el) => el === dataset.slug)
     )
-    return { ...found, prefix: dataset.prefix }
+    return {
+      ...found,
+      prefix: dataset.prefix,
+      prefixServiceIds: dataset.prefixServiceIds,
+    }
   })
 
   log(
@@ -55,6 +59,7 @@ const doFetch = async () => {
       ...uniqueTitle.map((resource) => ({
         slug: next.slug,
         prefix: next.prefix,
+        prefixServiceIds: next.prefixServiceIds,
         ...resource,
       })),
     ]
@@ -95,7 +100,8 @@ const doFetch = async () => {
         )
 
         const path = './input/' + extractedFileName
-        prefixGtfsServiceIds(path, resource.prefix + '-')
+        if (resource.prefixServiceIds)
+          prefixGtfsServiceIds(path, resource.prefix + '-')
 
         return { path, prefix: resource.prefix }
       } catch (err) {

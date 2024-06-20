@@ -5,14 +5,18 @@ datasets:
   #  - breizhgo-bateaux
   - slug: base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
     prefix: bzh
+    prefixServiceIds: true
+    # This option applied to all datasets makes blablabus and flixbus disappear !
+  - slug: arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+    prefix: pdll
+    prefixServiceIds: true
+    # This option applied to all datasets makes blablabus and flixbus disappear !
   - slug: horaires-des-lignes-ter-sncf
     prefix: ter
   - slug: horaires-des-tgv
     prefix: tgv
   - slug: horaires-des-lignes-intercites-sncf
     prefix: intercites
-  - slug: arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
-    prefix: pdll
   - slug: blablacar-bus-horaires-theoriques-et-temps-reel-du-reseau-europeen
     prefix: blablabus
   - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
