@@ -264,18 +264,12 @@ app.get('/agency/:agency_id?', (req, res) => {
   }
 })
 
-app.get('/agency/:agency_id?', (req, res) => {
-  try {
-    const { agency_id } = req.params
-    console.log(`Requesting agency by id ${agency_id}`)
-    const db = openDb(config)
-    if (agency_id == null) res.json(getAgencies())
-    else res.json(getAgencies({ agency_id })[0])
+app.get('/agencyBbox/:agency_id', async (req, res) => {
+  const { agency_id } = req.params
+  const { agencyAreas } = runtimeCache
 
-    return closeDb(db)
-  } catch (error) {
-    console.error(error)
-  }
+  const result = agencyAreas[agency_id].bbox
+  return res.json(result)
 })
 
 app.get('/stop/:stop_id?', (req, res) => {
@@ -408,7 +402,9 @@ app.get('/routes/trip/:tripId', (req, res) => {
 app.get('/agencies', (req, res) => {
   try {
     const db = openDb(config)
-    const agencies = getAgencies()
+    const { agencyAreas: cacheAgencies } = runtimeCache
+
+    const agencies = cacheAgencies || getAgencies()
     res.json({ agencies })
   } catch (error) {
     console.error(error)

@@ -18,7 +18,7 @@ datasets:
   - slug: horaires-des-lignes-intercites-sncf
     prefix: intercites
   - slug: blablacar-bus-horaires-theoriques-et-temps-reel-du-reseau-europeen
-    prefix: blablabus
+    prefix: blablacar
   - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
     prefix: flixbus
   #- agregat-oura
