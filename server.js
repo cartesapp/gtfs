@@ -402,9 +402,8 @@ app.get('/routes/trip/:tripId', (req, res) => {
 app.get('/agencies', (req, res) => {
   try {
     const db = openDb(config)
-    const { agencyAreas: cacheAgencies } = runtimeCache
 
-    const agencies = cacheAgencies || getAgencies()
+    const agencies = getAgencies()
     res.json({ agencies })
   } catch (error) {
     console.error(error)
