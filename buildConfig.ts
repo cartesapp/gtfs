@@ -45,7 +45,7 @@ const doFetch = async () => {
   )
   const resources = interestingDatasets.reduce((memo, next) => {
     const gtfsResources = next.resources.filter(
-      (resource) => resource.format === 'GTFS' && resource.is_available
+      (resource) => resource.format === 'GTFS' //&& resource.is_available flixbus marked as not available but is in fact
     )
     const uniqueTitle = Object.values(
       Object.fromEntries(gtfsResources.map((el) => [el.title, el]))
