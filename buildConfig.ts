@@ -6,16 +6,16 @@ import { prefixGtfsServiceIds } from './gtfsUtils.ts'
 
 const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
 
-const tidyFilename = 'gtfstidy.v0.2.linux.amd64'
-const pathFound = existsSync(tidyFilename)
-if (pathFound) log('gtfstidy already present')
+const gtfsCleanFilename = 'gtfsclean'
+const pathFound = existsSync(gtfsCleanFilename)
+if (pathFound) log('gtfsclean already present')
 else {
-  log('will download gtfstidy')
+  log('will download gtfsclean (fork of gtfs tidy)')
 
   await exec(
-    'wget https://github.com/patrickbr/gtfstidy/releases/download/v0.2/gtfstidy.v0.2.linux.amd64'
+    'wget https://github.com/public-transport/gtfsclean/releases/download/snapshot-2/gtfsclean'
   )
-  await exec('chmod +x gtfstidy.v0.2.linux.amd64')
+  await exec('chmod +x gtfsclean')
 }
 
 const yamlLoader = new YamlLoader()
@@ -85,10 +85,10 @@ const doFetch = async () => {
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
         await download(resource.original_url, destination)
         log(`Downloaded file ${resource.title}`)
-        // We gtfstidy everything, motis expects this and we had problems with node-gtfs before gtfstidying
+        // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
         const extractedFileName = filename.split('.zip')[0]
         await exec(
-          `./gtfstidy.v0.2.linux.amd64 input/${filename} --fix -o input/${extractedFileName}`
+          `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
         )
         log(
           `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
