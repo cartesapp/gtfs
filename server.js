@@ -589,6 +589,7 @@ app.get('/update', async (req, res) => {
   }
 
   closeDb(db)
+  console.log('Done updating 😀')
   res.send({ ok: true })
 })
 
