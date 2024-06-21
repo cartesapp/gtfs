@@ -264,6 +264,13 @@ app.get('/agency/:agency_id?', (req, res) => {
   }
 })
 
+app.get('/agencyArea/:agency_id', async (req, res) => {
+  const { agency_id } = req.params
+  const { agencyAreas } = runtimeCache
+
+  const result = agencyAreas[agency_id]
+  return res.json(result)
+})
 app.get('/agencyBbox/:agency_id', async (req, res) => {
   const { agency_id } = req.params
   const { agencyAreas } = runtimeCache
