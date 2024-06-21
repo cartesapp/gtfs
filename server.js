@@ -542,50 +542,54 @@ app.get('/parse', async (req, res) => {
 })
 
 app.get('/update', async (req, res) => {
-  const oldDb = openDb(config)
-  const { stdout, stderr } = await exec('yarn build-config')
-  console.log('-------------------------------')
-  console.log('Build config OK')
-  console.log('stdout:', stdout)
-  console.log('stderr:', stderr)
-
-  const newDbName = dateHourMinutes()
-  cache.set('dbName', newDbName)
-  await parseGTFS(newDbName)
-
-  console.log('-------------------------------')
-  console.log(`Parsed GTFS in new node-gtfs DB ${newDbName} OK`)
-
-  console.log(
-    'Will build agency areas, long not optimized step for now, ~ 30 minutes for SNCF + STAR + TAN'
-  )
-
-  closeDb(oldDb)
-  const db = openDb(config)
-  buildAgencyAreas(db, cache, runtimeCache)
-
-  apicache.clear()
-  const { stdout4, stderr4 } = await exec(
-    `find db/ ! -name '${newDbName}' -type f -exec rm -f {} +`
-  )
-  console.log('-------------------------------')
-  console.log('Removed older dbs')
-  console.log('stdout:', stdout4)
-  console.log('stderr:', stderr4)
-
   try {
+    const oldDb = openDb(config)
+    const { stdout, stderr } = await exec('yarn build-config')
+    console.log('-------------------------------')
+    console.log('Build config OK')
+    console.log('stdout:', stdout)
+    console.log('stderr:', stderr)
+
+    const newDbName = dateHourMinutes()
+    cache.set('dbName', newDbName)
+    await parseGTFS(newDbName)
+
+    console.log('-------------------------------')
+    console.log(`Parsed GTFS in new node-gtfs DB ${newDbName} OK`)
+
+    console.log(
+      'Will build agency areas, long not optimized step for now, ~ 30 minutes for SNCF + STAR + TAN'
+    )
+
+    closeDb(oldDb)
+    const db = openDb(config)
+    buildAgencyAreas(db, cache, runtimeCache)
+
+    apicache.clear()
+    const { stdout4, stderr4 } = await exec(
+      `find db/ ! -name '${newDbName}' -type f -exec rm -f {} +`
+    )
+    console.log('-------------------------------')
+    console.log('Removed older dbs')
+    console.log('stdout:', stdout4)
+    console.log('stderr:', stderr4)
+
     const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
     console.log('-------------------------------')
     console.log('Restart Motis OK')
     console.log('stdout:', stdout2)
     console.log('stderr:', stderr2)
-  } catch (e) {
-    console.log("Couldn't restart Motis service, may be not present", e)
-  }
 
-  closeDb(db)
-  console.log('Done updating 😀')
-  res.send({ ok: true })
+    closeDb(db)
+    console.log('Done updating 😀')
+    res.send({ ok: true })
+  } catch (e) {
+    console.log(
+      "Couldn't update the GTFS server, or the Motis service. Please investigate.",
+      e
+    )
+    res.send({ ok: false })
+  }
 })
 
 app.listen(port, () => {
