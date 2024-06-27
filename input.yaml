@@ -21,5 +21,5 @@ datasets:
     prefix: blablacar
   - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
     prefix: flixbus
-  #- agregat-oura
-  #- horaires-theoriques-du-reseau-transports-en-commun-lyonnais
+  - slug: agregat-oura
+    prefix: aura
