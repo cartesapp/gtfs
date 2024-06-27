@@ -2,7 +2,7 @@
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "scripts": {
-    "build-config": "deno run --allow-net --allow-read --allow-write --allow-run buildConfig.ts",
+    "build-config": "deno run --allow-net --allow-env --allow-read --allow-write --allow-run buildConfig.ts",
     "start": "node --watch server.js"
   },
   "engines": {

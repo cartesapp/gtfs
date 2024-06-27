@@ -23,3 +23,6 @@ datasets:
     prefix: flixbus
   - slug: agregat-oura
     prefix: aura
+  - slug: horaires-theoriques-du-reseau-transports-en-commun-lyonnais
+    prefix: lyon
+    auth: 'LYON_TCL_CREDENTIALS'

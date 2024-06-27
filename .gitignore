@@ -9,8 +9,10 @@ gtfs/*
 !gtfs/.gitkeep
 input/
 gtfstidy.v0.2.linux.amd64
+gtfsclean
 
 geojson
 config.json
 data/tippecanoe/
 data/raw/
+.env

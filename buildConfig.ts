@@ -3,6 +3,8 @@ import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
 import { existsSync } from 'https://deno.land/std/fs/mod.ts'
 import { prefixGtfsServiceIds } from './gtfsUtils.ts'
+import { load } from 'https://deno.land/std@0.224.0/dotenv/mod.ts'
+const env = await load()
 
 const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
 
@@ -40,6 +42,7 @@ const doFetch = async () => {
     return {
       ...found,
       prefix: dataset.prefix,
+      auth: dataset.auth,
       prefixServiceIds: dataset.prefixServiceIds,
     }
   })
@@ -58,6 +61,7 @@ const doFetch = async () => {
       ...memo,
       ...uniqueTitle.map((resource) => ({
         slug: next.slug,
+        auth: next.auth,
         prefix: next.prefix,
         prefixServiceIds: next.prefixServiceIds,
         ...resource,
@@ -87,8 +91,25 @@ const doFetch = async () => {
         mode: 0o777
     }
     */
+
+        const needAuth = resource.auth
+        if (needAuth && !env[needAuth])
+          console.log(
+            `%cErreur : la resource du slug ${resource.slug} nécessite une authentification ${resource.auth}`,
+            'color: crimson'
+          )
+        const reqInit: RequestInit = {
+          method: 'GET',
+          ...(needAuth
+            ? {
+                headers: {
+                  Authorization: 'Basic ' + btoa(env[needAuth]),
+                },
+              }
+            : {}),
+        }
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
-        await download(resource.original_url, destination)
+        await download(resource.original_url, destination, reqInit)
         log(`Downloaded file ${resource.title}`)
         // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
         const extractedFileName = filename.split('.zip')[0]
