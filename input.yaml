@@ -26,3 +26,5 @@ datasets:
   - slug: horaires-theoriques-du-reseau-transports-en-commun-lyonnais
     prefix: lyon
     auth: 'LYON_TCL_CREDENTIALS'
+  - slug: horaires-theoriques-du-reseau-stas
+    prefix: saint-etienne
