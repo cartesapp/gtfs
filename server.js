@@ -93,6 +93,29 @@ app.use(compression())
 app.use(express.static('data/pmtiles'))
 app.use(express.static('data/geojson'))
 
+const resultats = await JSON.parse(
+  await readFile(
+    new URL(
+      './data/geojson/resultats-legislatives-2024.geojson',
+      import.meta.url
+    )
+  )
+)
+
+app.get('/elections-legislatives-2024/:circo', (req, res) => {
+  try {
+    const { circo } = req.params
+
+    const result = resultats.features.find(
+      (feature) => feature.properties.circo === circo
+    )
+    res.json(result)
+    closeDb(db)
+  } catch (e) {
+    console.error(e)
+  }
+})
+
 const port = process.env.PORT || 3001
 
 const parseGTFS = async (newDbName) => {
