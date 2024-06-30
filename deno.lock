@@ -4,7 +4,9 @@
     "specifiers": {
       "jsr:@std/assert@^0.224.0": "jsr:@std/assert@0.224.0",
       "jsr:@std/csv": "jsr:@std/csv@0.224.0",
-      "jsr:@std/streams@^0.224.0": "jsr:@std/streams@0.224.0"
+      "jsr:@std/streams@^0.224.0": "jsr:@std/streams@0.224.0",
+      "npm:simple-xml-to-json": "npm:simple-xml-to-json@1.2.2",
+      "npm:xml-js": "npm:xml-js@1.6.11"
     },
     "jsr": {
       "@std/assert@0.224.0": {
@@ -19,6 +21,22 @@
       },
       "@std/streams@0.224.0": {
         "integrity": "9c21feb45113abfc67dd536029624d1792d56dfbb029b8c1baf4ad5a2c35769e"
+      }
+    },
+    "npm": {
+      "sax@1.4.1": {
+        "integrity": "sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==",
+        "dependencies": {}
+      },
+      "simple-xml-to-json@1.2.2": {
+        "integrity": "sha512-bmJJf5YiYL60eOQk3gaVxbM6vgYuwrFydCEAA2x3jccHUTsAffiPyblS/yQGr8GDUQVxSDm3WwLNL5HmRqDUcg==",
+        "dependencies": {}
+      },
+      "xml-js@1.6.11": {
+        "integrity": "sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==",
+        "dependencies": {
+          "sax": "sax@1.4.1"
+        }
       }
     }
   },
