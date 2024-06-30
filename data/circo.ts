@@ -50,7 +50,8 @@ const points = json.features.filter(
       const departement = feature.properties['dep'].replace(/^0+/g, '') //TODO ZX ZZ
       const circo = feature.properties['circo']
       const region = departementToRegion[departement]
-      const url = `https://www.resultats-elections.interieur.gouv.fr/telechargements/LG2024/resultatsT1/${region}/R1${region}${circo}.xml`
+      const url = `https://www.resultats-elections.interieur.gouv.fr/telechargements/LG2024/resultatsT1/${departement}/R1${departement}${circo}.xml`
+      console.log(url)
       const req = await fetch(url)
       const text = await req.text()
       if (text.includes('404 Not Found')) return
@@ -61,13 +62,18 @@ const points = json.features.filter(
         json.Election.EnsembleGeo.Region.Departement.Circonscription.Tours.Tour.Resultats.Candidats.Candidat.map(
           (el) => ({
             nuance: el.CodNuaCand._text,
-            score: el.RapportExprimes._text,
+            score: +el.RapportExprimes._text.replace(',', '.'),
           })
-        ).sort((a, b) => +b.score - +a.score)
+        ).sort((a, b) => b.score - a.score)
 
       return {
         ...feature,
-        properties: { result: resultats[0].nuance },
+        properties: {
+          ...feature.properties,
+          result: resultats[0].nuance,
+          results: resultats,
+          circo: departement + circo,
+        },
       }
     })
   ),
