@@ -63,6 +63,11 @@ const points = json.features.filter(
           (el) => ({
             nuance: el.CodNuaCand._text,
             score: +el.RapportExprimes._text.replace(',', '.'),
+            NomPsn: el.NomPsn._text,
+            PrenomPsn: el.PrenomPsn._text,
+            LibNuaCand: el.LibNuaCand._text,
+            Couleur: el.Couleur?._text,
+            Sortant: el.Sortant?._text,
           })
         ).sort((a, b) => b.score - a.score)
 
