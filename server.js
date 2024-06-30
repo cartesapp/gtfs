@@ -91,6 +91,7 @@ app.use(
 //app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
 app.use(express.static('data/pmtiles'))
+app.use(express.static('data/geojson'))
 
 const port = process.env.PORT || 3001
 

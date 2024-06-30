@@ -14,5 +14,6 @@ gtfsclean
 geojson
 config.json
 data/tippecanoe/
+data/geojson/
 data/raw/
 .env
