@@ -63,6 +63,7 @@ const points = json.features.filter(
           (el) => ({
             nuance: el.CodNuaCand._text,
             score: +el.RapportExprimes._text.replace(',', '.'),
+            scoreInscrits: +el.RapportInscrits._text.replace(',', '.'),
             NomPsn: el.NomPsn._text,
             PrenomPsn: el.PrenomPsn._text,
             LibNuaCand: el.LibNuaCand._text,
