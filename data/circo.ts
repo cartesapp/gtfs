@@ -47,14 +47,20 @@ const points = json.features.filter(
   ),
   resultatsRaw = await Promise.all(
     points.map(async (feature) => {
-      const departement = feature.properties['dep'].replace(/^0+/g, '') //TODO ZX ZZ
+      const departementRaw = feature.properties['dep'],
+        departement =
+          departementRaw.length === 3
+            ? departementRaw.replace(/^0/g, '')
+            : departementRaw //TODO ZX ZZ
       const circo = feature.properties['circo']
       const region = departementToRegion[departement]
       const url = `https://www.resultats-elections.interieur.gouv.fr/telechargements/LG2024/resultatsT1/${departement}/R1${departement}${circo}.xml`
       console.log(url)
       const req = await fetch(url)
       const text = await req.text()
-      if (text.includes('404 Not Found')) return
+      if (text.includes('404 Not Found')) {
+        return console.log('foirage', circo, departement)
+      }
 
       const json = JSON.parse(xml2json(text, { compact: true }))
 
