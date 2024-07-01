@@ -24,6 +24,8 @@ const regionToDepartement = territories.Election.EnsembleGeo.Regions.Region.map(
   }
 )
 
+console.log(regionToDepartement)
+
 const departementToRegion = Object.fromEntries(
   regionToDepartement
     .map(([region, departements]) =>
@@ -43,9 +45,10 @@ dep: "069",
 	*/
 
 const points = json.features.filter(
-    (feature) => feature.geometry.type === 'Point'
-  ),
-  resultatsRaw = await Promise.all(
+  (feature) => feature.geometry.type === 'Point'
+)
+console.log('Points length', points.length)
+const resultatsRaw = await Promise.all(
     points.map(async (feature) => {
       const departementRaw = feature.properties['dep'],
         departement =
@@ -55,7 +58,7 @@ const points = json.features.filter(
       const circo = feature.properties['circo']
       const region = departementToRegion[departement]
       const url = `https://www.resultats-elections.interieur.gouv.fr/telechargements/LG2024/resultatsT1/${departement}/R1${departement}${circo}.xml`
-      console.log(url)
+      //console.log(url)
       const req = await fetch(url)
       const text = await req.text()
       if (text.includes('404 Not Found')) {
@@ -90,6 +93,7 @@ const points = json.features.filter(
     })
   ),
   resultats = resultatsRaw.filter(Boolean)
+console.log('Resultst length', resultats.length)
 
 const filtered = json.features.filter((feature) =>
   ['Polygon', 'MultiPolygon'].includes(feature.geometry.type)
@@ -100,7 +104,15 @@ await Deno.writeTextFile(
   JSON.stringify(filtered)
 )
 
-const nuances = new Set(resultats.map((feature) => feature.properties.result))
+const nuances = new Set(
+  resultats
+    .map((feature) =>
+      feature.properties.results.map(
+        (result) => result.LibNuaCand + ' | ' + result.nuance
+      )
+    )
+    .flat()
+)
 console.log('nuances', nuances)
 await Deno.writeTextFile(
   './geojson/resultats-legislatives-2024-nuances.json',
