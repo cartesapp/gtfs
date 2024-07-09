@@ -147,7 +147,13 @@ const doFetch = async () => {
     )
   )
   log(`Wrote node-gtfs config file ${nodeGtfsConfigFile}`)
-  await Deno.mkdir("../motis");
+  try {
+    await Deno.mkdir("../motis");
+  } catch (err) {
+    if (!(err instanceof Deno.errors.AlreadyExists)) {
+      throw err;
+    }
+  }
   const motisConfigFile = '../motis/config.ini'
   await Deno.writeTextFile(
     motisConfigFile,
