@@ -6,6 +6,8 @@ agencies:
   - url: https://mobi-iti-ara.okina.fr/static/mobiiti_technique/DAT_AURA_GTFS_ExportAOM.zip
   - url: https://www.korrigo.bzh/ftp/OPENDATA/KORRIGOBRET.gtfs.zip
   - url: https://gtech-transit-prod.apigee.net/v1/google/gtfs/odbl/lyon_tcl.zip?apikey=BasyG6OFZXgXnzWdQLTwJFGcGmeOs204&secret=gNo6F5PhQpsGRBCK
+  - url: https://data.centrevaldeloire.fr/api/explore/v2.1/catalog/datasets/agglopolys-offre-theorique-mobilite-reseau-urbain-blois/files/af673e7cbb43033c60c117ddf5f4ecaa
+  - url: https://download.data.grandlyon.com/files/rdata/tcl_sytral.tcltheorique/GTFS_TCL.ZIP
 ignoreDuplicates: true
 sqlitePath: db/gtfs
 workingAgencies: []
