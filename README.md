@@ -30,7 +30,9 @@ Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
 
 ## Déploiement
 
-Actuellement, j'ai un serveur Scaleway qui me coûte 80€/mois pour faire tourner laem/gtfs et laem/motis. C'est assez simple à gérer : je développe en local et je fais des `git pull` quand nécessaire (changement de code) puis un `pm2 delete 0 && PORT=3001 pm2 start "yarn start"` ou je tape l'URL `/update` pour lancer une MAJ des réseaux de transport si ce n'est que ça.
+Actuellement, j'ai un serveur Scaleway qui me coûte 80€/mois pour faire tourner laem/gtfs et laem/motis. C'est assez simple à gérer : je développe en local et je fais des `git pull` quand nécessaire (changement de code) puis un `pm2 delete 0 && PORT=3001 pm2 start "yarn start"` ou je tape l'URL `/update` pour lancer une MAJ des réseaux de transport si ce n'est que ça, et le résultat peut être suivi via `pm2 logs --raw --lines 50`.
+
+Vous moquez pas, on vise l'efficacité pour innover côté UI avant d'atteindre le graal du devops justifié par des millions d'utilisateurs ;)
 
 Pour garantir une fraicheur régulière, j'ai un micro-script sur Deno Deploy qui comporte juste ce code :
 
