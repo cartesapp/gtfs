@@ -1,12 +1,16 @@
-# Serveur GTFS des horaires et lignes de bus en France
+# API des horaires et lignes de bus en France (standard GTFS)
 
-On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/futureco/issues/162).
+On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/cartes/issues/162).
 
-Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous intéressent avec un script Deno. Il est donc la source des données pour laem/motis, qui lui gère le routage.
+Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous intéressent avec un script Deno. Il est donc la source des données pour [laem/motis](https://github.com/laem/motis), qui lui gère le routage.
 
 ## Couverture
 
 Pour l'instant, on se concentre sur l'ouest de la France. La plus belle région du pays mérite ça :p
+
+Vous êtes développeur ou bidouilleur et vous aimeriez que votre territoire y soit ? Allons-y !
+
+C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](https://github.com/laem/gtfs/blob/master/input.yaml).
 
 ## Création de la configuration
 
