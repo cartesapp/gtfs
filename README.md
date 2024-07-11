@@ -14,7 +14,9 @@ C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](http
 
 À noter, nous n'avons pas encore de branches déployées automatiquement pour chaque PR. Il faudra donc mettre en ligne sur `master` et attendre le déploiement pour ensuite tester les transports en commun sur votre territoire, et ça passe forcément par @laem. Comme vous pouvez le voir plus bas dans #déploiement, j'ai tenté de déployer tout ça sur un SaaS, mais c'est trop compliqué pour l'instant...
 
-## Création de la configuration
+Quand on aura le temps, il faudra automatiser tout ça et trouver un moyen de déployer ce serveur de façon plus décentralisée.
+
+## Faire tourner ce serveur en local
 
 Toutes les étapes sont résumées dans [la route `update` du `server.js`](https://github.com/laem/gtfs/blob/master/server.js#L575).
 
@@ -23,6 +25,8 @@ Donc quand le serveur tourne, charger `/update` va relancer le téléchargement,
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
 Ça nécessite d'installer node, yarn, pm2, Deno et laem/motis.
+
+Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
 
 ## Déploiement
 
