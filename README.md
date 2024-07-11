@@ -45,6 +45,12 @@ fetch('https://motis.cartes.app/gtfs/update')
 
 C'est une solution temporaire qui me va bien, mais qui devra évidemment être améliorée !
 
+Au 11 juillet 2024, avec les réseaux Bretagne + PdlL + Lyon + Aura + quelques autres petits, on est sur un temps de téléchargement des GTFS + intégration à node-GTFS + création des plans de transport en commun + parsing Motis d'environ 10 minutes. Ça me semble tolérable, mais il y a des tas d'améliorations possibles :
+
+- on va retélécharger des GTFS et les recalculer 2x par jour même s'ils n'ont pas changé ! C'est bête, mais ça marche. Pour améliorer ça, il faudra s'assurer de supprimer de la BDD node-GTFS les entrées d'un réseau qui a changé, c'est pas trivial. Je ne sais pas comment Motis le gère...
+- Motis ingère les GTFS à une vitesse 10 x celle de node-GTFS, je leur en ai fait une issue
+- j'ai un peu optimisé notre création de plans de transport (ce qui passe par une création de _shapes_ GTFS symboliques pour pallier à la médiocrité des shapes des AOM) mais on peut aller plus loin
+
 ### Déployer sur un Saas
 
 J'ai d'abord testé Scalingo. Ça marche, mais à chaque déploiement il faut repeupler la DB, et ça commence à prendre beaucoup de temps. Les PaaS sont donc limitantes, et plus chères qu'un simple VPS.
