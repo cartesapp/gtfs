@@ -30,6 +30,21 @@ Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
 
 ## Déploiement
 
+Actuellement, j'ai un serveur Scaleway qui me coûte 80€/mois pour faire tourner laem/gtfs et laem/motis. C'est assez simple à gérer : je développe en local et je fais des `git pull` quand nécessaire (changement de code) puis un `PORT=3001 pm2 start "yarn start"` ou je tape l'URL `/update` pour lancer une MAJ des réseaux de transport si ce n'est que ça.
+
+Pour garantir une fraicheur régulière, j'ai un micro-script sur Deno Deploy qui comporte juste ce code :
+
+```
+Deno.cron("Update GTFS for node-GTFS and Motis","0 */6 * * *", () => {
+fetch('https://motis.cartes.app/gtfs/update')
+
+});
+```
+
+C'est une solution temporaire qui me va bien, mais qui devra évidemment être améliorée !
+
+### Déployer sur un Saas
+
 J'ai d'abord testé Scalingo. Ça marche, mais à chaque déploiement il faut repeupler la DB, et ça commence à prendre beaucoup de temps. Les PaaS sont donc limitantes, et plus chères qu'un simple VPS.
 
 Clairement, le VPS ne tiendra pas à terme, mais pour commencer c'est bien.
