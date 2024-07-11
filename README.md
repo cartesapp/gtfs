@@ -10,27 +10,19 @@ Pour l'instant, on se concentre sur l'ouest de la France. La plus belle région 
 
 Vous êtes développeur ou bidouilleur et vous aimeriez que votre territoire y soit ? Allons-y !
 
-C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](https://github.com/laem/gtfs/blob/master/input.yaml).
+C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](https://github.com/laem/gtfs/blob/master/input.yaml). Vous y trouverez en début de fichier une petite documentation.
+
+À noter, nous n'avons pas encore de branches déployées automatiquement pour chaque PR. Il faudra donc mettre en ligne sur `master` et attendre le déploiement pour ensuite tester les transports en commun sur votre territoire, et ça passe forcément par @laem. Comme vous pouvez le voir plus bas dans #déploiement, j'ai tenté de déployer tout ça sur un SaaS, mais c'est trop compliqué pour l'instant...
 
 ## Création de la configuration
 
+Toutes les étapes sont résumées dans [la route `update` du `server.js`](https://github.com/laem/gtfs/blob/master/server.js#L575).
+
+Donc quand le serveur tourne, charger `/update` va relancer le téléchargement, l'intégration dans Motis et le calcul des plans de transport !
+
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
-Nécessite d'installer Deno.
-
-```
-cd gtfs
-yarn build-config
-```
-
-Ensuite c'est simple, mais pas encore automatisé :
-
-```
-PORT=3001 pm2 start "yarn start"
-# URL/fetch pour que node-GTFS avale les GTFS
-cd ../motis # après avoir installé laem/motis
-./start.sh # ou systemctl start motis.service si installé via démon
-```
+Ça nécessite d'installer node, yarn, pm2, Deno et laem/motis.
 
 ## Déploiement
 
