@@ -90,19 +90,29 @@ app.use(
 // Désactivation temporaire pour régler nos pb de multiples entrées db
 //app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
+/* For the french parlementary elections, we experimented serving pmtiles. See data/. It's very interesting, we're keeping this code here since it could be used to produce new contextual maps covering news. Same for geojsons. */
 app.use(express.static('data/pmtiles'))
 app.use(express.static('data/geojson'))
 
-const resultats = await JSON.parse(
-  await readFile(
-    new URL(
-      './data/geojson/resultats-legislatives-2024.geojson',
-      import.meta.url
+let resultats
+try {
+  resultats = await JSON.parse(
+    await readFile(
+      new URL(
+        './data/geojson/resultats-legislatives-2024.geojson',
+        import.meta.url
+      )
     )
   )
-)
+} catch (e) {
+  console.log(
+    'Les résultats du premier tour des legislatives, qui incluent les circonscriptions, ne sont pas chargées, pas grave mais allez voir data/circo.ts si ça vous intéresse'
+  )
+}
 
 app.get('/elections-legislatives-2024/:circo', (req, res) => {
+  if (!resultats)
+    return res.send("Les résultats n'ont pas été précalculés sur ce serveur")
   try {
     const { circo } = req.params
 
