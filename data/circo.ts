@@ -1,8 +1,18 @@
 import xml from 'npm:xml-js'
+import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 
 const { xml2json } = xml
 
-const text = await Deno.readTextFile('./raw/circo-legislatives-umap.geojson')
+const destination: Destination = {
+  file: 'circos.geojson',
+  dir: './raw',
+}
+await download(
+  'https://github.com/laem/circonscriptions-legislatives-france/blob/50c0fea5d81a8bca1e18d5b99033ad0df09445f2/circos.geojson?raw=true',
+  destination
+)
+
+const text = await Deno.readTextFile('./raw/circos.geojson')
 
 const territoriesRequest = await fetch(
   'https://www.resultats-elections.interieur.gouv.fr/telechargements/LG2024/territoires/territoires.xml'
