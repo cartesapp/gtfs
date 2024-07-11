@@ -1,3 +1,11 @@
+# INSTRUCTIONS POUR AJOUTER UN TERRITOIRE
+#
+# Chaque "dataset" doit avoir l'attribut "slug" qui correspond à la fin de l'URL de la page du GTFS sur transport.data.gouv.fr.
+#
+# Par exemple pour la Bretagne, c'est cette URL https://transport.data.gouv.fr/datasets/base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
+# Ensuite, un "prefix" est obligatoire pour Motis : on préfère débugger un `bzh-ROUTE-16` qu'un `base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs-ROUTE-16` ;)
+# Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
+#
 datasets:
   # Au 10 mars 2024, l'agrégat Korrigo ne contient plus de routes STAR, lol
   # Ça semble revenu
@@ -21,8 +29,12 @@ datasets:
     prefix: blablacar
   - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
     prefix: flixbus
+  - slug: agglopolys-offre-theorique-mobilite-reseau-urbain-azalys-de-blois
+    prefix: azalys
   - slug: agregat-oura
     prefix: aura
   - slug: horaires-theoriques-du-reseau-transports-en-commun-lyonnais
     prefix: lyon
     auth: 'LYON_TCL_CREDENTIALS'
+    # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
+    # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html

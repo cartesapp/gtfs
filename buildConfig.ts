@@ -131,6 +131,11 @@ const doFetch = async () => {
     })
   )
 
+  filenames.forEach((filename) => {
+    log(
+      `Found resource with path=${filename.path} and prefix=${filename.prefix}`
+    )
+  })
   const nodeGtfsConfigFile = './config.json'
   await Deno.writeTextFile(
     nodeGtfsConfigFile,
@@ -144,6 +149,13 @@ const doFetch = async () => {
     )
   )
   log(`Wrote node-gtfs config file ${nodeGtfsConfigFile}`)
+  try {
+    await Deno.mkdir('../motis')
+  } catch (err) {
+    if (!(err instanceof Deno.errors.AlreadyExists)) {
+      throw err
+    }
+  }
   const motisConfigFile = '../motis/config.ini'
   await Deno.writeTextFile(
     motisConfigFile,
