@@ -164,6 +164,7 @@ const doFetch = async () => {
 #modules=tiles
 modules=ppr
 modules=nigiri
+modules=osrm
 
 intermodal.router=nigiri
 server.static_path=motis/web
@@ -182,6 +183,10 @@ paths=osm:input/cartes.osm.pbf
 [ppr]
 profile=motis/ppr-profiles/distance_only.json
 profile=motis/ppr-profiles/default.json
+
+[osrm]
+profiles=motis/osrm-profiles/car.lua
+profiles=motis/osrm-profiles/bike.lua
 
 #[tiles]
 #profile=motis/tiles-profiles/background.lua
