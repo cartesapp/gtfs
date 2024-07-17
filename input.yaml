@@ -40,3 +40,5 @@ datasets:
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
   - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
     prefix: cts
+  - slug: fichiers-gtfs-eurometropole-de-metz
+    prefix: met
