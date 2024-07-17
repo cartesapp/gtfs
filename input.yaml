@@ -38,3 +38,5 @@ datasets:
     auth: 'LYON_TCL_CREDENTIALS'
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
+  - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
+    prefix: cts
