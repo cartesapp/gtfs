@@ -23,11 +23,7 @@ else {
 const yamlLoader = new YamlLoader()
 const input = await yamlLoader.parseFile('./input.yaml')
 
-const { datasets: rawDatasets } = input
-
-const datasets = rawDatasets.map((dataset) =>
-  typeof dataset === 'string' ? { slug: dataset } : dataset
-)
+const { datasets } = input
 
 const doFetch = async () => {
   const panRequest = await fetch('https://transport.data.gouv.fr/api/datasets/')
