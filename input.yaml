@@ -49,6 +49,12 @@ datasets:
     auth: 'LYON_TCL_CREDENTIALS'
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
+  # Strasbourg (réseau CTS)
+  - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
+    prefix: fr-strasbourg
+  # Metz (réseau Le Met')
+  - slug: fichiers-gtfs-eurometropole-de-metz
+    prefix: fr-metz
   
 # DATASETS PRIVÉS
   # SNCF
