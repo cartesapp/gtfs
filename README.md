@@ -6,15 +6,17 @@ Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous int
 
 ## Couverture
 
-Pour l'instant, on se concentre sur l'ouest de la France. La plus belle région du pays mérite ça :p
+Au départ, je suis parti sur une couverture de l'ouest de la France. La plus belle région du pays mérite ça :p. Ensuite, à l'occasion de la conférence OSM 2024 à Lyon, l'AURA et Lyon ont été ajoutés. D'autres contributeurs ont ensuite ajouté Strasbourg, Metz, Blois, etc.
+
+Nouveau : une page donne l'[état des lieux de la couverture nationale](https://cartes.app/transport-en-commun).
 
 Vous êtes développeur ou bidouilleur et vous aimeriez que votre territoire y soit ? Allons-y !
 
 C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](https://github.com/laem/gtfs/blob/master/input.yaml). Vous y trouverez en début de fichier une petite documentation.
 
-À noter, nous n'avons pas encore de branches déployées automatiquement pour chaque PR. Il faudra donc mettre en ligne sur `master` et attendre le déploiement pour ensuite tester les transports en commun sur votre territoire, et ça passe forcément par @laem. Comme vous pouvez le voir plus bas dans #déploiement, j'ai tenté de déployer tout ça sur un SaaS, mais c'est trop compliqué pour l'instant...
+> À noter, nous n'avons pas encore de branches déployées automatiquement pour chaque PR. Il faudra donc mettre en ligne sur `master` et attendre le déploiement pour ensuite tester les transports en commun sur votre territoire, et ça passe forcément par @laem, pingez-moi dans les PR. Comme vous pouvez le voir plus bas dans #déploiement, j'ai tenté de déployer tout ça sur un SaaS, mais c'est trop compliqué pour l'instant... Quand on aura le temps, il faudra automatiser tout ça et trouver un moyen de déployer ce serveur de façon plus décentralisée.
 
-Quand on aura le temps, il faudra automatiser tout ça et trouver un moyen de déployer ce serveur de façon plus décentralisée.
+Lancer le calcul sur votre machine avec les instructions suivantes est possible, mais le pré-calcul des itinéraires marche et vélo (modules PPR et OSRM de Motis), nécessaire pour tester les calculs de transport en commun (pour aller jusqu'à la station de bus il faut marcher ou prendre le vélo), prend beaucoup de temps et nécessite 32 Go de RAM. Si vous voulez tester, pinguez-moi je vous mettrai à dispo un fichier à télécharger. 
 
 ## Faire tourner ce serveur en local
 
@@ -26,7 +28,7 @@ D'abord lancer le téléchargement des fichiers GTFS et la création de la confi
 
 Ça nécessite d'installer node, yarn, pm2, Deno et laem/motis.
 
-Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
+Le dossier laem/motis doit être installé à côté de ce dossier GTFS. 
 
 ## Déploiement
 
