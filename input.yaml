@@ -76,4 +76,3 @@ datasets:
   # FlixBus
   - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
     prefix: eu-x-flixbus
-
