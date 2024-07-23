@@ -144,7 +144,11 @@ const doFetch = async () => {
     nodeGtfsConfigFile,
     JSON.stringify(
       {
-        agencies: filenames.map(({ path }) => ({ path })), // We tried using the prefix option of node-GTFS to make service_ids unique, but it rewrites STAR:1235 with bzhSTAR:1235 which breaks external discovery e.g. OSM tag of a bus stop
+        agencies: filenames.map(({ path }) => ({
+          path,
+
+          exclude: ['shapes'], // We don't need original shapes, they're too detailed and often wrong, we're rebuilding our own symbolical shapes
+        })), // We tried using the prefix option of node-GTFS to make service_ids unique, but it rewrites STAR:1235 with bzhSTAR:1235 which breaks external discovery e.g. OSM tag of a bus stop
         ignoreDuplicates: true,
       },
       null,
