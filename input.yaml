@@ -62,6 +62,9 @@ datasets:
   # Metz (réseau Le Met')
   - slug: fichiers-gtfs-eurometropole-de-metz
     prefix: fr-metz
+  # Epinal (réseau Imagine)
+  - slug: fr-200052264-t0009-0000-1
+    prefix: fr-epinal
   # Métropole Marseille Aix
   - slug: reseaux-de-transports-en-commun-de-la-metropole-daix-marseille-provence-et-des-bouches-du-rhone
     prefix: fr-marseille-aix
