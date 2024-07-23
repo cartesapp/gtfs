@@ -585,6 +585,7 @@ app.get('/parse', async (req, res) => {
 app.get('/update', async (req, res) => {
   try {
     const oldDb = openDb(config)
+    console.log('Will build config')
     const { stdout, stderr } = await exec('yarn build-config')
     console.log('-------------------------------')
     console.log('Build config OK')
