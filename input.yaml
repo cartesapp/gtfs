@@ -62,6 +62,9 @@ datasets:
   # Metz (réseau Le Met')
   - slug: fichiers-gtfs-eurometropole-de-metz
     prefix: fr-metz
+    # Nancy (réseau Stan)
+  - slug: arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs
+    prefix: fr-nancy
   # Epinal (réseau Imagine)
   - slug: fr-200052264-t0009-0000-1
     prefix: fr-epinal
