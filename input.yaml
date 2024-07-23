@@ -65,6 +65,18 @@ datasets:
   # Reims (réseau Grand Reims mobilités)
   - slug: offre-de-transport-du-reseau-grand-reims-mobilites-communaute-urbaine-du-grand-reims
     prefix: fr-reims
+    # Nancy (réseau Stan)
+  - slug: arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs
+    prefix: fr-nancy
+  # Epinal (réseau Imagine)
+  - slug: fr-200052264-t0009-0000-1
+    prefix: fr-epinal
+  # Métropole Marseille Aix
+  - slug: reseaux-de-transports-en-commun-de-la-metropole-daix-marseille-provence-et-des-bouches-du-rhone
+    prefix: fr-marseille-aix
+  # Métropole Toulouse
+  - slug: tisseo-offre-de-transport-gtfs
+    prefix: fr-toulouse
   
 # DATASETS PRIVÉS
   # SNCF
