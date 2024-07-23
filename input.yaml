@@ -62,6 +62,9 @@ datasets:
   # Metz (réseau Le Met')
   - slug: fichiers-gtfs-eurometropole-de-metz
     prefix: fr-metz
+  # Reims (réseau Grand Reims mobilités)
+  - slug: offre-de-transport-du-reseau-grand-reims-mobilites-communaute-urbaine-du-grand-reims
+    prefix: fr-reims
     # Nancy (réseau Stan)
   - slug: arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs
     prefix: fr-nancy
