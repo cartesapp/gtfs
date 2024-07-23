@@ -4,41 +4,82 @@
 #
 # Par exemple pour la Bretagne, c'est cette URL https://transport.data.gouv.fr/datasets/base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
 # Ensuite, un "prefix" est obligatoire pour Motis : on préfère débugger un `bzh-ROUTE-16` qu'un `base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs-ROUTE-16` ;)
-# Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
 #
+# Voici les règles que nous utilisons pour les prefixes :
+
+#  - Pour les régions : le code ISO 3166-2 (par exemple fr-bre pour la Bretagne ou fr-nor pour la Normandie)
+#  - Pour les collectivités : le code pays, suivi du nom de la collectivité (par exemple fr-blois), éventuellement suivi de l'opérateur si ce n'est pas un agrégat (fr-lyon-tcl)
+#  - Pour les entreprises : le code pays du dataset, suivi d'un x et du nom de l'entreprise (eu-x-blablacar pour le dataset européen de BlaBlaBus, fr-x-trenitalia pour le dataset spécifique à la France de Trenitalia)
+# 
+# Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
+# Attention cependant à ne pas activer l'option prefixServiceIds quand ce n'est pas nécessaire car cela semble faire disparaitre les BlaBlaBus et FlixBus
+
 datasets:
-  # Au 10 mars 2024, l'agrégat Korrigo ne contient plus de routes STAR, lol
-  # Ça semble revenu
-  # - versions-des-horaires-theoriques-des-lignes-de-bus-et-de-metro-du-reseau-star-au-format-gtfs
-  #  - breizhgo-bateaux
-  - slug: base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
-    prefix: bzh
-    prefixServiceIds: true
-    # This option applied to all datasets makes blablabus and flixbus disappear !
-  - slug: arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
-    prefix: pdll
-    prefixServiceIds: true
-    # This option applied to all datasets makes blablabus and flixbus disappear !
-  - slug: horaires-des-lignes-ter-sncf
-    prefix: ter
-  - slug: horaires-des-tgv
-    prefix: tgv
-  - slug: horaires-des-lignes-intercites-sncf
-    prefix: intercites
-  - slug: blablacar-bus-horaires-theoriques-et-temps-reel-du-reseau-europeen
-    prefix: blablacar
-  - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
-    prefix: flixbus
-  - slug: agglopolys-offre-theorique-mobilite-reseau-urbain-azalys-de-blois
-    prefix: azalys
+# AGRÉGATS RÉGIONAUX
+  # Auvergne-Rhône-Alpes
   - slug: agregat-oura
-    prefix: aura
+    prefix: fr-ara
+  # Bourgogne-Franche-Comté
+  # Bretagne
+  - slug: base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
+    prefix: fr-bre
+    prefixServiceIds: true
+  # Centre-Val-de-Loire
+  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-1
+    prefix: fr-cvl
+  # Corse
+  # Grand Est
+  # Haut-de-France
+  # Ile-de-France
+  - slug: reseau-urbain-et-interurbain-dile-de-france-mobilites
+    prefix: fr-idf
+  # Normandie
+  - slug: base-de-donnees-multimodale-des-reseaux-de-transport-public-normands
+    prefix: fr-nor
+  # Nouvelle-Aquitaine
+  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-1
+    prefix: fr-naq
+  # Occitanie
+  # Pays de la Loire
+  - slug: arrets-horaires-et-circuits-des-lignes-de-transports-en-commun-en-pays-de-la-loire-gtfs-destineo-reseaux-aom-aleop-1
+    prefix: fr-pdl
+    prefixServiceIds: true
+  # Provence-Alpes-Côte d'Azur
+
+# DATASETS DE COMMUNES / AGGLOMÉRATIONS
+  # Blois (réseau Azalys)
+  - slug: agglopolys-offre-theorique-mobilite-reseau-urbain-azalys-de-blois
+    prefix: fr-blois
+  # Lyon (réseau TCL)
   - slug: horaires-theoriques-du-reseau-transports-en-commun-lyonnais
-    prefix: lyon
+    prefix: fr-lyon-tcl
     auth: 'LYON_TCL_CREDENTIALS'
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
+  # Strasbourg (réseau CTS)
   - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
-    prefix: cts
+    prefix: fr-strasbourg
+  # Metz (réseau Le Met')
   - slug: fichiers-gtfs-eurometropole-de-metz
-    prefix: metz
+    prefix: fr-metz
+  
+# DATASETS PRIVÉS
+  # SNCF
+  - slug: horaires-des-lignes-ter-sncf
+    prefix: fr-x-sncf-ter
+  - slug: horaires-des-tgv
+    prefix: fr-x-sncf-tgv
+  - slug: horaires-des-lignes-intercites-sncf
+    prefix: fr-x-sncf-intercites
+  # Eurostar
+  - slug: eurostar-gtfs
+    prefix: eu-x-eurostar
+  # Trenitalia
+  - slug: horaires-des-trains-trenitalia-france
+    prefix: fr-x-trenitalia
+  # BlaBlaCar
+  - slug: blablacar-bus-horaires-theoriques-et-temps-reel-du-reseau-europeen
+    prefix: eu-x-blablacar
+  # FlixBus
+  - slug: flixbus-horaires-theoriques-du-reseau-europeen-1
+    prefix: eu-x-flixbus
