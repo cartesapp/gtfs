@@ -65,6 +65,12 @@ datasets:
   # Epinal (réseau Imagine)
   - slug: fr-200052264-t0009-0000-1
     prefix: fr-epinal
+  # Métropole Marseille Aix
+  - slug: reseaux-de-transports-en-commun-de-la-metropole-daix-marseille-provence-et-des-bouches-du-rhone
+    prefix: fr-marseille-aix
+  # Métropole Toulouse
+  - slug: tisseo-offre-de-transport-gtfs
+    prefix: fr-toulouse
   
 # DATASETS PRIVÉS
   # SNCF
