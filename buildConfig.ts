@@ -23,7 +23,10 @@ else {
 const yamlLoader = new YamlLoader()
 const input = await yamlLoader.parseFile('./input.yaml')
 
-const { datasets } = input
+const { datasets: allDatasets } = input
+
+const onlyMeOverrides = allDatasets.filter((dataset) => dataset.onlyMe)
+const datasets = onlyMeOverrides.length ? onlyMeOverrides : allDatasets
 
 const doFetch = async () => {
   const panRequest = await fetch('https://transport.data.gouv.fr/api/datasets/')
@@ -48,7 +51,11 @@ const doFetch = async () => {
   )
   const resources = interestingDatasets.reduce((memo, next) => {
     const gtfsResources = next.resources.filter(
-      (resource) => resource.format === 'GTFS' //&& resource.is_available flixbus marked as not available but is in fact
+      (resource) =>
+        resource.format === 'GTFS' && //&& resource.is_available flixbus marked as not available but is in fact
+        resource.community_resource_publisher == null // Some transport.data.gouv.fr entries have multiple official complementary GTFS files, e.g. breton islands.
+      // Some others have intersecting resources, e.g. reseau-urbain-et-interurbain-dile-de-france-mobilites
+      // It looks like intersecting, which are problematic for us, appear only with community resources
     )
     const uniqueTitle = Object.values(
       Object.fromEntries(gtfsResources.map((el) => [el.title, el]))
@@ -165,6 +172,9 @@ modules=osrm
 intermodal.router=nigiri
 server.static_path=motis/web
 
+[nigiri]
+max_footpath_length=15
+
 [import]
 ${filenames
   .map(
@@ -174,14 +184,13 @@ ${filenames
       }:../gtfs/${filename.path}`
   )
   .join('\n')}
-paths=osm:input/cartes.osm.pbf
+paths=osm:input/france.osm.pbf
 
 [ppr]
 profile=motis/ppr-profiles/distance_only.json
 profile=motis/ppr-profiles/default.json
 
 [osrm]
-profiles=motis/osrm-profiles/car.lua
 profiles=motis/osrm-profiles/bike.lua
 
 #[tiles]
