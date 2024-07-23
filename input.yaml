@@ -4,9 +4,16 @@
 #
 # Par exemple pour la Bretagne, c'est cette URL https://transport.data.gouv.fr/datasets/base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
 # Ensuite, un "prefix" est obligatoire pour Motis : on préfère débugger un `bzh-ROUTE-16` qu'un `base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs-ROUTE-16` ;)
+#
+# Voici les règles que nous utilisons pour les prefixes :
+
+#  - Pour les régions : le code ISO 3166-2 (par exemple fr-bre pour la Bretagne ou fr-nor pour la Normandie)
+#  - Pour les collectivités : le code pays, suivi du nom de la collectivité (par exemple fr-blois), éventuellement suivi de l'opérateur si ce n'est pas un agrégat (fr-lyon-tcl)
+#  - Pour les entreprises : le code pays du dataset, suivi d'un x et du nom de l'entreprise (eu-x-blablacar pour le dataset européen de BlaBlaBus, fr-x-trenitalia pour le dataset spécifique à la France de Trenitalia)
+# 
 # Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
 # Attention cependant à ne pas activer l'option prefixServiceIds quand ce n'est pas nécessaire car cela semble faire disparaitre les BlaBlaBus et FlixBus
-#
+
 datasets:
 # AGRÉGATS RÉGIONAUX
   # Auvergne-Rhône-Alpes
