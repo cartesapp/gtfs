@@ -80,6 +80,9 @@ datasets:
   # Communauté d'Agglomération Sophia Antipolis (réseau Envibus)
   - slug: arrets-horaires-et-parcours-theoriques-des-bus-du-reseau-des-transports-publics-envibus
     prefix: fr-casa
+  # Communauté d'Agglomération Cannes Pays de Lérins (réseau Palm Bus)
+  - slug: horaires-theoriques-et-temps-reel-gtfs-gtfs-rt-du-reseau-palmbus-cannes-pays-de-lerins
+    prefix: fr-cannes
 
   # DATASETS PRIVÉS
   # SNCF
