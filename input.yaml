@@ -83,6 +83,9 @@ datasets:
   # Communauté d'Agglomération Cannes Pays de Lérins (réseau Palm Bus)
   - slug: horaires-theoriques-et-temps-reel-gtfs-gtfs-rt-du-reseau-palmbus-cannes-pays-de-lerins
     prefix: fr-cannes
+  # Dracénie Provence-Verdon (réseau TEB Bus)
+  - slug: tedbus-horaires-des-lignes-reseau
+    prefix: fr-dracenie-provence-verdon
 
   # DATASETS PRIVÉS
   # SNCF
