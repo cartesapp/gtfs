@@ -10,12 +10,12 @@
 #  - Pour les régions : le code ISO 3166-2 (par exemple fr-bre pour la Bretagne ou fr-nor pour la Normandie)
 #  - Pour les collectivités : le code pays, suivi du nom de la collectivité (par exemple fr-blois), éventuellement suivi de l'opérateur si ce n'est pas un agrégat (fr-lyon-tcl)
 #  - Pour les entreprises : le code pays du dataset, suivi d'un x et du nom de l'entreprise (eu-x-blablacar pour le dataset européen de BlaBlaBus, fr-x-trenitalia pour le dataset spécifique à la France de Trenitalia)
-# 
+#
 # Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
 # Attention cependant à ne pas activer l'option prefixServiceIds quand ce n'est pas nécessaire car cela semble faire disparaitre les BlaBlaBus et FlixBus
 
 datasets:
-# AGRÉGATS RÉGIONAUX
+  # AGRÉGATS RÉGIONAUX
   # Auvergne-Rhône-Alpes
   - slug: agregat-oura
     prefix: fr-ara
@@ -46,7 +46,7 @@ datasets:
     prefixServiceIds: true
   # Provence-Alpes-Côte d'Azur
 
-# DATASETS DE COMMUNES / AGGLOMÉRATIONS
+  # DATASETS DE COMMUNES / AGGLOMÉRATIONS
   # Blois (réseau Azalys)
   - slug: agglopolys-offre-theorique-mobilite-reseau-urbain-azalys-de-blois
     prefix: fr-blois
@@ -77,8 +77,8 @@ datasets:
   # Métropole Toulouse
   - slug: tisseo-offre-de-transport-gtfs
     prefix: fr-toulouse
-  
-# DATASETS PRIVÉS
+
+  # DATASETS PRIVÉS
   # SNCF
   - slug: horaires-des-lignes-ter-sncf
     prefix: fr-x-sncf-ter
