@@ -129,6 +129,7 @@ const doFetch = async () => {
 
         return { path, prefix: resource.prefix }
       } catch (err) {
+        console.log('Erreur dans le traitement de la resource ', resource.slug)
         console.log(err)
       }
     })
