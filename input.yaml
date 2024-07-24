@@ -89,6 +89,9 @@ datasets:
   # Riviera Française (réseau Keolis Menton Riviera)
   - slug: horaires-reseau-zest
     prefix: fr-riviera-française
+  # Métropole Nice Côte d'Azur (réseau Ligne d'Azur)
+  - slug: export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur
+    prefix: fr-nice
 
   # DATASETS PRIVÉS
   # SNCF
