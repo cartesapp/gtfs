@@ -13,12 +13,14 @@ Donc :
 - mon serveur (ses 16go de RAM ?) plante sur tilemaker du france.osm.pbf... [Normal](https://github.com/systemed/tilemaker/issues/57), et l'option --store rend la chose hyper trop lente...
 - donc on calcule les tuiles en local pour l'instant et on upload via scp 
 
-télécharger et compiler tilemaker, voir leur install.md
+Télécharger et compiler [tilemaker](https://github.com/systemed/tilemaker), voir leur [install.md](https://github.com/systemed/tilemaker/blob/master/docs/INSTALL.md)
+```
 tilemaker --input france-latest.osm.pbf --output france.mbtiles
 scp -r ~/tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/france.pmtiles
 
 ogr2ogr -t_srs EPSG:4326 land.json land-polygons-split-4326/land_polygons.shp
 tippecanoe -zg --projection=EPSG:4326 -o land.pmtiles -l land land.json
+```
 
 landcover.pmtiles depuis https://github.com/wipfli/h3-landcover/
 
@@ -31,7 +33,7 @@ Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous int
 
 ### Couverture
 
-Au départ, je suis parti sur une couverture de l'ouest de la France. La plus belle région du pays mérite ça :p. Ensuite, à l'occasion de la conférence OSM 2024 à Lyon, l'AURA et Lyon ont été ajoutés. D'autres contributeurs ont ensuite ajouté Strasbourg, Metz, Blois, etc.
+Au départ, je suis parti sur une couverture de l'ouest de la France. La plus belle région du pays mérite ça :p. Ensuite, à l'occasion de [la conférence OSM 2024 à Lyon](https://peertube.openstreetmap.fr/w/oJwaAP1PbeLsK2zywTzLga), l'AURA et Lyon ont été ajoutés. D'autres contributeurs ont ensuite ajouté Strasbourg, Metz, Blois, etc.
 
 Nouveau : une page donne l'[état des lieux de la couverture nationale](https://cartes.app/transport-en-commun).
 
@@ -51,7 +53,7 @@ Donc quand le serveur tourne, charger `/update` va relancer le téléchargement,
 
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
-Ça nécessite d'installer node, yarn, pm2, Deno et laem/motis.
+Ça nécessite d'installer [node](https://nodejs.org), [yarn](https://yarnpkg.com/), [pm2](https://pm2.keymetrics.io/), [Deno](https://deno.com/) et [laem/motis](https://github.com/laem/motis).
 
 Le dossier laem/motis doit être installé à côté de ce dossier GTFS. 
 
@@ -66,7 +68,6 @@ Pour garantir une fraicheur régulière, j'ai un micro-script sur Deno Deploy qu
 ```
 Deno.cron("Update GTFS for node-GTFS and Motis","0 */6 * * *", () => {
 fetch('https://motis.cartes.app/gtfs/update')
-
 });
 ```
 
