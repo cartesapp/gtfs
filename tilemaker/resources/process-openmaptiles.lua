@@ -176,6 +176,7 @@ function node_function()
 
 		Layer("place", false)
 		Attribute("class", place)
+	  Attribute("nwr", "n")
 		MinZoom(mz)
 		if rank then AttributeNumeric("rank", rank) end
 		if capital then AttributeNumeric("capital", capital) end
@@ -202,6 +203,7 @@ function node_function()
 	local natural = Find("natural")
 	if natural == "peak" or natural == "volcano" then
 		Layer("mountain_peak", false)
+	  Attribute("nwr", "n")
 		SetEleAttributes()
 		AttributeNumeric("rank", 1)
 		Attribute("class", natural)
@@ -210,10 +212,10 @@ function node_function()
 	end
 	if natural == "bay" then
 		Layer("water_name", false)
+	  Attribute("nwr", "n")
 		SetNameAttributes()
 		return
 	end
-	Attribute("nwr", "n")
 end
 
 -- Process way tags
@@ -394,6 +396,7 @@ function way_function()
 
 	if place == "island" then
 		LayerAsCentroid("place")
+	  Attribute("nwr", "w")
 		Attribute("class", place)
 		MinZoom(10)
 		local pop = tonumber(Find("population")) or 0
@@ -432,6 +435,7 @@ function way_function()
 		end
 
 		Layer("boundary",false)
+	  Attribute("nwr", "w")
 		AttributeNumeric("admin_level", admin_level)
 		MinZoom(mz)
 		-- disputed status (0 or 1). some styles need to have the 0 to show it.
@@ -548,7 +552,6 @@ function way_function()
 				end
 			end
 		end
-	  Attribute("nwr", "n")
 	end
 
 	-- Railways ('transportation' and 'transportation_name')
@@ -560,9 +563,9 @@ function way_function()
 			local usage = Find("usage")
 			if railway == "rail" and service == "" then
 				if usage == "main" then
-					minzoom = 8
+					minzoom = 5
 				else
-					minzoom = 10
+					minzoom = 9
 				end
 			elseif railway == "narrow_gauge" and service == "" then
 				minzoom = 10
