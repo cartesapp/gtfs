@@ -27,3 +27,4 @@ tilemaker/*
 !tilemaker/resources
 tilemaker/resources/*
 !tilemaker/resources/process-openmaptiles.lua
+!tilemaker/resources/config-openmaptiles.json
