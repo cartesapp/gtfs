@@ -121,7 +121,6 @@ end
 
 
 function node_function()
-	Attribute("nwr", "n")
 	-- Write 'aerodrome_label'
 	local aeroway = Find("aeroway")
 	if aeroway == "aerodrome" then
@@ -214,6 +213,7 @@ function node_function()
 		SetNameAttributes()
 		return
 	end
+	Attribute("nwr", "n")
 end
 
 -- Process way tags
@@ -357,7 +357,6 @@ end
 -- Process way tags
 
 function way_function()
-	Attribute("nwr", "n")
 	local route    = Find("route")
 	local highway  = Find("highway")
 	local waterway = Find("waterway")
@@ -549,6 +548,7 @@ function way_function()
 				end
 			end
 		end
+	  Attribute("nwr", "n")
 	end
 
 	-- Railways ('transportation' and 'transportation_name')
