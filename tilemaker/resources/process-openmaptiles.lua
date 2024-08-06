@@ -197,7 +197,7 @@ function node_function()
 
 	-- Write 'poi'
 	local rank, class, subclass = GetPOIRank()
-	if rank then WritePOI(class,subclass,rank) end
+	if rank then WritePOI(class,subclass,rank,'n') end
 
 	-- Write 'mountain_peak' and 'water_name'
 	local natural = Find("natural")
@@ -719,7 +719,7 @@ function way_function()
 
 	-- POIs ('poi' and 'poi_detail')
 	local rank, class, subclass = GetPOIRank()
-	if rank then WritePOI(class,subclass,rank); return end
+	if rank then WritePOI(class,subclass,rank,'w'); return end
 
 	-- Catch-all
 	if (building~="" or write_name) and Holds("name") then
@@ -749,7 +749,7 @@ end
 -- Common functions
 
 -- Write a way centroid to POI layer
-function WritePOI(class,subclass,rank)
+function WritePOI(class,subclass,rank,nwr)
 	local layer = "poi"
 	if rank>4 then layer="poi_detail" end
 	LayerAsCentroid(layer)
@@ -757,6 +757,7 @@ function WritePOI(class,subclass,rank)
 	AttributeNumeric("rank", rank)
 	Attribute("class", class)
 	Attribute("subclass", subclass)
+	Attribute("nwr", nwr)
 	-- layer defaults to 0
 	AttributeNumeric("layer", tonumber(Find("layer")) or 0)
 	-- indoor defaults to false
