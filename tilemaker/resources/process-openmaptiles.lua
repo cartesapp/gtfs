@@ -477,9 +477,9 @@ function way_function()
 			under_construction = true
 		end
 		local minzoom = INVALID_ZOOM
-		if majorRoadValues[h]        then minzoom = 4
-		elseif h == "trunk"          then minzoom = 5
-		elseif highway == "primary"  then minzoom = 7
+		if majorRoadValues[h]        then minzoom = 6
+		elseif h == "trunk"          then minzoom = 7
+		elseif highway == "primary"  then minzoom = 8
 		elseif z9RoadValues[h]       then minzoom = 9
 		elseif z10RoadValues[h]      then minzoom = 10
 		elseif z11RoadValues[h]      then minzoom = 11
