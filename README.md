@@ -19,7 +19,11 @@ télécharger et compiler tilemaker, voir leur install.md
 ```
 wget https://download.geofabrik.de/europe/france-latest.osm.pbf
 tilemaker --input france-latest.osm.pbf --output france.mbtiles
-scp -r ~/tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/france.pmtiles
+wget https://github.com/protomaps/go-pmtiles/releases/download/v1.20.0/go-pmtiles_1.20.0_Linux_x86_64.tar.gz
+mkdir pmtiles
+tar -xvf go-pmtiles_1.20.0_Linux_x86_64.tar.gz -C pmtiles
+./pmtiles/pmtiles convert france.mbtiles france.pmtiles
+scp -r tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/pmtiles/france.pmtiles
 ```
 
 ogr2ogr -t_srs EPSG:4326 land.json land-polygons-split-4326/land_polygons.shp

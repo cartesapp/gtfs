@@ -21,3 +21,5 @@ data/geojson/*
 !data/geojson/.gitkeep
 data/raw/
 .env
+
+tilemaker
