@@ -16,6 +16,10 @@ default_language_attribute = "name_int"
 additional_languages = { }
 --------
 
+--------
+-- Attribute("nwr", "n|w|r") is absolutely essential to have a clickable map where requests to api.osm.org is possible. We need to define which features should be exposed
+--------
+
 -- Enter/exit Tilemaker
 function init_function()
 end
@@ -586,6 +590,7 @@ function way_function()
 	-- Pier
 	if manMadeRoadValues[man_made] then
 		write_to_transportation_layer(13, man_made, nil, false, nil, false, false, is_closed)
+	  Attribute("nwr", "w")
 	end
 
 	-- 'Ferry'
@@ -615,6 +620,7 @@ function way_function()
 	 	Attribute("iata", Find("iata"))
   		SetEleAttributes()
  	 	Attribute("icao", Find("icao"))
+	  Attribute("nwr", "w")
 
  	 	local aerodrome = Find(aeroway)
  	 	local class
@@ -626,6 +632,7 @@ function way_function()
 	if waterwayClasses[waterway] and not is_closed then
 		if waterway == "river" and Holds("name") then
 			Layer("waterway", false)
+	    Attribute("nwr", "w")
 		else
 			Layer("waterway_detail", false)
 		end
@@ -641,6 +648,7 @@ function way_function()
 	if waterwayClasses[waterway] and not is_closed then
 		if waterway == "river" and Holds("name") then
 			Layer("water_name", false)
+	    Attribute("nwr", "w")
 		else
 			Layer("water_name_detail", false)
 			MinZoom(14)
@@ -660,6 +668,7 @@ function way_function()
 	if housenumber~="" then
 		LayerAsCentroid("housenumber")
 		Attribute("housenumber", housenumber)
+	  -- TODO I'm afraid the nwr attribute here would put much weight for nothing. To test -- Attribute("nwr", "w")
 	end
 
 	-- Set 'water'
@@ -670,6 +679,7 @@ function way_function()
 		Layer("water",true)
 		SetMinZoomByArea(way)
 		Attribute("class",class)
+    Attribute("nwr", "w")
 
 		if Find("intermittent")=="yes" then Attribute("intermittent",1) end
 		-- we only want to show the names of actual lakes not every man-made basin that probably doesn't even have a name other than "basin"
@@ -683,6 +693,7 @@ function way_function()
 			SetNameAttributes()
 			SetMinZoomByArea()
 			Attribute("class", class)
+      Attribute("nwr", "w")
 		end
 
 		return -- in case we get any landuse processing
@@ -717,8 +728,8 @@ function way_function()
 
 	-- Parks
 	-- **** name?
-	if     boundary=="national_park" then Layer("park",true); Attribute("class",boundary); SetNameAttributes()
-	elseif leisure=="nature_reserve" then Layer("park",true); Attribute("class",leisure ); SetNameAttributes() end
+	if     boundary=="national_park" then Layer("park",true); Attribute("class",boundary); SetNameAttributes(); Attribute("nwr", "w")
+	elseif leisure=="nature_reserve" then Layer("park",true); Attribute("class",leisure ); SetNameAttributes(); Attribute("nwr", "w");  end
 
 	-- POIs ('poi' and 'poi_detail')
 	local rank, class, subclass = GetPOIRank()
@@ -730,6 +741,7 @@ function way_function()
 		SetNameAttributes()
 		if write_name then rank=6 else rank=25 end
 		AttributeNumeric("rank", rank)
+		-- TODO whould we set Attribute("nwr") here ?
 	end
 end
 
