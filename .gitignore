@@ -22,5 +22,8 @@ data/geojson/*
 data/raw/
 .env
 
+!tilemaker/
 tilemaker/*
+!tilemaker/resources
+tilemaker/resources/*
 !tilemaker/resources/process-openmaptiles.lua
