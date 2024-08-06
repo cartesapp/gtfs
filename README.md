@@ -1,29 +1,36 @@
 # Le serveur Cartes.app
 
-Contrairement à ce que son nom indique pour l'instant, ce dépôt va beaucoup plus loin que de ne gérer que les GTFS. 
+Contrairement à ce que son nom indique pour l'instant, ce dépôt va beaucoup plus loin que de ne gérer que les GTFS.
 
 ## Serveur de tuiles
 
-Le plan, c'est de ne générer pour l'instant que les PMTiles (Protomaps) de la France hexagonale, et de compléter le reste du monde avec un autre serveur de tuiles PMTiles. 
+Le plan, c'est de ne générer pour l'instant que les PMTiles (Protomaps) de la France hexagonale, et de compléter le reste du monde avec un autre serveur de tuiles PMTiles.
 
-Donc : 
+Donc :
+
 - ne générer que la France de notre côté, on veut du openmaptiles pour être standard
 - utiliser un proxy maison (sur laem/cartes/...CartesProtocol) qui redirige soit sur notre pmtiles pour 90% des requêtes, soit un pmtiles mondial
 - inclure un land.pmtiles depuis [cette source](https://osmdata.openstreetmap.de/data/land-polygons.html) car les mers ne sont plus includes dans les tuiles de la France !
 - mon serveur (ses 16go de RAM ?) plante sur tilemaker du france.osm.pbf... [Normal](https://github.com/systemed/tilemaker/issues/57), et l'option --store rend la chose hyper trop lente...
-- donc on calcule les tuiles en local pour l'instant et on upload via scp 
+- donc on calcule les tuiles en local pour l'instant et on upload via scp
 
 Télécharger et compiler [tilemaker](https://github.com/systemed/tilemaker), voir leur [install.md](https://github.com/systemed/tilemaker/blob/master/docs/INSTALL.md)
+
 ```
+wget https://download.geofabrik.de/europe/france-latest.osm.pbf
 tilemaker --input france-latest.osm.pbf --output france.mbtiles
-scp -r ~/tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/france.pmtiles
+wget https://github.com/protomaps/go-pmtiles/releases/download/v1.20.0/go-pmtiles_1.20.0_Linux_x86_64.tar.gz
+mkdir pmtiles
+tar -xvf go-pmtiles_1.20.0_Linux_x86_64.tar.gz -C pmtiles
+./pmtiles/pmtiles convert france.mbtiles france.pmtiles
+scp -r tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/pmtiles/france.pmtiles
+```
 
 ogr2ogr -t_srs EPSG:4326 land.json land-polygons-split-4326/land_polygons.shp
 tippecanoe -zg --projection=EPSG:4326 -o land.pmtiles -l land land.json
 ```
 
 landcover.pmtiles depuis https://github.com/wipfli/h3-landcover/
-
 
 ## API des horaires et lignes de bus en France (standard GTFS)
 
@@ -43,7 +50,7 @@ C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](http
 
 > À noter, nous n'avons pas encore de branches déployées automatiquement pour chaque PR. Il faudra donc mettre en ligne sur `master` et attendre le déploiement pour ensuite tester les transports en commun sur votre territoire, et ça passe forcément par @laem, pingez-moi dans les PR. Comme vous pouvez le voir plus bas dans #déploiement, j'ai tenté de déployer tout ça sur un SaaS, mais c'est trop compliqué pour l'instant... Quand on aura le temps, il faudra automatiser tout ça et trouver un moyen de déployer ce serveur de façon plus décentralisée.
 
-Lancer le calcul sur votre machine avec les instructions suivantes est possible, mais le pré-calcul des itinéraires marche et vélo (modules PPR et OSRM de Motis), nécessaire pour tester les calculs de transport en commun (pour aller jusqu'à la station de bus il faut marcher ou prendre le vélo), prend beaucoup de temps et nécessite 32 Go de RAM. Si vous voulez tester, pinguez-moi je vous mettrai à dispo un fichier à télécharger. 
+Lancer le calcul sur votre machine avec les instructions suivantes est possible, mais le pré-calcul des itinéraires marche et vélo (modules PPR et OSRM de Motis), nécessaire pour tester les calculs de transport en commun (pour aller jusqu'à la station de bus il faut marcher ou prendre le vélo), prend beaucoup de temps et nécessite 32 Go de RAM. Si vous voulez tester, pinguez-moi je vous mettrai à dispo un fichier à télécharger.
 
 ### Faire tourner ce serveur en local
 
@@ -55,7 +62,7 @@ D'abord lancer le téléchargement des fichiers GTFS et la création de la confi
 
 Ça nécessite d'installer [node](https://nodejs.org), [yarn](https://yarnpkg.com/), [pm2](https://pm2.keymetrics.io/), [Deno](https://deno.com/) et [laem/motis](https://github.com/laem/motis).
 
-Le dossier laem/motis doit être installé à côté de ce dossier GTFS. 
+Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
 
 ### Déploiement
 
