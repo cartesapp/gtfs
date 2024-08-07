@@ -198,6 +198,7 @@ profile=motis/ppr-profiles/default.json
 
 [osrm]
 profiles=motis/osrm-profiles/bike.lua
+profiles=motis/osrm-profiles/car.lua
 
 #[tiles]
 #profile=motis/tiles-profiles/background.lua
