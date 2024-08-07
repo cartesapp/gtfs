@@ -25,10 +25,11 @@ tar -xvf go-pmtiles_1.20.0_Linux_x86_64.tar.gz -C pmtiles
 ./pmtiles/pmtiles convert france.mbtiles france.pmtiles
 scp -r tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/pmtiles/france.pmtiles
 ```
-``
+```
 ogr2ogr -t_srs EPSG:4326 land.json land-polygons-split-4326/land_polygons.shp
 tippecanoe -zg --projection=EPSG:4326 -o land.pmtiles -l land land.json
 ```
+
 landcover.pmtiles depuis https://github.com/wipfli/h3-landcover/
 
 ## API des horaires et lignes de bus en France (standard GTFS)
