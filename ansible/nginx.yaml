@@ -1,0 +1,14 @@
+---
+- hosts: serveur.cartes
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+
+ handlers:
+ - name: Start Nginx
+   service: name=nginx state=started
+ - name: Reload Nginx
+   service: name=nginx state=reloaded
+
+
