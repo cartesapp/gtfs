@@ -25,6 +25,7 @@ tar -xvf go-pmtiles_1.20.0_Linux_x86_64.tar.gz -C pmtiles
 ./pmtiles/pmtiles convert france.mbtiles france.pmtiles
 scp -r tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/pmtiles/france.pmtiles
 ```
+
 ```
 ogr2ogr -t_srs EPSG:4326 land.json land-polygons-split-4326/land_polygons.shp
 tippecanoe -zg --projection=EPSG:4326 -o land.pmtiles -l land land.json
@@ -60,7 +61,7 @@ Donc quand le serveur tourne, charger `/update` va relancer le téléchargement,
 
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
-Ça nécessite d'installer [node](https://nodejs.org), [yarn](https://yarnpkg.com/), [pm2](https://pm2.keymetrics.io/), [Deno](https://deno.com/) et [laem/motis](https://github.com/laem/motis).
+Ça nécessite d'installer [node](https://nodejs.org) via [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating), [pm2](https://pm2.keymetrics.io/), [Deno](https://deno.com/) et [laem/motis](https://github.com/laem/motis).
 
 Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
 
