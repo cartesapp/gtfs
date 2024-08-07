@@ -6,7 +6,8 @@ import { prefixGtfsServiceIds } from './gtfsUtils.ts'
 import { load } from 'https://deno.land/std@0.224.0/dotenv/mod.ts'
 const env = await load()
 
-const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
+const log = (message, color = 'lightgreen') =>
+  console.log(`%c${message}`, 'color: ' + color)
 
 const gtfsCleanFilename = 'gtfsclean'
 const pathFound = existsSync(gtfsCleanFilename)
@@ -129,8 +130,8 @@ const doFetch = async () => {
 
         return { path, prefix: resource.prefix }
       } catch (err) {
-        console.log('Erreur dans le traitement de la resource ', resource.slug)
-        console.log(err)
+        log('Erreur dans le traitement de la resource ' + resource.slug, 'red')
+        log(err, 'red')
       }
     })
   )
