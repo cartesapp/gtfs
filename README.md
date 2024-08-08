@@ -33,6 +33,30 @@ tippecanoe -zg --projection=EPSG:4326 -o land.pmtiles -l land land.json
 
 landcover.pmtiles depuis https://github.com/wipfli/h3-landcover/
 
+MAJ : j'ai trouvé un moyen de générer un périmètre plus grand autour de la France.
+
+```
+wget https://osm.download.movisda.io/grid/N50E000-10-202407310700.osm.pbf &
+wget https://osm.download.movisda.io/grid/NN40E010-10-202407310700.osm.pbf &
+wget https://osm.download.movisda.io/grid/NN50E000-10-202407310700.osm.pbf &
+wget https://osm.download.movisda.io/grid/NN50E010-10-202407310700.osm.pbf &
+```
+
+Puis les transformer en MBTiles, la seule méthode que j'ai trouvée est le --merge de tilemaker.
+
+```
+tilemaker --input N50E010-10-202407310700.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua
+tilemaker --input NN50E000-10-202407310700.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua --merge
+# pareil pour les 2 autres
+
+```
+
+Aussi, mieux vaut télécharger le pmtiles de Panoramax plutôt que de taper sur leur serveurs. Pour le reste du monde, on n'a pas besoin d'une fréquence de MAJ élevée.
+
+```
+wget https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles
+```
+
 ## API des horaires et lignes de bus en France (standard GTFS)
 
 On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/cartes/issues/162).
