@@ -91,7 +91,10 @@ app.use(
 // Désactivation temporaire pour régler nos pb de multiples entrées db
 //app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
+
 /* For the french parlementary elections, we experimented serving pmtiles. See data/. It's very interesting, we're keeping this code here since it could be used to produce new contextual maps covering news. Same for geojsons. */
+// edit : now using nginx directly : faster probably
+//
 app.use(express.static('data/pmtiles'))
 app.use(express.static('data/geojson'))
 

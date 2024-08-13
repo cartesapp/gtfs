@@ -11,6 +11,14 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
     }
+	# beware, this folder needs to be readable by www-data user https://stackoverflow.com/questions/16808813/nginx-serve-static-file-and-got-403-forbidden
+   location /pmtiles/ {
+        alias /home/ubuntu/gtfs/data/pmtiles/;
+        add_header Access-Control-Allow-Origin *;
+        autoindex on;
+    }
+
+
     location = /gtfs {
     return 302 /gtfs/;
     }
