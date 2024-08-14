@@ -163,6 +163,7 @@ function node_function()
 			else                     rank=3; mz=3 end
 		elseif place == "state"         then mz=4
 		elseif place == "province"         then mz=5
+		elseif place == "city" and pop > 100000       then mz=4
 		elseif place == "city"          then mz=5
 		elseif place == "town" and pop>8000 then mz=7
 		elseif place == "town"          then mz=8
