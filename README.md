@@ -37,9 +37,9 @@ MAJ : j'ai trouvé un moyen de générer un périmètre plus grand autour de la 
 
 ```
 wget https://osm.download.movisda.io/grid/N50E000-10-202408071900.osm.pbf &
-wget https://osm.download.movisda.io/grid/NN40E010-10-202408071900.osm.pbf &
-wget https://osm.download.movisda.io/grid/NN40E000-10-202408071900.osm.pbf &
-wget https://osm.download.movisda.io/grid/NN50E010-10-202408071900.osm.pbf &
+wget https://osm.download.movisda.io/grid/N40E010-10-202408071900.osm.pbf &
+wget https://osm.download.movisda.io/grid/N40E000-10-202408071900.osm.pbf &
+wget https://osm.download.movisda.io/grid/N50E010-10-202408071900.osm.pbf &
 ```
 
 Puis les transformer en MBTiles, la seule méthode que j'ai trouvée est le --merge de tilemaker.
