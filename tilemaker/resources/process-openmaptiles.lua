@@ -567,9 +567,9 @@ function way_function()
 			local usage = Find("usage")
 			if railway == "rail" and service == "" then
 				if usage == "main" then
-					minzoom = 5
+					minzoom = 4
 				else
-					minzoom = 9
+					minzoom = 8
 				end
 			elseif railway == "narrow_gauge" and service == "" then
 				minzoom = 10
