@@ -620,7 +620,9 @@ app.get('/update', async (req, res) => {
     console.log('stdout:', stdout4)
     console.log('stderr:', stderr4)
 
-    const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+    const { stdout2, stderr2 } = await exec(
+      'sudo systemctl restart motis.service'
+    )
     console.log('-------------------------------')
     console.log('Restart Motis OK')
     console.log('stdout:', stdout2)
