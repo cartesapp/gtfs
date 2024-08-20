@@ -620,6 +620,7 @@ app.get('/update', async (req, res) => {
     console.log('stdout:', stdout4)
     console.log('stderr:', stderr4)
 
+    // TODO sudo... https://unix.stackexchange.com/questions/606452/allowing-user-to-run-systemctl-systemd-services-without-password/606476#606476
     const { stdout2, stderr2 } = await exec(
       'sudo systemctl restart motis.service'
     )
