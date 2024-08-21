@@ -7,13 +7,13 @@
 -- Alter these lines to control which languages are written for place/streetnames
 --
 -- Preferred language can be (for example) "en" for English, "de" for German, or nil to use OSM's name tag:
-preferred_language = nil
+preferred_language = "fr"
 -- This is written into the following vector tile attribute (usually "name:latin"):
-preferred_language_attribute = "name:latin"
+preferred_language_attribute = "name:fr"
 -- If OSM's name tag differs, then write it into this attribute (usually "name_int"):
 default_language_attribute = "name_int"
 -- Also write these languages if they differ - for example, { "de", "fr" }
-additional_languages = { }
+additional_languages = {"en"}
 --------
 
 --------
