@@ -1,7 +1,6 @@
 {
   "imports": {
     "@turf/helpers": "npm:@turf/helpers@^6.5.0",
-    "better-sqlite3": "https://deno.land/x/sqlite",
     "csv-parse": "npm:csv-parse@^5.5.3",
     "csv-stringify": "npm:csv-stringify@^6.4.5",
     "gtfs-realtime-bindings": "npm:gtfs-realtime-bindings@^1.1.1",
@@ -18,6 +17,13 @@
     "strip-bom-stream": "npm:strip-bom-stream@^5.0.0",
     "tmp-promise": "npm:tmp-promise@^3.0.3",
     "untildify": "npm:untildify@^5.0.0",
-    "yargs": "npm:yargs@^17.7.2"
+    "yargs": "npm:yargs@^17.7.2",
+    "gtfs": "npm:gtfs",
+    "tempy": "npm:tempy",
+    "yoctocolors": "npm:yoctocolors",
+    "better-sqlite3": "npm:libsql",
+    "fs": "node:fs",
+    "libsql": "npm:libsql",
+    "geojson": "npm:geojson"
   }
 }

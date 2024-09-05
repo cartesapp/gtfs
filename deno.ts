@@ -13,11 +13,12 @@ import {
   getStopsAsGeoJSON,
 		*/
   importGtfs,
-} from '../node-gtfs/index.js'
+} from '../node-gtfs/src/index.ts'
 
 import { Hono } from 'https://deno.land/x/hono/mod.ts'
 
 import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
+
 const yamlLoader = new YamlLoader()
 
 const app = new Hono()
