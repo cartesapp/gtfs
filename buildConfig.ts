@@ -37,7 +37,7 @@ const afterFileDownload = async (resource, filename) => {
     `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
   )
   log(
-    `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
+    `Fixed errors with gtfssclean as requested in input for file ${resource.title}`
   )
 
   const path = './input/' + extractedFileName
@@ -154,7 +154,8 @@ const doFetch = async () => {
         }
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
         // Edit : looks like this case is resolved. Trying to use this TDGV url field to use their cache, since lots of resources are sometimes unavailable
-        await download(resource.url, destination, reqInit)
+        // 2nd edit : no, the file gets downloaded, but it's an index. I was fooled for the second time.
+        await download(resource.original_url, destination, reqInit)
 
         return afterFileDownload(resource, filename)
       } catch (err) {
