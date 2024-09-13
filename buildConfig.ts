@@ -2,11 +2,11 @@ import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
 import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
 import { existsSync } from 'https://deno.land/std/fs/mod.ts'
-import { prefixGtfsServiceIds } from './gtfsUtils.ts'
+import { prefixGtfsAgencyIds, prefixGtfsServiceIds } from './gtfsUtils.ts'
 import { load } from 'https://deno.land/std@0.224.0/dotenv/mod.ts'
 const env = await load()
 
-const log = (message, color = 'lightgreen') =>
+export const log = (message, color = 'lightgreen') =>
   console.log(`%c${message}`, 'color: ' + color)
 
 const gtfsCleanFilename = 'gtfsclean'
@@ -143,6 +143,8 @@ const doFetch = async () => {
         const path = './input/' + extractedFileName
         if (resource.prefixServiceIds)
           prefixGtfsServiceIds(path, resource.prefix + '-')
+
+        await prefixGtfsAgencyIds(path, resource.prefix + '-')
 
         return { path, prefix: resource.prefix }
       } catch (err) {
