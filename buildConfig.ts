@@ -39,12 +39,21 @@ const doFetch = async () => {
     const found = panDatasets.find(({ slug, page_url, id }) =>
       [slug, page_url, id].find((el) => el === dataset.slug)
     )
-    return {
+    //TODO implement transport.data.gouv.fr's redirection
+    //but they don't have an api by slug, just by id...
+    if (found == null)
+      throw new Error(
+        'Erreur : le jeu de données ayant pour slug ' +
+          dataset.slug +
+          " n'est pas trouvable. Peut-être a-t-il été redirigé vers un nouveau slug ?"
+      )
+    const result = {
       ...found,
       prefix: dataset.prefix,
       auth: dataset.auth,
       prefixServiceIds: dataset.prefixServiceIds,
     }
+    return result
   })
 
   log(
