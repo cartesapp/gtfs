@@ -41,6 +41,7 @@ const doFetch = async () => {
     )
     //TODO implement transport.data.gouv.fr's redirection
     //but they don't have an api by slug, just by id...
+    //TODO errors should be collected and displayed somewhere on the Web !
     if (found == null)
       throw new Error(
         'Erreur : le jeu de données ayant pour slug ' +
@@ -63,9 +64,10 @@ const doFetch = async () => {
     const gtfsResources = next.resources.filter(
       (resource) =>
         resource.format === 'GTFS' && //&& resource.is_available flixbus marked as not available but is in fact
-        resource.community_resource_publisher == null // Some transport.data.gouv.fr entries have multiple official complementary GTFS files, e.g. breton islands.
-      // Some others have intersecting resources, e.g. reseau-urbain-et-interurbain-dile-de-france-mobilites
-      // It looks like intersecting, which are problematic for us, appear only with community resources
+        resource.community_resource_publisher == null && // Some transport.data.gouv.fr entries have multiple official complementary GTFS files, e.g. breton islands.
+        // Some others have intersecting resources, e.g. reseau-urbain-et-interurbain-dile-de-france-mobilites
+        // It looks like intersecting, which are problematic for us, appear only with community resources
+        resource.is_available // TODO maybe we should use the TDGV cache file... but it could be outdated. To be thought
     )
     const uniqueTitle = Object.values(
       Object.fromEntries(gtfsResources.map((el) => [el.title, el]))
@@ -90,9 +92,14 @@ const doFetch = async () => {
         const filename =
           (resource.prefix || resource.slug) +
           '|' +
-          resource.title.replace(/\s/g, '-') +
+          resource.title
+            .replace(/\s/g, '-')
+            // eu-x-eurostar|EUROSTAR-GTFS-jusqu'au-7/10/2024.gtfs.zip
+            .replace(/'/g, '-')
+            .replace(/\//g, '-') +
           (resource.format === 'GTFS' ? '.gtfs.zip' : '.unknown')
         // NOTE : You need to ensure that the directory you pass exists.
+
         const destination: Destination = {
           file: filename,
           dir: './input',
