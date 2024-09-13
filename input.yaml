@@ -14,6 +14,7 @@
 # Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
 # Attention cependant à ne pas activer l'option prefixServiceIds quand ce n'est pas nécessaire car cela semble faire disparaitre les BlaBlaBus et FlixBus
 
+# Astuce pour débugguer : l'attribut "onlyMe" va permettre d'ignorer temporairement tous les autres jeux sans devoir les commenter ou supprimer un par un du fichier
 datasets:
   # AGRÉGATS RÉGIONAUX
   # Auvergne-Rhône-Alpes
@@ -56,6 +57,7 @@ datasets:
     auth: 'LYON_TCL_CREDENTIALS'
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
+
   # Strasbourg (réseau CTS)
   - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
     prefix: fr-strasbourg

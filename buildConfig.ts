@@ -29,6 +29,25 @@ const { datasets: allDatasets } = input
 const onlyMeOverrides = allDatasets.filter((dataset) => dataset.onlyMe)
 const datasets = onlyMeOverrides.length ? onlyMeOverrides : allDatasets
 
+const afterFileDownload = async (resource, filename) => {
+  log(`Downloaded file ${resource.title}`)
+  // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
+  const extractedFileName = filename.split('.zip')[0]
+  await exec(
+    `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
+  )
+  log(
+    `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
+  )
+
+  const path = './input/' + extractedFileName
+  if (resource.prefixServiceIds)
+    prefixGtfsServiceIds(path, resource.prefix + '-')
+
+  await prefixGtfsAgencyIds(path, resource.prefix + '-')
+
+  return { path, prefix: resource.prefix, title: resource.title }
+}
 const doFetch = async () => {
   const panRequest = await fetch('https://transport.data.gouv.fr/api/datasets/')
   const panDatasets = await panRequest.json()
@@ -64,11 +83,11 @@ const doFetch = async () => {
     const gtfsResources = next.resources.filter(
       (resource) =>
         resource.format === 'GTFS' && //&& resource.is_available flixbus marked as not available but is in fact
-        resource.community_resource_publisher == null && // Some transport.data.gouv.fr entries have multiple official complementary GTFS files, e.g. breton islands.
-        // Some others have intersecting resources, e.g. reseau-urbain-et-interurbain-dile-de-france-mobilites
-        // It looks like intersecting, which are problematic for us, appear only with community resources
-        resource.is_available // TODO maybe we should use the TDGV cache file... but it could be outdated. To be thought
+        resource.community_resource_publisher == null // Some transport.data.gouv.fr entries have multiple official complementary GTFS files, e.g. breton islands.
+      // Some others have intersecting resources, e.g. reseau-urbain-et-interurbain-dile-de-france-mobilites
+      // It looks like intersecting, which are problematic for us, appear only with community resources
     )
+
     const uniqueTitle = Object.values(
       Object.fromEntries(gtfsResources.map((el) => [el.title, el]))
     )
@@ -113,11 +132,16 @@ const doFetch = async () => {
     */
 
         const needAuth = resource.auth
-        if (needAuth && !env[needAuth])
+        if (needAuth) {
           console.log(
-            `%cErreur : la resource du slug ${resource.slug} nécessite une authentification ${resource.auth}`,
-            'color: crimson'
+            `La resource du slug ${resource.slug} nécessite une authentification`
           )
+          if (!env[needAuth])
+            console.log(
+              `%cErreur : l'authentification ${resource.auth} du slug ${resource.slug} est introuvable dans le .env`,
+              'color: crimson'
+            )
+        }
         const reqInit: RequestInit = {
           method: 'GET',
           ...(needAuth
@@ -129,42 +153,40 @@ const doFetch = async () => {
             : {}),
         }
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
-        await download(resource.original_url, destination, reqInit)
-        log(`Downloaded file ${resource.title}`)
-        // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
-        const extractedFileName = filename.split('.zip')[0]
-        await exec(
-          `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
-        )
-        log(
-          `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
-        )
+        // Edit : looks like this case is resolved. Trying to use this TDGV url field to use their cache, since lots of resources are sometimes unavailable
+        await download(resource.url, destination, reqInit)
 
-        const path = './input/' + extractedFileName
-        if (resource.prefixServiceIds)
-          prefixGtfsServiceIds(path, resource.prefix + '-')
-
-        await prefixGtfsAgencyIds(path, resource.prefix + '-')
-
-        return { path, prefix: resource.prefix }
+        return afterFileDownload(resource, filename)
       } catch (err) {
         log('Erreur dans le traitement de la resource ' + resource.slug, 'red')
         log(err, 'red')
+        return { title: resource.title, error: true }
       }
     })
   )
 
-  filenames.forEach((filename) => {
+  log(
+    'Erreurs dans le traitement de ces fichiers GTFS ' +
+      filenames
+        .filter((filename) => filename.error)
+        .map((filename) => filename.title)
+        .join(' ; '),
+    'red'
+  )
+  const validFilenames = filenames.filter((filename) => !filename.error)
+
+  validFilenames.forEach((filename) => {
     log(
       `Found resource with path=${filename.path} and prefix=${filename.prefix}`
     )
   })
+
   const nodeGtfsConfigFile = './config.json'
   await Deno.writeTextFile(
     nodeGtfsConfigFile,
     JSON.stringify(
       {
-        agencies: filenames.map(({ path }) => ({
+        agencies: validFilenames.map(({ path }) => ({
           path,
 
           exclude: ['shapes'], // We don't need original shapes, they're too detailed and often wrong, we're rebuilding our own symbolical shapes
@@ -200,7 +222,7 @@ server.static_path=motis/web
 max_footpath_length=15
 
 [import]
-${filenames
+${validFilenames
   .map(
     (filename) =>
       `paths=schedule-${
