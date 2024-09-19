@@ -78,6 +78,12 @@ datasets:
   - slug: tisseo-offre-de-transport-gtfs
     prefix: fr-toulouse
 
+  # Vannes
+  - slug: reseau-urbain-kiceo
+    prefix: fr-vannes
+    onlyMe: ouioui
+    ignore: Just for testing purposes of a small network that works. Included in Bretagne
+
   # DATASETS PRIVÉS
   # SNCF
   - slug: horaires-des-lignes-ter-sncf
@@ -86,9 +92,18 @@ datasets:
     prefix: fr-x-sncf-tgv
   - slug: horaires-des-lignes-intercites-sncf
     prefix: fr-x-sncf-intercites
+  # Ferries
+  #
+  - slug: programme-des-rotations-corsica-ferries
+    prefix: fr-x-corsica-ferries
+    onlyMe: ouiouimoimoi
+    ignore: |
+      Jeu de donnée cassé, voir sa page sur transport.data : il manque les stops d'arrivée pour chaque route.
+
   # Eurostar
   - slug: eurostar-gtfs
     prefix: eu-x-eurostar
+    onlyMe: ouiouimoimoi
   # Trenitalia
   - slug: horaires-des-trains-trenitalia-france
     prefix: fr-x-trenitalia
