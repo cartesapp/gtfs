@@ -166,14 +166,13 @@ const doFetch = async () => {
     })
   )
 
-  log(
-    'Erreurs dans le traitement de ces fichiers GTFS ' +
-      filenames
-        .filter((filename) => filename.error)
-        .map((filename) => filename.title)
-        .join(' ; '),
-    'red'
-  )
+  const errorFilenames = filenames.filter((filename) => filename.error)
+  if (errorFilenames.length > 0)
+    log(
+      'Erreurs dans le traitement de ces fichiers GTFS ' +
+        errorFilenames.map((filename) => filename.title).join(' ; '),
+      'red'
+    )
   const validFilenames = filenames.filter((filename) => !filename.error)
 
   validFilenames.forEach((filename) => {
