@@ -81,7 +81,6 @@ datasets:
   # Vannes
   - slug: reseau-urbain-kiceo
     prefix: fr-vannes
-    onlyMe: ouioui
     ignore: Just for testing purposes of a small network that works. Included in Bretagne
 
   # DATASETS PRIVÉS
@@ -96,14 +95,12 @@ datasets:
   #
   - slug: programme-des-rotations-corsica-ferries
     prefix: fr-x-corsica-ferries
-    onlyMe: ouiouimoimoi
     ignore: |
       Jeu de donnée cassé, voir sa page sur transport.data : il manque les stops d'arrivée pour chaque route.
 
   # Eurostar
   - slug: eurostar-gtfs
     prefix: eu-x-eurostar
-    onlyMe: ouiouimoimoi
   # Trenitalia
   - slug: horaires-des-trains-trenitalia-france
     prefix: fr-x-trenitalia
