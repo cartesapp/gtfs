@@ -1,13 +1,12 @@
-import { exec as rawExec, spawn } from 'child_process'
-import util from 'util'
-const realExec = util.promisify(rawExec)
 import axios from 'axios'
-import debounce from 'debounce'
+import { exec as rawExec, spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+import util from 'util'
+const realExec = util.promisify(rawExec)
 
-import { MultiProgressBars } from 'multi-progress-bars'
 import * as chalk from 'chalk'
+import { MultiProgressBars } from 'multi-progress-bars'
 
 const grid = ['N50E000', 'N40E010', 'N40E000', 'N50E010']
 
@@ -18,12 +17,8 @@ const dryExec = async (text) => {
 
 const log = (...messages) => console.log(...messages)
 const liveExec = async (command) => {
-  const [program, ...args] = command.split(' ')
-
-  console.log('Will run command', program, args)
-
   const promise = new Promise((resolve, reject) => {
-    const child = spawn(program, args)
+    const child = spawn(command, [], { shell: true })
 
     child.stdout.on('data', function (data) {
       log('🟢stdout: ' + data.toString())
@@ -79,23 +74,23 @@ export async function updateFranceTiles() {
       i > 0 ? ' --merge' : ''
     }`
 
+    const [program, ...args] = command.split(' ')
+    console.log(program, args)
     return command
   })
 
   for (const command of tilemakerMerges) {
     console.log(command)
-    await realExec(command)
+    await exec(command)
   }
 
-  await realExec(
+  await exec(
     '~/pmtiles/pmtiles convert hexagone-plus.mbtiles hexagone-plus.pmtiles'
   )
-  await realExec('mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
-  await realExec('rm hexagone-plus.mbtiles')
+  await exec('mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
+  await exec('rm hexagone-plus.mbtiles')
 
-  await Promise.all(
-    grid.map((zone) => realExec(`rm ${zone}-10-latest.osm.pbf`))
-  )
+  await Promise.all(grid.map((zone) => exec(`rm ${zone}-10-latest.osm.pbf`)))
 
   console.log('Done updating 😀')
 }
