@@ -5,7 +5,7 @@ import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
-import { updateTiles } from './tiles.js'
+import { updateFranceTiles, updatePlanetTiles } from './tiles.js'
 import {
   closeDb,
   getAgencies,
@@ -589,6 +589,7 @@ app.get('/parse', async (req, res) => {
 })
 
 const secretKey = process.env.SECRET_KEY
+
 app.get('/update/:givenSecretKey', async (req, res) => {
   if (secretKey !== req.params.givenSecretKey) {
     return res
@@ -648,16 +649,24 @@ app.get('/update/:givenSecretKey', async (req, res) => {
     res.send({ ok: false })
   }
 })
-app.get('/update-tiles/:givenSecretKey', async (req, res) => {
-  if (secretKey !== req.params.givenSecretKey) {
+app.get('/update-tiles/:zone/:givenSecretKey', async (req, res) => {
+  const { givenSecretKey, zone } = req.params
+  console.log(givenSecretKey, secretKey)
+  if (secretKey !== secretKey) {
     return res
       .status(401)
       .send("Wrong auth secret key, you're not allowed to do that")
   }
   try {
-    await updateTiles()
-
-    res.send({ ok: true })
+    if (zone === 'france') {
+      await updateFranceTiles()
+      return res.send({ ok: true })
+    }
+    if (zone === 'planet') {
+      await updatePlanetTiles()
+      return res.send({ ok: true })
+    }
+    return res.send({ ok: false })
   } catch (e) {
     console.log("Couldn't update tiles.", e)
     res.send({ ok: false })

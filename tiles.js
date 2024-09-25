@@ -2,7 +2,7 @@ import { exec as rawExec } from 'child_process'
 import util from 'util'
 const realExec = util.promisify(rawExec)
 
-const grid = ['N50E000-10', 'N40E010-10', 'N40E000-10', 'N50E010-10']
+const grid = ['N50E000', 'N40E010', 'N40E000', 'N50E010']
 
 const dryExec = async (text) => {
   console.log(text)
@@ -11,7 +11,7 @@ const dryExec = async (text) => {
 
 const exec = realExec
 
-export async function updateTiles() {
+export async function updatePlanetTiles() {
   console.log('Will download panoramax planet pmtiles')
   const { stdout, stderr } = await exec(
     'wget https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles -O ~/gtfs/data/pmtiles/planet.pmtiles'
@@ -19,8 +19,11 @@ export async function updateTiles() {
   console.log('-------------------------------')
   console.log('✅ Downloaded 🌍️')
   console.log('stdout:', stdout)
-  console.log('stderr:', stderr)
 
+  console.log('stderr:', stderr)
+}
+
+export async function updateFranceTiles() {
   // Now france tiles
 
   const logs = await Promise.all(
