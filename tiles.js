@@ -2,10 +2,12 @@ import { exec as realExec } from './server.js'
 
 const grid = ['N50E000-10', 'N40E010-10', 'N40E000-10', 'N50E010-10']
 
-const exec = async (text) => {
+const dryExec = async (text) => {
   console.log(text)
   return Promise.resolve({ stdout: '', stderr: '' })
 }
+
+const exec = realExec
 
 export async function updateTiles() {
   console.log('Will download panoramax planet pmtiles')
@@ -47,4 +49,4 @@ export async function updateTiles() {
   console.log('Done updating 😀')
 }
 
-updateTiles()
+//updateTiles()
