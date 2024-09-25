@@ -20,6 +20,8 @@ const log = (...messages) => console.log(...messages)
 const liveExec = async (command) => {
   const [program, ...args] = command.split(' ')
 
+  console.log('Will run command', program, args)
+
   const promise = new Promise((resolve, reject) => {
     const child = spawn(program, args)
 
@@ -65,28 +67,35 @@ updateFranceTiles()
 export async function updateFranceTiles() {
   // Now france tiles
 
+  /*
   await Promise.all(
     grid.map((zone) =>
       download(`https://osm.download.movisda.io/grid/${zone}-10-latest.osm.pbf`)
     )
   )
+*/
+  const tilemakerMerges = grid.map((zone, i) => {
+    const command = `tilemaker --input ${zone}-10-latest.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua${
+      i > 0 ? ' --merge' : ''
+    }`
 
-  const tilemakerMerges = grid.map(
-    (zone, i) =>
-      `tilemaker --input ${zone}-10-latest.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua ${
-        i > 0 ? '--merge' : ''
-      }`
-  )
+    return command
+  })
 
-  await Promise.all(tilemakerMerges.map((command) => exec(command)))
+  for (const command of tilemakerMerges) {
+    console.log(command)
+    await realExec(command)
+  }
 
-  await exec(
+  await realExec(
     '~/pmtiles/pmtiles convert hexagone-plus.mbtiles hexagone-plus.pmtiles'
   )
-  await exec('mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
-  await exec('rm hexagone-plus.mbtiles')
+  await realExec('mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
+  await realExec('rm hexagone-plus.mbtiles')
 
-  await Promise.all(grid.map((zone) => `rm ${zone}-10-latest.osm.pbf`))
+  await Promise.all(
+    grid.map((zone) => realExec(`rm ${zone}-10-latest.osm.pbf`))
+  )
 
   console.log('Done updating 😀')
 }
