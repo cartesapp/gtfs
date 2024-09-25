@@ -65,14 +65,10 @@ updateFranceTiles()
 export async function updateFranceTiles() {
   // Now france tiles
 
-  const logs = await Promise.all(
-    grid
-      .slice(0, 2)
-      .map((zone) =>
-        download(
-          `https://osm.download.movisda.io/grid/${zone}-10-latest.osm.pbf`
-        )
-      )
+  await Promise.all(
+    grid.map((zone) =>
+      download(`https://osm.download.movisda.io/grid/${zone}-10-latest.osm.pbf`)
+    )
   )
 
   const tilemakerMerges = grid.map(
