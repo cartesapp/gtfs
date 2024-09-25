@@ -48,27 +48,26 @@ const exec = liveExec
 
 export async function updatePlanetTiles() {
   console.log('Will download panoramax planet pmtiles')
-  const { stdout, stderr } = await exec(
-    'wget https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles -O ~/gtfs/data/pmtiles/planet.pmtiles'
-  )
+  const url = `https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles`
+  await download(url)
+  // sudo because this dir is handled by www-data
+  await exec('sudo mv planet.pmtiles ~/gtfs/data/pmtiles/planet.pmtiles')
+
   console.log('-------------------------------')
   console.log('✅ Downloaded 🌍️')
-  console.log('stdout:', stdout)
-
-  console.log('stderr:', stderr)
 }
 
-updateFranceTiles()
+//updateFranceTiles()
+
 export async function updateFranceTiles() {
   // Now france tiles
 
-  /*
   await Promise.all(
     grid.map((zone) =>
       download(`https://osm.download.movisda.io/grid/${zone}-10-latest.osm.pbf`)
     )
   )
-*/
+
   const tilemakerMerges = grid.map((zone, i) => {
     const command = `tilemaker --input ${zone}-10-latest.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua${
       i > 0 ? ' --merge' : ''
