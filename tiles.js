@@ -1,4 +1,5 @@
 import { exec as rawExec } from 'child_process'
+import util from 'util'
 const realExec = util.promisify(rawExec)
 
 const grid = ['N50E000-10', 'N40E010-10', 'N40E000-10', 'N50E010-10']
