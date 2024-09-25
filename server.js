@@ -5,6 +5,7 @@ import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
+import { updateTiles } from './tiles.js'
 import {
   closeDb,
   getAgencies,
@@ -34,7 +35,8 @@ import {
 } from './utils.js'
 
 let cacheMiddleware = apicache.middleware
-const exec = util.promisify(rawExec)
+
+export const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
 import { buildAgencyAreas } from './buildAgencyAreas.js'
@@ -643,6 +645,21 @@ app.get('/update/:givenSecretKey', async (req, res) => {
       "Couldn't update the GTFS server, or the Motis service. Please investigate.",
       e
     )
+    res.send({ ok: false })
+  }
+})
+app.get('/update-tiles/:givenSecretKey', async (req, res) => {
+  if (secretKey !== req.params.givenSecretKey) {
+    return res
+      .status(401)
+      .send("Wrong auth secret key, you're not allowed to do that")
+  }
+  try {
+    await updateTiles()
+
+    res.send({ ok: true })
+  } catch (e) {
+    console.log("Couldn't update tiles.", e)
     res.send({ ok: false })
   }
 })
