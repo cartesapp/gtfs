@@ -586,7 +586,13 @@ app.get('/parse', async (req, res) => {
   res.send(alors)
 })
 
-app.get('/update', async (req, res) => {
+const secretKey = process.env.SECRET_KEY
+app.get('/update/:givenSecretKey', async (req, res) => {
+  if (secretKey !== req.params.givenSecretKey) {
+    return res
+      .status(401)
+      .send("Wrong auth secret key, you're not allowed to do that")
+  }
   try {
     const oldDb = openDb(config)
     console.log('Will build config')
