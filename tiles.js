@@ -87,10 +87,13 @@ export async function updateFranceTiles() {
   await exec(
     '~/pmtiles/pmtiles convert hexagone-plus.mbtiles hexagone-plus.pmtiles'
   )
-  await exec('mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
-  await exec('rm hexagone-plus.mbtiles')
 
-  await Promise.all(grid.map((zone) => exec(`rm ${zone}-10-latest.osm.pbf`)))
+  // sudo because this dir is handled by www-data
+  await exec('sudo mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
+  // wait until the above step is verified before deleting, we've got disk space
+  //await exec('rm hexagone-plus.mbtiles')
+
+  //await Promise.all(grid.map((zone) => exec(`rm ${zone}-10-latest.osm.pbf`)))
 
   console.log('Done updating 😀')
 }
