@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import turfDistance from '@turf/distance'
 import apicache from 'apicache'
 import { exec as rawExec } from 'child_process'
