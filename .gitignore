@@ -15,6 +15,7 @@ gtfsclean
 
 geojson
 config.json
+data/temp/
 data/tippecanoe/
 data/pmtiles/
 data/geojson/*

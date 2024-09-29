@@ -100,14 +100,16 @@ export async function updateFranceTiles() {
 //updateTiles()
 
 // Initialize mpb
-const mpb = new MultiProgressBars({
-  initMessage: ' $ Example Fullstack Build ',
-  anchor: 'top',
-  persist: true,
-  border: true,
-})
+const createProgressBar = () =>
+  new MultiProgressBars({
+    initMessage: ' $ Example Fullstack Build ',
+    anchor: 'top',
+    persist: true,
+    border: true,
+  })
 
 function download(url) {
+  const mpb = createProgressBar()
   return new Promise(async (resolve, reject) => {
     const filename = url.split('/').slice(-1)[0]
     console.log('Will write', filename)

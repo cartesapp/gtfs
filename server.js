@@ -135,11 +135,13 @@ app.get('/elections-legislatives-2024/:circo', (req, res) => {
 const port = process.env.PORT || 3001
 
 const parseGTFS = async (newDbName) => {
+  console.time('salut')
   const config = await readConfig()
   console.log('will load GTFS files in node-gtfs')
   config.sqlitePath = 'db/' + newDbName
   await importGtfs(config)
   await updateGtfsRealtime(config)
+  console.timeLog('salut')
   return "C'est bon !"
 }
 
@@ -580,6 +582,8 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
     console.error(error)
   }
 })
+
+//parseGTFS(Math.random())
 
 /* Update the DB from the local GTFS files */
 app.get('/parse', async (req, res) => {
