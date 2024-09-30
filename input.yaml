@@ -14,6 +14,7 @@
 # Certains jeux de données, comme bzh et pdll, colisionnent sur leurs service_ids, d'où le besoin de les préfixer avec l'option prefixServiceIds.
 # Attention cependant à ne pas activer l'option prefixServiceIds quand ce n'est pas nécessaire car cela semble faire disparaitre les BlaBlaBus et FlixBus
 
+# Astuce pour débugguer : l'attribut "onlyMe" va permettre d'ignorer temporairement tous les autres jeux sans devoir les commenter ou supprimer un par un du fichier
 datasets:
   # AGRÉGATS RÉGIONAUX
   # Auvergne-Rhône-Alpes
@@ -25,7 +26,7 @@ datasets:
     prefix: fr-bre
     prefixServiceIds: true
   # Centre-Val-de-Loire
-  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-1
+  - slug: arrets-itineraires-et-horaires-theoriques-des-reseaux-de-transport-des-membres-de-jvmalin
     prefix: fr-cvl
   # Corse
   # Grand Est
@@ -37,7 +38,7 @@ datasets:
   - slug: base-de-donnees-multimodale-des-reseaux-de-transport-public-normands
     prefix: fr-nor
   # Nouvelle-Aquitaine
-  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-1
+  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-2
     prefix: fr-naq
   # Occitanie
   # Pays de la Loire
@@ -56,6 +57,7 @@ datasets:
     auth: 'LYON_TCL_CREDENTIALS'
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
+
   # Strasbourg (réseau CTS)
   - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
     prefix: fr-strasbourg
@@ -65,9 +67,7 @@ datasets:
   # Reims (réseau Grand Reims mobilités)
   - slug: offre-de-transport-du-reseau-grand-reims-mobilites-communaute-urbaine-du-grand-reims
     prefix: fr-reims
-    # Nancy (réseau Stan)
-  - slug: arrets-horaires-et-parcours-theoriques-du-reseau-stan-gtfs
-    prefix: fr-nancy
+    # Nancy (réseau Stan) -> A été retiré problème de shapes
   # Epinal (réseau Imagine)
   - slug: fr-200052264-t0009-0000-1
     prefix: fr-epinal
@@ -80,6 +80,14 @@ datasets:
   # Métropole Européenne de Lille
   - slug: localisation-des-arrets-ilevia-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-ilevia-2
     prefix: fr-lille
+  # Métropole Montpellier
+  - slug: offre-de-transport-de-montpellier-mediterranee-metropole-tam-gtfs
+    prefix: fr-montpellier
+
+  # Vannes
+  - slug: reseau-urbain-kiceo
+    prefix: fr-vannes
+    ignore: Just for testing purposes of a small network that works. Included in Bretagne
 
   # DATASETS PRIVÉS
   # SNCF
@@ -89,6 +97,13 @@ datasets:
     prefix: fr-x-sncf-tgv
   - slug: horaires-des-lignes-intercites-sncf
     prefix: fr-x-sncf-intercites
+  # Ferries
+  #
+  - slug: programme-des-rotations-corsica-ferries
+    prefix: fr-x-corsica-ferries
+    ignore: |
+      Jeu de donnée cassé, voir sa page sur transport.data : il manque les stops d'arrivée pour chaque route.
+
   # Eurostar
   - slug: eurostar-gtfs
     prefix: eu-x-eurostar

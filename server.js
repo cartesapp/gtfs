@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import turfDistance from '@turf/distance'
 import apicache from 'apicache'
 import { exec as rawExec } from 'child_process'
@@ -5,6 +6,7 @@ import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
+import { updateFranceTiles, updatePlanetTiles } from './tiles.js'
 import {
   closeDb,
   getAgencies,
@@ -32,8 +34,10 @@ import {
   joinFeatureCollections,
   rejectNullValues,
 } from './utils.js'
+
 let cacheMiddleware = apicache.middleware
-const exec = util.promisify(rawExec)
+
+export const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
 import { buildAgencyAreas } from './buildAgencyAreas.js'
@@ -90,7 +94,10 @@ app.use(
 // Désactivation temporaire pour régler nos pb de multiples entrées db
 //app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
+
 /* For the french parlementary elections, we experimented serving pmtiles. See data/. It's very interesting, we're keeping this code here since it could be used to produce new contextual maps covering news. Same for geojsons. */
+// edit : now using nginx directly : faster probably
+//
 app.use(express.static('data/pmtiles'))
 app.use(express.static('data/geojson'))
 
@@ -129,11 +136,13 @@ app.get('/elections-legislatives-2024/:circo', (req, res) => {
 const port = process.env.PORT || 3001
 
 const parseGTFS = async (newDbName) => {
+  console.time('salut')
   const config = await readConfig()
   console.log('will load GTFS files in node-gtfs')
   config.sqlitePath = 'db/' + newDbName
   await importGtfs(config)
   await updateGtfsRealtime(config)
+  console.timeLog('salut')
   return "C'est bon !"
 }
 
@@ -575,6 +584,8 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
   }
 })
 
+//parseGTFS(Math.random())
+
 /* Update the DB from the local GTFS files */
 app.get('/parse', async (req, res) => {
   const alors = await parseGTFS(dateHourMinutes())
@@ -582,11 +593,18 @@ app.get('/parse', async (req, res) => {
   res.send(alors)
 })
 
-app.get('/update', async (req, res) => {
+const secretKey = process.env.SECRET_KEY
+
+app.get('/update/:givenSecretKey', async (req, res) => {
+  if (secretKey !== req.params.givenSecretKey) {
+    return res
+      .status(401)
+      .send("Wrong auth secret key, you're not allowed to do that")
+  }
   try {
     const oldDb = openDb(config)
     console.log('Will build config')
-    const { stdout, stderr } = await exec('yarn build-config')
+    const { stdout, stderr } = await exec('npm run build-config')
     console.log('-------------------------------')
     console.log('Build config OK')
     console.log('stdout:', stdout)
@@ -616,7 +634,10 @@ app.get('/update', async (req, res) => {
     console.log('stdout:', stdout4)
     console.log('stderr:', stderr4)
 
-    const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+    // TODO sudo... https://unix.stackexchange.com/questions/606452/allowing-user-to-run-systemctl-systemd-services-without-password/606476#606476
+    const { stdout2, stderr2 } = await exec(
+      'sudo systemctl restart motis.service'
+    )
     console.log('-------------------------------')
     console.log('Restart Motis OK')
     console.log('stdout:', stdout2)
@@ -630,6 +651,29 @@ app.get('/update', async (req, res) => {
       "Couldn't update the GTFS server, or the Motis service. Please investigate.",
       e
     )
+    res.send({ ok: false })
+  }
+})
+app.get('/update-tiles/:zone/:givenSecretKey', async (req, res) => {
+  const { givenSecretKey, zone } = req.params
+  console.log(givenSecretKey, secretKey)
+  if (secretKey !== secretKey) {
+    return res
+      .status(401)
+      .send("Wrong auth secret key, you're not allowed to do that")
+  }
+  try {
+    if (zone === 'france') {
+      await updateFranceTiles()
+      return res.send({ ok: true })
+    }
+    if (zone === 'planet') {
+      await updatePlanetTiles()
+      return res.send({ ok: true })
+    }
+    return res.send({ ok: false })
+  } catch (e) {
+    console.log("Couldn't update tiles.", e)
     res.send({ ok: false })
   }
 })

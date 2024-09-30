@@ -2,11 +2,12 @@ import { YamlLoader } from 'https://deno.land/x/yaml_loader/mod.ts'
 import { Destination, download } from 'https://deno.land/x/download/mod.ts'
 import { exec } from 'https://deno.land/x/exec/mod.ts'
 import { existsSync } from 'https://deno.land/std/fs/mod.ts'
-import { prefixGtfsServiceIds } from './gtfsUtils.ts'
+import { prefixGtfsAgencyIds, prefixGtfsServiceIds } from './gtfsUtils.ts'
 import { load } from 'https://deno.land/std@0.224.0/dotenv/mod.ts'
 const env = await load()
 
-const log = (message) => console.log(`%c${message}`, 'color: lightgreen')
+export const log = (message, color = 'lightgreen') =>
+  console.log(`%c${message}`, 'color: ' + color)
 
 const gtfsCleanFilename = 'gtfsclean'
 const pathFound = existsSync(gtfsCleanFilename)
@@ -26,8 +27,29 @@ const input = await yamlLoader.parseFile('./input.yaml')
 const { datasets: allDatasets } = input
 
 const onlyMeOverrides = allDatasets.filter((dataset) => dataset.onlyMe)
-const datasets = onlyMeOverrides.length ? onlyMeOverrides : allDatasets
+const datasets = onlyMeOverrides.length
+  ? onlyMeOverrides
+  : allDatasets.filter((dataset) => !dataset.ignore)
 
+const afterFileDownload = async (resource, filename) => {
+  log(`Downloaded file ${resource.title}`)
+  // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
+  const extractedFileName = filename.split('.zip')[0]
+  await exec(
+    `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
+  )
+  log(
+    `Fixed errors with gtfssclean as requested in input for file ${resource.title}`
+  )
+
+  const path = './input/' + extractedFileName
+  if (resource.prefixServiceIds)
+    prefixGtfsServiceIds(path, resource.prefix + '-')
+
+  await prefixGtfsAgencyIds(path, resource.prefix + '-')
+
+  return { path, prefix: resource.prefix, title: resource.title }
+}
 const doFetch = async () => {
   const panRequest = await fetch('https://transport.data.gouv.fr/api/datasets/')
   const panDatasets = await panRequest.json()
@@ -38,12 +60,22 @@ const doFetch = async () => {
     const found = panDatasets.find(({ slug, page_url, id }) =>
       [slug, page_url, id].find((el) => el === dataset.slug)
     )
-    return {
+    //TODO implement transport.data.gouv.fr's redirection
+    //but they don't have an api by slug, just by id...
+    //TODO errors should be collected and displayed somewhere on the Web !
+    if (found == null)
+      throw new Error(
+        'Erreur : le jeu de données ayant pour slug ' +
+          dataset.slug +
+          " n'est pas trouvable. Peut-être a-t-il été redirigé vers un nouveau slug ?"
+      )
+    const result = {
       ...found,
       prefix: dataset.prefix,
       auth: dataset.auth,
       prefixServiceIds: dataset.prefixServiceIds,
     }
+    return result
   })
 
   log(
@@ -57,6 +89,7 @@ const doFetch = async () => {
       // Some others have intersecting resources, e.g. reseau-urbain-et-interurbain-dile-de-france-mobilites
       // It looks like intersecting, which are problematic for us, appear only with community resources
     )
+
     const uniqueTitle = Object.values(
       Object.fromEntries(gtfsResources.map((el) => [el.title, el]))
     )
@@ -80,9 +113,14 @@ const doFetch = async () => {
         const filename =
           (resource.prefix || resource.slug) +
           '|' +
-          resource.title.replace(/\s/g, '-') +
+          resource.title
+            .replace(/\s/g, '-')
+            // eu-x-eurostar|EUROSTAR-GTFS-jusqu'au-7/10/2024.gtfs.zip
+            .replace(/'/g, '-')
+            .replace(/\//g, '-') +
           (resource.format === 'GTFS' ? '.gtfs.zip' : '.unknown')
         // NOTE : You need to ensure that the directory you pass exists.
+
         const destination: Destination = {
           file: filename,
           dir: './input',
@@ -96,11 +134,16 @@ const doFetch = async () => {
     */
 
         const needAuth = resource.auth
-        if (needAuth && !env[needAuth])
+        if (needAuth) {
           console.log(
-            `%cErreur : la resource du slug ${resource.slug} nécessite une authentification ${resource.auth}`,
-            'color: crimson'
+            `La resource du slug ${resource.slug} nécessite une authentification`
           )
+          if (!env[needAuth])
+            console.log(
+              `%cErreur : l'authentification ${resource.auth} du slug ${resource.slug} est introuvable dans le .env`,
+              'color: crimson'
+            )
+        }
         const reqInit: RequestInit = {
           method: 'GET',
           ...(needAuth
@@ -112,40 +155,40 @@ const doFetch = async () => {
             : {}),
         }
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
+        // Edit : looks like this case is resolved. Trying to use this TDGV url field to use their cache, since lots of resources are sometimes unavailable
+        // 2nd edit : no, the file gets downloaded, but it's an index. I was fooled for the second time.
         await download(resource.original_url, destination, reqInit)
-        log(`Downloaded file ${resource.title}`)
-        // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
-        const extractedFileName = filename.split('.zip')[0]
-        await exec(
-          `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
-        )
-        log(
-          `Fixed errors with gtfs tidy as requested in input for file ${resource.title}`
-        )
 
-        const path = './input/' + extractedFileName
-        if (resource.prefixServiceIds)
-          prefixGtfsServiceIds(path, resource.prefix + '-')
-
-        return { path, prefix: resource.prefix }
+        return afterFileDownload(resource, filename)
       } catch (err) {
-        console.log('Erreur dans le traitement de la resource ', resource.slug)
-        console.log(err)
+        log('Erreur dans le traitement de la resource ' + resource.slug, 'red')
+        log(err, 'red')
+        return { title: resource.title, error: true }
       }
     })
   )
 
-  filenames.forEach((filename) => {
+  const errorFilenames = filenames.filter((filename) => filename.error)
+  if (errorFilenames.length > 0)
+    log(
+      'Erreurs dans le traitement de ces fichiers GTFS ' +
+        errorFilenames.map((filename) => filename.title).join(' ; '),
+      'red'
+    )
+  const validFilenames = filenames.filter((filename) => !filename.error)
+
+  validFilenames.forEach((filename) => {
     log(
       `Found resource with path=${filename.path} and prefix=${filename.prefix}`
     )
   })
+
   const nodeGtfsConfigFile = './config.json'
   await Deno.writeTextFile(
     nodeGtfsConfigFile,
     JSON.stringify(
       {
-        agencies: filenames.map(({ path }) => ({
+        agencies: validFilenames.map(({ path }) => ({
           path,
 
           exclude: ['shapes'], // We don't need original shapes, they're too detailed and often wrong, we're rebuilding our own symbolical shapes
@@ -181,7 +224,7 @@ server.static_path=motis/web
 max_footpath_length=15
 
 [import]
-${filenames
+${validFilenames
   .map(
     (filename) =>
       `paths=schedule-${
@@ -197,6 +240,7 @@ profile=motis/ppr-profiles/default.json
 
 [osrm]
 profiles=motis/osrm-profiles/bike.lua
+profiles=motis/osrm-profiles/car.lua
 
 #[tiles]
 #profile=motis/tiles-profiles/background.lua

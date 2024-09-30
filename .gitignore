@@ -15,8 +15,17 @@ gtfsclean
 
 geojson
 config.json
+data/temp/
 data/tippecanoe/
+data/pmtiles/
 data/geojson/*
 !data/geojson/.gitkeep
 data/raw/
 .env
+
+!tilemaker/
+tilemaker/*
+!tilemaker/resources
+tilemaker/resources/*
+!tilemaker/resources/process-openmaptiles.lua
+!tilemaker/resources/config-openmaptiles.json
