@@ -89,6 +89,8 @@ const app = express()
 app.use(
   cors({
     origin: '*',
+    allowedHeaders: ['range', 'if-match'],
+    exposedHeaders: ['range', 'accept-ranges', 'etag'],
   })
 )
 // Désactivation temporaire pour régler nos pb de multiples entrées db
