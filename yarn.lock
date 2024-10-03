@@ -1356,10 +1356,34 @@ gtfs-to-geojson@^3.6.0:
     yargs "^17.7.2"
     yoctocolors "^2.1.1"
 
-gtfs@^4.10.2, gtfs@^4.13.3:
+gtfs@^4.13.3:
   version "4.14.4"
   resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.14.4.tgz#a23aafd7e5520318667f6fbbd382d96a8c8ba196"
   integrity sha512-jQZmTvh7cuBMmTz91R++RHE/EBe7T28X8Or4Xlg1yThwwSusZktDD6qJiibSw60kgutXpMn5kUngZfZrwXh5Bw==
+  dependencies:
+    "@turf/helpers" "^7.1.0"
+    better-sqlite3 "^11.3.0"
+    csv-parse "^5.5.6"
+    csv-stringify "^6.5.1"
+    gtfs-realtime-bindings "^1.1.1"
+    lodash-es "^4.17.21"
+    long "^5.2.3"
+    node-stream-zip "^1.15.0"
+    pluralize "^8.0.0"
+    pretty-error "^4.0.0"
+    promise-map-series "^0.3.0"
+    sanitize-filename "^1.6.3"
+    sqlstring-sqlite "^0.1.1"
+    strip-bom-stream "^5.0.0"
+    tempy "^3.1.0"
+    untildify "^5.0.0"
+    yargs "^17.7.2"
+    yoctocolors "^2.1.1"
+
+gtfs@^4.14.5:
+  version "4.14.5"
+  resolved "https://registry.yarnpkg.com/gtfs/-/gtfs-4.14.5.tgz#e5dbfaa89980bbc701e3eb4d1984392d1b98be42"
+  integrity sha512-KHBnZP5kCA1YZUz5S+lc3BnIyj3kEAfxPiqebOHNxzoUrCCRevlhQL/Jgifvx+VCD7tJeSsrT/uSmzwX5rzLbQ==
   dependencies:
     "@turf/helpers" "^7.1.0"
     better-sqlite3 "^11.3.0"

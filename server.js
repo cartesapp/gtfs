@@ -148,6 +148,8 @@ const parseGTFS = async (newDbName) => {
   return "C'est bon !"
 }
 
+parseGTFS(Math.random())
+
 app.get('/agency/geojsons/:agency_id', (req, res) => {
   try {
     const db = openDb(config)
