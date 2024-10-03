@@ -157,7 +157,7 @@ const doFetch = async () => {
         // I wanted to use "url" but it sometimes is an index file, e.g. with slug "horaires-des-lignes-ter-sncf"
         // Edit : looks like this case is resolved. Trying to use this TDGV url field to use their cache, since lots of resources are sometimes unavailable
         // 2nd edit : no, the file gets downloaded, but it's an index. I was fooled for the second time.
-        await download(resource.original_url, destination, reqInit)
+        //        await download(resource.original_url, destination, reqInit)
 
         return afterFileDownload(resource, filename)
       } catch (err) {

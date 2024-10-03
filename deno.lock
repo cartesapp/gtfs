@@ -1,43 +1,39 @@
 {
-  "version": "3",
-  "packages": {
-    "specifiers": {
-      "jsr:@std/assert@^0.224.0": "jsr:@std/assert@0.224.0",
-      "jsr:@std/csv": "jsr:@std/csv@0.224.0",
-      "jsr:@std/streams@^0.224.0": "jsr:@std/streams@0.224.0",
-      "npm:simple-xml-to-json": "npm:simple-xml-to-json@1.2.2",
-      "npm:xml-js": "npm:xml-js@1.6.11"
+  "version": "4",
+  "specifiers": {
+    "jsr:@std/assert@0.224": "0.224.0",
+    "jsr:@std/csv@*": "0.224.0",
+    "jsr:@std/streams@0.224": "0.224.0",
+    "npm:simple-xml-to-json@*": "1.2.2",
+    "npm:xml-js@*": "1.6.11"
+  },
+  "jsr": {
+    "@std/assert@0.224.0": {
+      "integrity": "8643233ec7aec38a940a8264a6e3eed9bfa44e7a71cc6b3c8874213ff401967f"
     },
-    "jsr": {
-      "@std/assert@0.224.0": {
-        "integrity": "8643233ec7aec38a940a8264a6e3eed9bfa44e7a71cc6b3c8874213ff401967f"
-      },
-      "@std/csv@0.224.0": {
-        "integrity": "6464f5a001a8a9f339d7d525596e43ef8a711a35ac6aebbf404f971526e222ac",
-        "dependencies": [
-          "jsr:@std/assert@^0.224.0",
-          "jsr:@std/streams@^0.224.0"
-        ]
-      },
-      "@std/streams@0.224.0": {
-        "integrity": "9c21feb45113abfc67dd536029624d1792d56dfbb029b8c1baf4ad5a2c35769e"
-      }
+    "@std/csv@0.224.0": {
+      "integrity": "6464f5a001a8a9f339d7d525596e43ef8a711a35ac6aebbf404f971526e222ac",
+      "dependencies": [
+        "jsr:@std/assert",
+        "jsr:@std/streams"
+      ]
     },
-    "npm": {
-      "sax@1.4.1": {
-        "integrity": "sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg==",
-        "dependencies": {}
-      },
-      "simple-xml-to-json@1.2.2": {
-        "integrity": "sha512-bmJJf5YiYL60eOQk3gaVxbM6vgYuwrFydCEAA2x3jccHUTsAffiPyblS/yQGr8GDUQVxSDm3WwLNL5HmRqDUcg==",
-        "dependencies": {}
-      },
-      "xml-js@1.6.11": {
-        "integrity": "sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==",
-        "dependencies": {
-          "sax": "sax@1.4.1"
-        }
-      }
+    "@std/streams@0.224.0": {
+      "integrity": "9c21feb45113abfc67dd536029624d1792d56dfbb029b8c1baf4ad5a2c35769e"
+    }
+  },
+  "npm": {
+    "sax@1.4.1": {
+      "integrity": "sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg=="
+    },
+    "simple-xml-to-json@1.2.2": {
+      "integrity": "sha512-bmJJf5YiYL60eOQk3gaVxbM6vgYuwrFydCEAA2x3jccHUTsAffiPyblS/yQGr8GDUQVxSDm3WwLNL5HmRqDUcg=="
+    },
+    "xml-js@1.6.11": {
+      "integrity": "sha512-7rVi2KMfwfWFl+GpPg6m80IVMWXLRjO+PxTq7V2CDhoGak0wzYzFgUY2m4XJ47OGdXd8eLE8EmwfAmdjw7lC1g==",
+      "dependencies": [
+        "sax"
+      ]
     }
   },
   "redirects": {
@@ -199,12 +195,17 @@
         "npm:@turf/bezier-spline@^6.5.0",
         "npm:@turf/distance@^6.5.0",
         "npm:apicache@^1.6.3",
+        "npm:axios@^1.7.7",
         "npm:compression@^1.7.4",
         "npm:cors@^2.8.5",
+        "npm:debounce@^2.1.1",
+        "npm:dotenv@^16.4.5",
         "npm:express@^4.18.2",
         "npm:file-system-cache@^2.4.4",
         "npm:gtfs-to-geojson@^3.6.0",
-        "npm:gtfs@^4.10.2",
+        "npm:gtfs@^4.14.5",
+        "npm:multi-progress-bars@^5.0.3",
+        "npm:progress@^2.0.3",
         "npm:toposort@^2.0.2",
         "npm:typescript@^5.3.3"
       ]
