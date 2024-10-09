@@ -39,19 +39,23 @@ export const prefixGtfsServiceIds = (gtfsDir, prefix) => {
 }
 
 export async function prefixGtfsAgencyIds(gtfsDir, prefix) {
-  const agenciesCsv = await Deno.readTextFile(gtfsDir + '/agency.txt')
-  const agencies = parse(agenciesCsv, {
-    skipFirstRow: true,
-    strip: true,
-  })
+  try {
+    const agenciesCsv = await Deno.readTextFile(gtfsDir + '/agency.txt')
+    const agencies = parse(agenciesCsv, {
+      skipFirstRow: true,
+      strip: true,
+    })
 
-  const found = agencies.find((agency) => agency.agency_id.length < 3)
-  if (found) {
-    log(
-      `Dataset ${gtfsDir} has the agency_id "${found.agency_id}" that is shorter than 3 characters. This could lead to collisions, we're prefixing all its agency_ids`,
-      'violet'
-    )
-    prefixGtfsColumnValues(gtfsDir + '/agency.txt', prefix, 'agency_id')
-    prefixGtfsColumnValues(gtfsDir + '/routes.txt', prefix, 'agency_id')
+    const found = agencies.find((agency) => agency.agency_id.length < 3)
+    if (found) {
+      log(
+        `Dataset ${gtfsDir} has the agency_id "${found.agency_id}" that is shorter than 3 characters. This could lead to collisions, we're prefixing all its agency_ids`,
+        'violet'
+      )
+      prefixGtfsColumnValues(gtfsDir + '/agency.txt', prefix, 'agency_id')
+      prefixGtfsColumnValues(gtfsDir + '/routes.txt', prefix, 'agency_id')
+    }
+  } catch (e) {
+    console.log(e)
   }
 }
