@@ -190,9 +190,18 @@ app.get('/dev-agency', (req, res) => {
   return res.json([['1187', areas]])
 })
 
-app.get('/agencyAreas', async (req, res) => {
+app.get('/agencies', (req, res) => {
   const { agencyAreas } = runtimeCache
   return res.json(agencyAreas)
+})
+
+app.get('/agencyAreas', async (req, res) => {
+  const { agencyAreas } = runtimeCache
+  return res.json(
+    Object.fromEntries(
+      Object.entries(agencyAreas).map(([id, data]) => [id, data.area])
+    )
+  )
 })
 
 app.get(
@@ -200,7 +209,7 @@ app.get(
   async (req, res) => {
     try {
       const db = openDb(config)
-      //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
+      //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client use
       const {
           longitude,
           latitude,
@@ -214,6 +223,7 @@ app.get(
       const { noCache } = req.query
 
       const selectionList = selection?.split('|')
+
       if (selection && noCache) {
         const agencies = getAgencies({ agency_id: selectionList })
         console.log(
@@ -462,16 +472,7 @@ app.get('/routes/trip/:tripId', (req, res) => {
     console.error(error)
   }
 })
-app.get('/agencies', (req, res) => {
-  try {
-    const db = openDb(config)
 
-    const agencies = getAgencies()
-    res.json({ agencies })
-  } catch (error) {
-    console.error(error)
-  }
-})
 app.get('/route/:routeId', (req, res) => {
   const { routeId: route_id } = req.params
   try {

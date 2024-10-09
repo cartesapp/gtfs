@@ -208,7 +208,7 @@
     "@types/geojson" "^7946.0.10"
     tslib "^2.6.2"
 
-"@turf/convex@^7.0.0":
+"@turf/convex@^7.0.0", "@turf/convex@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@turf/convex/-/convex-7.1.0.tgz#9639c582149ba7e93a98a027af1c7e7641be6702"
   integrity sha512-w9fUMZYE36bLrEWEj7L7aVMCB7NBtr2o8G+avRvUIwF4DPqbtcjlcZE9EEBfq44uYdn+/Pke6Iq42T/zyD/cpg==
