@@ -91,7 +91,7 @@ app.use(
     origin: '*',
     allowedHeaders: ['range', 'if-match'],
     exposedHeaders: ['range', 'accept-ranges', 'etag'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,OPTIONS,HEAD,PUT,PATCH,POST,DELETE',
   })
 )
 // Désactivation temporaire pour régler nos pb de multiples entrées db
