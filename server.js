@@ -138,15 +138,26 @@ app.get('/elections-legislatives-2024/:circo', (req, res) => {
 const port = process.env.PORT || 3001
 
 const parseGTFS = async (newDbName) => {
-  console.time('salut')
+  console.time('Parse GTFS')
   const config = await readConfig()
   console.log('will load GTFS files in node-gtfs')
   config.sqlitePath = 'db/' + newDbName
   await importGtfs(config)
   await updateGtfsRealtime(config)
-  console.timeLog('salut')
+  console.timeLog('Parse GTFS')
   return "C'est bon !"
 }
+
+// This code enables testing quickly with yarn start our optimisations of node-gtfs
+/*
+const db = '0.5203060875638728'
+//await parseGTFS(db)
+const testConfig = await readConfig()
+console.log('will load GTFS files in node-gtfs')
+testConfig.sqlitePath = 'db/' + db
+const areas = buildAgencyAreas(openDb(testConfig), cache, runtimeCache)
+console.log(areas)
+*/
 
 app.get('/agency/geojsons/:agency_id', (req, res) => {
   try {

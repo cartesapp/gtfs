@@ -3,7 +3,7 @@
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "build-config": "deno run --allow-net --allow-env --allow-read --allow-write --allow-run buildConfig.ts",
-    "start": "node --watch server.js"
+    "start": "node --max-old-space-size=16384 --watch server.js"
   },
   "engines": {
     "node": ">=20"
@@ -21,7 +21,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "file-system-cache": "^2.4.4",
-    "gtfs": "^4.10.2",
+    "gtfs": "^4.15.1",
     "gtfs-to-geojson": "^3.6.0",
     "multi-progress-bars": "^5.0.3",
     "progress": "^2.0.3",
