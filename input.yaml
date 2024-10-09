@@ -38,7 +38,7 @@ datasets:
   - slug: base-de-donnees-multimodale-des-reseaux-de-transport-public-normands
     prefix: fr-nor
   # Nouvelle-Aquitaine
-  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-2
+  - slug: arrets-horaires-et-parcours-theoriques-des-reseaux-nva-mobilite-agreges-1
     prefix: fr-naq
   # Occitanie
   # Pays de la Loire
