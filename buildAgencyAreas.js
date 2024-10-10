@@ -1,8 +1,10 @@
 import mapboxPolylines from '@mapbox/polyline'
 import turfBbox from '@turf/bbox'
 import convex from '@turf/convex'
-import { getAgencies } from 'gtfs'
+import { getAgencies, getRoutes } from 'gtfs'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
+import { filter } from 'compression'
+import enrichAgencyMeta from './enrichAgencyMeta.js'
 
 export const buildAgencyAreas = (db, cache, runtimeCache) => {
   //console.time('Traitement des agences')
@@ -87,12 +89,14 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
 
     // We also need the minimal enclosing polygon to check in a glimpse which territories are covered by data
     const area = convex(featureCollection)
+
     agencyAreas[agency_id] = {
       bbox,
       area,
       agency: agencies.find((agency) => agency.agency_id === agency_id),
       polylines,
       points,
+      ...enrichAgencyMeta(agency_id),
     }
   })
 
