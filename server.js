@@ -207,6 +207,7 @@ app.get('/agencyAreas', async (req, res) => {
             ...polygon,
             properties: {
               routeTypeStats: data.routeTypeStats,
+              bbox: data.bbox, // this could be derived from the polyon client side if we care more about weight
             },
           },
         ]
