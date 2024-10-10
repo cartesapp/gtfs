@@ -1,9 +1,8 @@
 import mapboxPolylines from '@mapbox/polyline'
 import turfBbox from '@turf/bbox'
 import convex from '@turf/convex'
-import { getAgencies, getRoutes } from 'gtfs'
+import { getAgencies } from 'gtfs'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
-import { filter } from 'compression'
 import enrichAgencyMeta from './enrichAgencyMeta.js'
 
 export const buildAgencyAreas = (db, cache, runtimeCache) => {

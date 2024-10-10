@@ -199,7 +199,18 @@ app.get('/agencyAreas', async (req, res) => {
   const { agencyAreas } = runtimeCache
   return res.json(
     Object.fromEntries(
-      Object.entries(agencyAreas).map(([id, data]) => [id, data.area])
+      Object.entries(agencyAreas).map(([id, data]) => {
+        const polygon = data.area
+        return [
+          id,
+          {
+            ...polygon,
+            properties: {
+              routeTypeStats: data.routeTypeStats,
+            },
+          },
+        ]
+      })
     )
   )
 })
