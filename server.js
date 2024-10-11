@@ -27,11 +27,13 @@ import {
 import util from 'util'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
 import {
+  addMinutes,
   areDisjointBboxes,
   bboxArea,
   dateHourMinutes,
   filterFeatureCollection,
   joinFeatureCollections,
+  nowAsYYMMDD,
   rejectNullValues,
 } from './utils.js'
 
@@ -400,6 +402,40 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
   }
 })
 
+app.get('/immediateStopTimes/:ids', (req, res) => {
+  try {
+    const db = openDb(config)
+
+    const ids = req.params.ids.split('|')
+
+    const d = new Date()
+    const day = nowAsYYMMDD()
+    const down = d.toLocaleTimeString()
+    const up = addMinutes(d, 60).toLocaleTimeString()
+    const requestText = `immediate stoptimes for date ${down} up to ${up} and stops ${req.params.ids}`
+    console.time(requestText)
+
+    //TODO this only works with calendarDates
+    const stopTimes = db
+      .prepare(
+        `
+SELECT * FROM stop_times 
+INNER JOIN calendar_dates ON calendar_dates.service_id = trips.service_id
+INNER JOIN calendar ON calendar.service_id = trips.service_id
+INNER JOIN trips ON stop_times.trip_id = trips.trip_id
+INNER JOIN routes ON routes.route_id = trips.route_id
+WHERE stop_id = ? AND departure_time > '${down}' AND departure_time < '${up}' AND date = '${day}' AND exception_type = 1;`
+      )
+      .all(ids)
+
+    closeDb(db)
+    console.timeLog(requestText)
+    return res.json(stopTimes.map(rejectNullValues))
+  } catch (e) {
+    console.error(e)
+  }
+})
+
 app.get('/stopTimes/:ids/:day?', (req, res) => {
   try {
     const ids = req.params.ids.split('|')
@@ -603,7 +639,7 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
       { bounding_box_side_m: distance }
     )
 
-    res.json(results)
+    res.json(results.map(rejectNullValues))
 
     closeDb(db)
   } catch (error) {
