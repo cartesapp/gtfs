@@ -402,17 +402,14 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
   }
 })
 
-app.get('/immediateStopTimes/:ids', (req, res) => {
+app.get('/immediateStopTimes/:ids/:day/:from/:to', (req, res) => {
   try {
     const db = openDb(config)
 
-    const ids = req.params.ids.split('|')
+    const { ids: rawIds, day, from, to } = req.params,
+      ids = rawIds.split('|')
 
-    const d = new Date()
-    const day = nowAsYYMMDD()
-    const down = d.toLocaleTimeString()
-    const up = addMinutes(d, 60).toLocaleTimeString()
-    const requestText = `immediate stoptimes for date ${down} up to ${up} and stops ${req.params.ids}`
+    const requestText = `immediate stoptimes for day ${day} date ${from} up to ${to} and stops ${req.params.ids}`
     console.time(requestText)
 
     //TODO this only works with calendarDates
@@ -424,7 +421,7 @@ SELECT * FROM stop_times
 INNER JOIN calendar_dates ON calendar_dates.service_id = trips.service_id
 INNER JOIN trips ON stop_times.trip_id = trips.trip_id
 INNER JOIN routes ON routes.route_id = trips.route_id
-WHERE stop_id = ? AND departure_time > '${down}' AND departure_time < '${up}' AND date = '${day}' AND exception_type = 1;`
+WHERE stop_id = ? AND departure_time > '${from}' AND departure_time < '${to}' AND date = '${day}' AND exception_type = 1;`
       )
       .all(ids)
 
