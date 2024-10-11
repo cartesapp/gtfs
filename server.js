@@ -99,9 +99,10 @@ app.use(
 app.use(compression())
 
 /* For the french parlementary elections, we experimented serving pmtiles. See data/. It's very interesting, we're keeping this code here since it could be used to produce new contextual maps covering news. Same for geojsons. */
-// edit : now using nginx directly : faster probably
-//
+
 app.use(express.static('data/geojson'))
+// This line serves for local dev, where Nginx is not installed. We're assuming that in production nginx is faster. But its CORS headers are harder to set for pmtiles. Let's use Caddy some day
+app.use(express.static('data/pmtiles'))
 
 let resultats
 try {
@@ -275,7 +276,7 @@ app.get(
 
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
           zoomedEnough = Math.sqrt(bboxRatio) < 3,
-          notTooZoomed = Math.sqrt(bboxRatio) > 0.02
+          notTooZoomed = Math.sqrt(bboxRatio) > 0.015
 
         /*
         console.log(
