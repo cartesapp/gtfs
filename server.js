@@ -417,11 +417,11 @@ app.get('/immediateStopTimes/:ids', (req, res) => {
 
     //TODO this only works with calendarDates
     const stopTimes = db
+      //INNER JOIN calendar ON calendar.service_id = trips.service_id
       .prepare(
         `
 SELECT * FROM stop_times 
 INNER JOIN calendar_dates ON calendar_dates.service_id = trips.service_id
-INNER JOIN calendar ON calendar.service_id = trips.service_id
 INNER JOIN trips ON stop_times.trip_id = trips.trip_id
 INNER JOIN routes ON routes.route_id = trips.route_id
 WHERE stop_id = ? AND departure_time > '${down}' AND departure_time < '${up}' AND date = '${day}' AND exception_type = 1;`
