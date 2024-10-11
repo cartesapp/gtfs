@@ -276,7 +276,7 @@ app.get(
 
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
           zoomedEnough = Math.sqrt(bboxRatio) < 3,
-          notTooZoomed = Math.sqrt(bboxRatio) > 0.015
+          notTooZoomed = Math.sqrt(bboxRatio) > 0.005
 
         /*
         console.log(
