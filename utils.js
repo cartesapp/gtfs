@@ -51,3 +51,18 @@ const createPoint = (coordinates) => ({
   geometry: { type: 'Point', coordinates },
   properties: {},
 })
+export function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes * 60000)
+}
+
+export const nowAsYYMMDD = (delimiter = '') => {
+  var d = new Date(),
+    month = '' + (d.getMonth() + 1),
+    day = '' + d.getDate(),
+    year = d.getFullYear()
+
+  if (month.length < 2) month = '0' + month
+  if (day.length < 2) day = '0' + day
+
+  return [year, month, day].join(delimiter)
+}

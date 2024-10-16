@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import turfDistance from '@turf/distance'
 import apicache from 'apicache'
 import { exec as rawExec } from 'child_process'
@@ -5,6 +6,7 @@ import compression from 'compression'
 import cors from 'cors'
 import express from 'express'
 import { readFile } from 'fs/promises'
+import { updateFranceTiles, updatePlanetTiles } from './tiles.js'
 import {
   closeDb,
   getAgencies,
@@ -25,15 +27,19 @@ import {
 import util from 'util'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
 import {
+  addMinutes,
   areDisjointBboxes,
   bboxArea,
   dateHourMinutes,
   filterFeatureCollection,
   joinFeatureCollections,
+  nowAsYYMMDD,
   rejectNullValues,
 } from './utils.js'
+
 let cacheMiddleware = apicache.middleware
-const exec = util.promisify(rawExec)
+
+export const exec = util.promisify(rawExec)
 
 import Cache from 'file-system-cache'
 import { buildAgencyAreas } from './buildAgencyAreas.js'
@@ -85,14 +91,20 @@ const app = express()
 app.use(
   cors({
     origin: '*',
+    allowedHeaders: ['range', 'if-match'],
+    exposedHeaders: ['range', 'accept-ranges', 'etag'],
+    methods: 'GET,OPTIONS,HEAD,PUT,PATCH,POST,DELETE',
   })
 )
 // Désactivation temporaire pour régler nos pb de multiples entrées db
 //app.use(cacheMiddleware('20 minutes'))
 app.use(compression())
+
 /* For the french parlementary elections, we experimented serving pmtiles. See data/. It's very interesting, we're keeping this code here since it could be used to produce new contextual maps covering news. Same for geojsons. */
-app.use(express.static('data/pmtiles'))
+
 app.use(express.static('data/geojson'))
+// This line serves for local dev, where Nginx is not installed. We're assuming that in production nginx is faster. But its CORS headers are harder to set for pmtiles. Let's use Caddy some day
+app.use(express.static('data/pmtiles'))
 
 let resultats
 try {
@@ -129,13 +141,26 @@ app.get('/elections-legislatives-2024/:circo', (req, res) => {
 const port = process.env.PORT || 3001
 
 const parseGTFS = async (newDbName) => {
+  console.time('Parse GTFS')
   const config = await readConfig()
   console.log('will load GTFS files in node-gtfs')
   config.sqlitePath = 'db/' + newDbName
   await importGtfs(config)
   await updateGtfsRealtime(config)
+  console.timeLog('Parse GTFS')
   return "C'est bon !"
 }
+
+// This code enables testing quickly with yarn start our optimisations of node-gtfs
+/*
+const db = '0.5203060875638728'
+//await parseGTFS(db)
+const testConfig = await readConfig()
+console.log('will load GTFS files in node-gtfs')
+testConfig.sqlitePath = 'db/' + db
+const areas = buildAgencyAreas(openDb(testConfig), cache, runtimeCache)
+console.log(areas)
+*/
 
 app.get('/agency/geojsons/:agency_id', (req, res) => {
   try {
@@ -168,9 +193,30 @@ app.get('/dev-agency', (req, res) => {
   return res.json([['1187', areas]])
 })
 
-app.get('/agencyAreas', async (req, res) => {
+app.get('/agencies', (req, res) => {
   const { agencyAreas } = runtimeCache
   return res.json(agencyAreas)
+})
+
+app.get('/agencyAreas', async (req, res) => {
+  const { agencyAreas } = runtimeCache
+  return res.json(
+    Object.fromEntries(
+      Object.entries(agencyAreas).map(([id, data]) => {
+        const polygon = data.area
+        return [
+          id,
+          {
+            ...polygon,
+            properties: {
+              routeTypeStats: data.routeTypeStats,
+              bbox: data.bbox, // this could be derived from the polyon client side if we care more about weight
+            },
+          },
+        ]
+      })
+    )
+  )
 })
 
 app.get(
@@ -178,7 +224,7 @@ app.get(
   async (req, res) => {
     try {
       const db = openDb(config)
-      //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client costs
+      //TODO switch to polylines once the functionnality is judged interesting client-side, to lower the bandwidth client use
       const {
           longitude,
           latitude,
@@ -192,6 +238,7 @@ app.get(
       const { noCache } = req.query
 
       const selectionList = selection?.split('|')
+
       if (selection && noCache) {
         const agencies = getAgencies({ agency_id: selectionList })
         console.log(
@@ -231,7 +278,7 @@ app.get(
 
         const bboxRatio = bboxArea(userBbox) / bboxArea(agency.bbox),
           zoomedEnough = Math.sqrt(bboxRatio) < 3,
-          notTooZoomed = Math.sqrt(bboxRatio) > 0.02
+          notTooZoomed = Math.sqrt(bboxRatio) > 0.005
 
         /*
         console.log(
@@ -355,6 +402,37 @@ app.get('/getStopIdsAroundGPS', (req, res) => {
   }
 })
 
+app.get('/immediateStopTimes/:ids/:day/:from/:to', (req, res) => {
+  try {
+    const db = openDb(config)
+
+    const { ids: rawIds, day, from, to } = req.params,
+      ids = rawIds.split('|')
+
+    const requestText = `immediate stoptimes for day ${day} date ${from} up to ${to} and stops ${req.params.ids}`
+    console.time(requestText)
+
+    //TODO this only works with calendarDates
+    const stopTimes = db
+      //INNER JOIN calendar ON calendar.service_id = trips.service_id
+      .prepare(
+        `
+SELECT * FROM stop_times 
+INNER JOIN calendar_dates ON calendar_dates.service_id = trips.service_id
+INNER JOIN trips ON stop_times.trip_id = trips.trip_id
+INNER JOIN routes ON routes.route_id = trips.route_id
+WHERE stop_id = ? AND departure_time > '${from}' AND departure_time < '${to}' AND date = '${day}' AND exception_type = 1;`
+      )
+      .all(ids)
+
+    closeDb(db)
+    console.timeLog(requestText)
+    return res.json(stopTimes.map(rejectNullValues))
+  } catch (e) {
+    console.error(e)
+  }
+})
+
 app.get('/stopTimes/:ids/:day?', (req, res) => {
   try {
     const ids = req.params.ids.split('|')
@@ -440,16 +518,7 @@ app.get('/routes/trip/:tripId', (req, res) => {
     console.error(error)
   }
 })
-app.get('/agencies', (req, res) => {
-  try {
-    const db = openDb(config)
 
-    const agencies = getAgencies()
-    res.json({ agencies })
-  } catch (error) {
-    console.error(error)
-  }
-})
 app.get('/route/:routeId', (req, res) => {
   const { routeId: route_id } = req.params
   try {
@@ -567,13 +636,15 @@ app.get('/geoStops/:lat/:lon/:distance', (req, res) => {
       { bounding_box_side_m: distance }
     )
 
-    res.json(results)
+    res.json(results.map(rejectNullValues))
 
     closeDb(db)
   } catch (error) {
     console.error(error)
   }
 })
+
+//parseGTFS(Math.random())
 
 /* Update the DB from the local GTFS files */
 app.get('/parse', async (req, res) => {
@@ -582,11 +653,18 @@ app.get('/parse', async (req, res) => {
   res.send(alors)
 })
 
-app.get('/update', async (req, res) => {
+const secretKey = process.env.SECRET_KEY
+
+app.get('/update/:givenSecretKey', async (req, res) => {
+  if (secretKey !== req.params.givenSecretKey) {
+    return res
+      .status(401)
+      .send("Wrong auth secret key, you're not allowed to do that")
+  }
   try {
     const oldDb = openDb(config)
     console.log('Will build config')
-    const { stdout, stderr } = await exec('yarn build-config')
+    const { stdout, stderr } = await exec('npm run build-config')
     console.log('-------------------------------')
     console.log('Build config OK')
     console.log('stdout:', stdout)
@@ -616,7 +694,10 @@ app.get('/update', async (req, res) => {
     console.log('stdout:', stdout4)
     console.log('stderr:', stderr4)
 
-    const { stdout2, stderr2 } = await exec('systemctl restart motis.service')
+    // TODO sudo... https://unix.stackexchange.com/questions/606452/allowing-user-to-run-systemctl-systemd-services-without-password/606476#606476
+    const { stdout2, stderr2 } = await exec(
+      'sudo systemctl restart motis.service'
+    )
     console.log('-------------------------------')
     console.log('Restart Motis OK')
     console.log('stdout:', stdout2)
@@ -630,6 +711,29 @@ app.get('/update', async (req, res) => {
       "Couldn't update the GTFS server, or the Motis service. Please investigate.",
       e
     )
+    res.send({ ok: false })
+  }
+})
+app.get('/update-tiles/:zone/:givenSecretKey', async (req, res) => {
+  const { givenSecretKey, zone } = req.params
+  console.log(givenSecretKey, secretKey)
+  if (secretKey !== secretKey) {
+    return res
+      .status(401)
+      .send("Wrong auth secret key, you're not allowed to do that")
+  }
+  try {
+    if (zone === 'france') {
+      await updateFranceTiles()
+      return res.send({ ok: true })
+    }
+    if (zone === 'planet') {
+      await updatePlanetTiles()
+      return res.send({ ok: true })
+    }
+    return res.send({ ok: false })
+  } catch (e) {
+    console.log("Couldn't update tiles.", e)
     res.send({ ok: false })
   }
 })

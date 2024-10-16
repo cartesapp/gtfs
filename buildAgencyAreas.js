@@ -1,10 +1,12 @@
 import mapboxPolylines from '@mapbox/polyline'
 import turfBbox from '@turf/bbox'
+import convex from '@turf/convex'
 import { getAgencies } from 'gtfs'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
+import enrichAgencyMeta from './enrichAgencyMeta.js'
 
 export const buildAgencyAreas = (db, cache, runtimeCache) => {
-  console.time('Traitement des agences')
+  //console.time('Traitement des agences')
   //TODO should be store in the DB, but I'm not yet fluent using node-GTFS's DB
   // so I use a cache library which does a great job but needs to be doubled by an in-memory cache which is also fine and simpler than a relational DB
   console.log(
@@ -83,11 +85,17 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
     const points = featureCollection.features.filter(
       (el) => el.geometry.type !== 'LineString'
     )
+
+    // We also need the minimal enclosing polygon to check in a glimpse which territories are covered by data
+    const area = convex(featureCollection)
+
     agencyAreas[agency_id] = {
       bbox,
+      area,
       agency: agencies.find((agency) => agency.agency_id === agency_id),
       polylines,
       points,
+      ...enrichAgencyMeta(agency_id),
     }
   })
 
@@ -95,7 +103,7 @@ export const buildAgencyAreas = (db, cache, runtimeCache) => {
     .set('agencyAreas', agencyAreas)
     .then((result) => {
       runtimeCache.agencyAreas = agencyAreas // This because retrieving the cache takes 1 sec
-      console.timeLog('Traitement des agences')
+      //console.timeLog('Traitement des agences')
       console.log('Cache enregistré')
     })
     .catch((err) => console.log("Erreur dans l'enregistrement du cache"))
