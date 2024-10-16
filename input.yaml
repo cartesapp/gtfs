@@ -82,6 +82,9 @@ datasets:
   # Epinal (réseau Imagine)
   - slug: fr-200052264-t0009-0000-1
     prefix: fr-epinal
+  # Troyes (réseau TCAT)
+  - slug: donnees-tcat-troyes-champagne-metropole-1
+    prefix: fr-troyes  
   # Métropole Marseille Aix
   - slug: reseaux-de-transports-en-commun-de-la-metropole-daix-marseille-provence-et-des-bouches-du-rhone
     prefix: fr-marseille-aix
