@@ -60,6 +60,9 @@ datasets:
   # Blois (réseau Azalys)
   - slug: agglopolys-offre-theorique-mobilite-reseau-urbain-azalys-de-blois
     prefix: fr-blois
+  # Grenoble
+  - slug: horaires-theoriques-du-reseau-tag
+    prefix: fr-grenoble
   # Lyon (réseau TCL)
   - slug: horaires-theoriques-du-reseau-transports-en-commun-lyonnais
     prefix: fr-lyon-tcl
