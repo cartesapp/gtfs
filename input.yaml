@@ -1,3 +1,5 @@
+# Ici réside la configuration de serveur.cartes.app : la liste des réseaux établie à la main un par un à aller piocher sur transport.data.gouv.fr (TDGV)
+#
 # INSTRUCTIONS POUR AJOUTER UN TERRITOIRE
 #
 # Chaque "dataset" doit avoir l'attribut "slug" qui correspond à la fin de l'URL de la page du GTFS sur transport.data.gouv.fr.
@@ -15,12 +17,17 @@
 # Attention cependant à ne pas activer l'option prefixServiceIds quand ce n'est pas nécessaire car cela semble faire disparaitre les BlaBlaBus et FlixBus
 
 # Astuce pour débugguer : l'attribut "onlyMe" va permettre d'ignorer temporairement tous les autres jeux sans devoir les commenter ou supprimer un par un du fichier
+#
+# Note : les commentaires qui donnent les villes et les régions devraient être améliorés pour être parsables, en yaml. Note secondaire : le /datasets de TDGV a quelques réseaux qui contiennet des SIREN de collectivités, mais par exemple l'agrégat Bretagne ne donne pas la liste des villes couvertes, donc c'est pas si trivial à utiliser
 datasets:
   # AGRÉGATS RÉGIONAUX
   # Auvergne-Rhône-Alpes
   - slug: agregat-oura
     prefix: fr-ara
   # Bourgogne-Franche-Comté
+  - slug: reseau-de-transport-interurbain-mobigo-en-bourgogne-franche-comte
+    prefix: fr-bfc
+    onlyMe: oui
   # Bretagne
   - slug: base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
     prefix: fr-bre
@@ -60,6 +67,11 @@ datasets:
   # Blois (réseau Azalys)
   - slug: agglopolys-offre-theorique-mobilite-reseau-urbain-azalys-de-blois
     prefix: fr-blois
+  # Grenoble
+  - slug: horaires-theoriques-du-reseau-tag
+    onlyMe: oui
+    prefix: fr-grenoble
+    note: Ce réseau est marqué comme "archivé" sur TDGV, mais semble pourtant bien fonctionnel
   # Lyon (réseau TCL)
   - slug: horaires-theoriques-du-reseau-transports-en-commun-lyonnais
     prefix: fr-lyon-tcl
@@ -67,6 +79,18 @@ datasets:
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
 
+  # Dijon
+  - slug: gtfs-diviamobilites
+    prefix: fr-dijon
+    onlyMe: oui
+  # Troyes
+  - slug: donnees-tcat-troyes-champagne-metropole-1
+    prefix: fr-troyes
+    onlyMe: oui
+  # Besançon
+  - slug: gtfs-et-siri-du-reseau-ginko-besancon-lignes-urbaines-et-periurbaines
+    prefix: fr-besancon
+    onlyMe: oui
   # Strasbourg (réseau CTS)
   - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
     prefix: fr-strasbourg
@@ -104,6 +128,10 @@ datasets:
   # Métropole Nice Côte d'Azur (réseau Ligne d'Azur)
   - slug: export-quotidien-au-format-gtfs-du-reseau-de-transport-lignes-d-azur
     prefix: fr-nice
+  # Amiens
+  - slug: ametis
+    prefix: fr-amiens
+    onlyMe: oui
   # Métropole Européenne de Lille
   - slug: localisation-des-arrets-ilevia-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-ilevia-2
     prefix: fr-lille

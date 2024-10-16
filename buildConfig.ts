@@ -16,7 +16,7 @@ else {
   log('will download gtfsclean (fork of gtfs tidy)')
 
   await exec(
-    'wget https://github.com/public-transport/gtfsclean/releases/download/snapshot-2/gtfsclean'
+    'wget https://github.com/public-transport/gtfsclean/releases/download/snapshot-3/gtfsclean'
   )
   await exec('chmod +x gtfsclean')
 }
@@ -33,11 +33,11 @@ const datasets = (
 
 const afterFileDownload = async (resource, filename) => {
   log(`Downloaded file ${resource.title}`)
-  // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstidying
+  // We gtfsclean everything, motis expects this and we had problems with node-gtfs before gtfstcleaning
   const extractedFileName = filename.split('.zip')[0]
-  await exec(
-    `./gtfsclean input/${filename} --fix -o input/${extractedFileName}`
-  )
+  const gtfsCleanCommand = `./gtfsclean input/${filename} --fix -o input/${extractedFileName} --empty-agency-url-repl "https://transport.data.gouv.fr/datasets/${resource.slug}"`
+  console.log(gtfsCleanCommand)
+  await exec(gtfsCleanCommand)
   log(
     `Fixed errors with gtfssclean as requested in input for file ${resource.title}`
   )
