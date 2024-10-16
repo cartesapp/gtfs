@@ -27,9 +27,9 @@ const input = await yamlLoader.parseFile('./input.yaml')
 const { datasets: allDatasets } = input
 
 const onlyMeOverrides = allDatasets.filter((dataset) => dataset.onlyMe)
-const datasets = onlyMeOverrides.length
-  ? onlyMeOverrides
-  : allDatasets.filter((dataset) => !dataset.ignore)
+const datasets = (
+  onlyMeOverrides.length ? onlyMeOverrides : allDatasets
+).filter((dataset) => !dataset.ignore)
 
 const afterFileDownload = async (resource, filename) => {
   log(`Downloaded file ${resource.title}`)
