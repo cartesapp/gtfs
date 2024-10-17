@@ -27,7 +27,6 @@ datasets:
   # Bourgogne-Franche-Comté
   - slug: reseau-de-transport-interurbain-mobigo-en-bourgogne-franche-comte
     prefix: fr-bfc
-    onlyMe: oui
   # Bretagne
   - slug: base-de-donnees-multimodale-transports-publics-en-bretagne-korrigo-gtfs
     prefix: fr-bre
@@ -69,7 +68,6 @@ datasets:
     prefix: fr-blois
   # Grenoble
   - slug: horaires-theoriques-du-reseau-tag
-    onlyMe: oui
     prefix: fr-grenoble
     note: Ce réseau est marqué comme "archivé" sur TDGV, mais semble pourtant bien fonctionnel
   # Lyon (réseau TCL)
@@ -82,15 +80,12 @@ datasets:
   # Dijon
   - slug: gtfs-diviamobilites
     prefix: fr-dijon
-    onlyMe: oui
   # Troyes
   - slug: donnees-tcat-troyes-champagne-metropole-1
     prefix: fr-troyes
-    onlyMe: oui
   # Besançon
   - slug: gtfs-et-siri-du-reseau-ginko-besancon-lignes-urbaines-et-periurbaines
     prefix: fr-besancon
-    onlyMe: oui
   # Strasbourg (réseau CTS)
   - slug: donnees-theoriques-gtfs-et-temps-reel-siri-lite-du-reseau-cts
     prefix: fr-strasbourg
@@ -131,7 +126,6 @@ datasets:
   # Amiens
   - slug: ametis
     prefix: fr-amiens
-    onlyMe: oui
   # Métropole Européenne de Lille
   - slug: localisation-des-arrets-ilevia-bus-metro-et-tram-gtfs-pictogrammes-du-reseau-ilevia-2
     prefix: fr-lille
