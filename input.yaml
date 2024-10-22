@@ -77,6 +77,9 @@ datasets:
     # create .env file with LYON_TCL_CREDENTIALS=yourlogin:yourdatapassword
     # see: https://rdata-grandlyon.readthedocs.io/en/latest/authentification.html
 
+  - slug: horaires-theoriques-du-reseau-stas
+    prefix: fr-saintetienne
+    note: Pas de route_color dans routes.txt, c'est moche
   # Dijon
   - slug: gtfs-diviamobilites
     prefix: fr-dijon
