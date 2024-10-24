@@ -662,6 +662,10 @@ function way_function()
 	if building~="" then
 		Layer("building", true)
 		SetBuildingHeightAttributes()
+    local colour = Find("building:colour")
+		if (colour) and colour ~= "" then
+		  Attribute("colour", colour)
+		end
 		SetMinZoomByArea()
 	end
 
@@ -743,7 +747,7 @@ function way_function()
 		if write_name then rank=6 else rank=25 end
 		AttributeNumeric("rank", rank)
 		-- TODO whould we set Attribute("nwr") here ? Yes, e.g. https://www.openstreetmap.org/way/44058169
-	  Attribute("nwr", "w")
+		Attribute("nwr", "w")
 	end
 end
 

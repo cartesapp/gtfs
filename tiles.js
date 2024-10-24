@@ -74,11 +74,12 @@ const frenchGrid10Names = ['N50E000', 'N40E010', 'N40E000', 'N50E010'],
 
 export async function updateFranceTiles(
   osmPbfUrls = frenchGrid10,
-  outputFilename = 'hexagone-plus'
+  outputFilename = 'hexagone-plus',
+  noDownload = false
 ) {
   // Now france tiles
 
-  await Promise.all(osmPbfUrls.map((url) => download(url)))
+  if (!noDownload) await Promise.all(osmPbfUrls.map((url) => download(url)))
 
   const tilemakerMerges = osmPbfUrls.map((url, i) => {
     const filename = url.split('/').slice(-1)[0]
