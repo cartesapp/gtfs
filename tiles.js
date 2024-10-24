@@ -5,10 +5,18 @@ import path from 'path'
 import util from 'util'
 const realExec = util.promisify(rawExec)
 
+/********
+ * Prerequisites :
+ * wget https://github.com/protomaps/go-pmtiles/releases/download/v1.22.0/go-pmtiles_1.22.0_Linux_x86_64.tar.gz -O ~/pmtiles.tar.gz
+ * mkdir ~/pmtiles
+ * tar -xvf ~/pmtiles.tar.gz -C ~/pmtiles
+ *
+ *
+ * *********
+ */
+
 import * as chalk from 'chalk'
 import { MultiProgressBars } from 'multi-progress-bars'
-
-const grid = ['N50E000', 'N40E010', 'N40E000', 'N50E010']
 
 const dryExec = async (text) => {
   console.log(text)
@@ -59,17 +67,22 @@ export async function updatePlanetTiles() {
 
 //updateFranceTiles()
 
-export async function updateFranceTiles() {
-  // Now france tiles
-
-  await Promise.all(
-    grid.map((zone) =>
-      download(`https://osm.download.movisda.io/grid/${zone}-10-latest.osm.pbf`)
-    )
+const frenchGrid10Names = ['N50E000', 'N40E010', 'N40E000', 'N50E010'],
+  frenchGrid10 = frenchGrid10Names.map(
+    (name) => `https://osm.download.movisda.io/grid/${name}-10-latest.osm.pbf`
   )
 
-  const tilemakerMerges = grid.map((zone, i) => {
-    const command = `tilemaker --input ${zone}-10-latest.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua${
+export async function updateFranceTiles(
+  osmPbfUrls = frenchGrid10,
+  outputFilename = 'hexagone-plus'
+) {
+  // Now france tiles
+
+  await Promise.all(osmPbfUrls.map((url) => download(url)))
+
+  const tilemakerMerges = osmPbfUrls.map((url, i) => {
+    const filename = url.split('/').slice(-1)[0]
+    const command = `tilemaker --input ${filename} --output ${outputFilename}.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua${
       i > 0 ? ' --merge' : ''
     }`
 
@@ -84,11 +97,11 @@ export async function updateFranceTiles() {
   }
 
   await exec(
-    '~/pmtiles/pmtiles convert hexagone-plus.mbtiles hexagone-plus.pmtiles'
+    `~/pmtiles/pmtiles convert ${outputFilename}.mbtiles ${outputFilename}.pmtiles`
   )
 
   // sudo because this dir is handled by www-data
-  await exec('sudo mv hexagone-plus.pmtiles ~/gtfs/data/pmtiles/')
+  await exec(`sudo mv ${outputFilename}.pmtiles ~/gtfs/data/pmtiles/`)
   // wait until the above step is verified before deleting, we've got disk space
   //await exec('rm hexagone-plus.mbtiles')
 
@@ -97,16 +110,23 @@ export async function updateFranceTiles() {
   console.log('Done updating 😀')
 }
 
+false &&
+  (await updateFranceTiles(
+    ['https://osm.download.movisda.io/grid/N48E002-latest.osm.pbf'],
+    '35'
+  ))
+
 //updateTiles()
 
 // Initialize mpb
-const createProgressBar = () =>
-  new MultiProgressBars({
+function createProgressBar() {
+  return new MultiProgressBars({
     initMessage: ' $ Example Fullstack Build ',
     anchor: 'top',
     persist: true,
     border: true,
   })
+}
 
 function download(url) {
   const mpb = createProgressBar()

@@ -723,6 +723,13 @@ app.get('/update-tiles/:zone/:givenSecretKey', async (req, res) => {
       .send("Wrong auth secret key, you're not allowed to do that")
   }
   try {
+    if (zone === '35') {
+      await updateFranceTiles(
+        ['https://osm.download.movisda.io/grid/N48E002-latest.osm.pbf'],
+        '35'
+      )
+      return res.send({ ok: true })
+    }
     if (zone === 'france') {
       await updateFranceTiles()
       return res.send({ ok: true })
