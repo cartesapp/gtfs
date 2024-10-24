@@ -351,6 +351,9 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 		elseif unpavedValues[surface] then
 			Attribute("surface", "unpaved", surfaceMinzoom)
 		end
+		if Holds("maxspeed") then
+		  Attribute("maxspeed", Find("maxspeed"), accessMinzoom)
+		end
 		if Holds("access") then Attribute("access", Find("access"), accessMinzoom) end
 		if Holds("bicycle") then Attribute("bicycle", Find("bicycle"), accessMinzoom) end
 		if Holds("foot") then Attribute("foot", Find("foot"), accessMinzoom) end
