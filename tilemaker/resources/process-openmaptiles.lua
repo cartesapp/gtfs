@@ -742,7 +742,8 @@ function way_function()
 		SetNameAttributes()
 		if write_name then rank=6 else rank=25 end
 		AttributeNumeric("rank", rank)
-		-- TODO whould we set Attribute("nwr") here ?
+		-- TODO whould we set Attribute("nwr") here ? Yes, e.g. https://www.openstreetmap.org/way/44058169
+	  Attribute("nwr", "w")
 	end
 end
 
