@@ -791,6 +791,15 @@ function WritePOI(class,subclass,rank,nwr)
 	if level then
 		AttributeNumeric("level", level)
 	end
+	if Holds("railway") then
+		if Find("subway")=="yes" then
+			Attribute("subclass", "subway") -- subway stations have railway=station attr, contrary to trams that have railway=tram_stop
+		end
+		if Find("train") == "yes" and (Find("railway")=="station" or Find("railway")=="halt") then
+			Attribute("train", "yes")
+			MinZoom(10)
+		end
+  end
 end
 
 -- Check if there are name tags on the object
