@@ -791,6 +791,7 @@ function WritePOI(class,subclass,rank,nwr)
 	if level then
 		AttributeNumeric("level", level)
 	end
+	MinZoom(12)
 	if Holds("railway") then
 		if Find("subway")=="yes" then
 			Attribute("subclass", "subway") -- subway stations have railway=station attr, contrary to trams that have railway=tram_stop

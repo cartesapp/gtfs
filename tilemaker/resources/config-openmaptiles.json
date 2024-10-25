@@ -9,7 +9,7 @@
       "simplify_ratio": 2
     },
 
-    "poi": { "minzoom": 12, "maxzoom": 14, "combine_polygons_below": 0 },
+    "poi": { "minzoom": 10, "maxzoom": 14, "combine_polygons_below": 0 },
     "poi_detail": {
       "minzoom": 14,
       "maxzoom": 14,
