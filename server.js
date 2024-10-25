@@ -1,12 +1,11 @@
-import 'dotenv/config'
 import turfDistance from '@turf/distance'
 import apicache from 'apicache'
 import { exec as rawExec } from 'child_process'
 import compression from 'compression'
 import cors from 'cors'
+import 'dotenv/config'
 import express from 'express'
 import { readFile } from 'fs/promises'
-import { updateFranceTiles, updatePlanetTiles } from './tiles.js'
 import {
   closeDb,
   getAgencies,
@@ -26,14 +25,13 @@ import {
 } from 'gtfs'
 import util from 'util'
 import { buildAgencySymbolicGeojsons } from './buildAgencyGeojsons.js'
+import { updateFranceTiles, updatePlanetTiles } from './tiles.js'
 import {
-  addMinutes,
   areDisjointBboxes,
   bboxArea,
   dateHourMinutes,
   filterFeatureCollection,
   joinFeatureCollections,
-  nowAsYYMMDD,
   rejectNullValues,
 } from './utils.js'
 
@@ -734,7 +732,7 @@ app.get(
         return res.send({ ok: true })
       }
       if (zone === 'france') {
-        await updateFranceTiles()
+        await updateFranceTiles(undefined, undefined, noDownload)
         return res.send({ ok: true })
       }
       if (zone === 'planet') {
