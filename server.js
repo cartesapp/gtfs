@@ -716,7 +716,6 @@ app.get(
   '/update-tiles/:zone/:givenSecretKey/:noDownload?',
   async (req, res) => {
     const { givenSecretKey, zone, noDownload = false } = req.params
-    console.log(givenSecretKey, secretKey)
     if (secretKey !== secretKey) {
       return res
         .status(401)
