@@ -29,3 +29,8 @@ tilemaker/*
 tilemaker/resources/*
 !tilemaker/resources/process-openmaptiles.lua
 !tilemaker/resources/config-openmaptiles.json
+coastline/
+landcover/
+
+*.mbtiles
+*.pbf

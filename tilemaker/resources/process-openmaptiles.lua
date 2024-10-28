@@ -706,6 +706,13 @@ function way_function()
 		return -- in case we get any landuse processing
 	end
 
+	if natural == "bay" then
+		LayerAsCentroid("water_name")
+		Attribute("nwr", "w")
+		SetNameAttributes()
+		return
+	end
+
 	-- Set 'landcover' (from landuse, natural, leisure)
 	local l = landuse
 	if l=="" then l=natural end

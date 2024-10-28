@@ -56,9 +56,9 @@
       "simplify_ratio": 2,
       "write_to": "water"
     },
-    "water_name": { "minzoom": 14, "maxzoom": 14 },
+    "water_name": { "minzoom": 6, "maxzoom": 14 },
     "water_name_detail": {
-      "minzoom": 14,
+      "minzoom": 6,
       "maxzoom": 14,
       "write_to": "water_name"
     },
