@@ -352,7 +352,15 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 			Attribute("surface", "unpaved", surfaceMinzoom)
 		end
 		if Holds("maxspeed") then
-		  Attribute("maxspeed", Find("maxspeed"), accessMinzoom)
+			rawSpeed = Find("maxspeed")
+			isMph = rawSpeed:match"mph$"
+			if isMph then
+				speedMph = string.match(rawSpeed,  "%d+")
+				speed = speedMph * 1.61
+			else
+				speed = rawSpeed
+			end
+		  Attribute("maxspeed", speed, accessMinzoom)
 		end
 		if Holds("access") then Attribute("access", Find("access"), accessMinzoom) end
 		if Holds("bicycle") then Attribute("bicycle", Find("bicycle"), accessMinzoom) end
