@@ -708,6 +708,7 @@ function way_function()
 
 	if natural == "bay" then
 		LayerAsCentroid("water_name")
+		SetMinZoomByArea()
 		Attribute("nwr", "w")
 		SetNameAttributes()
 		return
