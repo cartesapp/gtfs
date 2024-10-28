@@ -730,6 +730,14 @@ app.get(
         )
         return res.send({ ok: true })
       }
+      if (zone === '29') {
+        await updateFranceTiles(
+          ['https://osm.download.movisda.io/grid/N48E005-latest.osm.pbf'],
+          '29',
+          noDownload
+        )
+        return res.send({ ok: true })
+      }
       if (zone === 'france') {
         await updateFranceTiles(undefined, undefined, noDownload)
         return res.send({ ok: true })
