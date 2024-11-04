@@ -12,11 +12,12 @@ on:
   push:
     branches: ['master']
     paths:
-      - './cycleHighways.ts'
+      - 'cycleHighways.ts'
   pull_request:
     branches: ['master']
+    # types: [opened, synchronize]
     paths:
-      - './cycleHighways.ts'
+      - 'cycleHighways.ts'
 
 permissions:
   contents: read
