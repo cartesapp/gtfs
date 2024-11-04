@@ -35,5 +35,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Run tests
+      - name: Deno install
+        run: deno install
+      - name: Run script
         run: deno --allow-net --allow-read --allow-write ./cycleHighways.ts
