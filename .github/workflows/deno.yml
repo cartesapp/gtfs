@@ -1,10 +1,8 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow will install Deno then run `deno lint` and `deno test`.
-# For more information see: https://github.com/denoland/setup-deno
+# Bon, l'idée c'était de faire tourner automatiquement la création des tuiles quand quelqu'un ajoute dans une PR
+# Sauf que j'ai envie de faire tourner ça sur le serveur, pas sur github action. Car il faut installer pmtiles, etc
+# Donc le plus simple c'est de taper une route /update-tiles, comme on fait déjà pour d'autre
+# ... sauf qu'il faut faire tourner cette route sur la base d'un fichier MAJ par la PR, donc pas du code de master mais de la branche
+# Donc il faut un système de déploiement du code github sur notre serveur, un système d'environnement, un mini-heroku
 
 name: Build cycleHighways PMTiles
 
@@ -23,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  build tiles:
+  build-tiles:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,5 +33,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Run tests
+      - name: Deno install
+        run: deno install
+      - name: Run script
         run: deno --allow-net --allow-read --allow-write ./cycleHighways.ts
