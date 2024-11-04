@@ -16,8 +16,8 @@ on:
   pull_request:
     branches: ['master']
     # types: [opened, synchronize]
-    paths:
-      - 'cycleHighways.ts'
+    #paths:
+    #  - 'cycleHighways.ts'
 
 permissions:
   contents: read
