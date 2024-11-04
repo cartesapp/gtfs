@@ -11,8 +11,12 @@ name: Deno
 on:
   push:
     branches: ["master"]
+    paths:
+      - './cycleHighways.ts'
   pull_request:
     branches: ["master"]
+    paths:
+      - './cycleHighways.ts'
 
 permissions:
   contents: read
