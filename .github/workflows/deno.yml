@@ -1,0 +1,39 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# This workflow will install Deno then run `deno lint` and `deno test`.
+# For more information see: https://github.com/denoland/setup-deno
+
+name: Build cycleHighways PMTiles
+
+on:
+  push:
+    branches: ['master']
+    paths:
+      - 'cycleHighways.ts'
+  pull_request:
+    branches: ['master']
+    types: [opened, synchronize]
+    paths:
+      - 'cycleHighways.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  build tiles:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v4
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run tests
+        run: deno --allow-net --allow-read --allow-write ./cycleHighways.ts
