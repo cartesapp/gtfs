@@ -16,7 +16,7 @@ area["name"="France"]->.boundaryarea;
 (
 nwr["cycle_network"~"FR:REV|Les Voies Lyonnaises|FR:IDF"](area.boundaryarea);
 nwr["network:type"="REV Rennes Métropole"](area.boundaryarea);
-nwr[network=lcn][name~"Chronovélo"](area.boundaryarea);
+nwr[network=lcn][name~"Chronovélo |Vélostras "](area.boundaryarea);
 
 
 nwr[cycle_highway](area.boundaryarea);
