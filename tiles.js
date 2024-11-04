@@ -1,9 +1,7 @@
 import axios from 'axios'
-import { exec as rawExec, spawn } from 'child_process'
+import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import util from 'util'
-const realExec = util.promisify(rawExec)
 
 /********
  * Prerequisites :
