@@ -229,7 +229,7 @@ ${validFilenames
     (filename) =>
       `paths=schedule-${
         filename.path.split('/')[2].split('.gtfs')[0]
-      }:../gtfs/${filename.path}`
+      }:../serveur/${filename.path}`
   )
   .join('\n')}
 paths=osm:input/france.osm.pbf
