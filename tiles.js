@@ -57,7 +57,7 @@ export async function updatePlanetTiles() {
   const url = `https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles`
   await download(url)
   // sudo because this dir is handled by www-data
-  await exec('sudo mv planet.pmtiles ~/gtfs/data/pmtiles/planet.pmtiles')
+  await exec('sudo mv planet.pmtiles ~/serveur/data/pmtiles/planet.pmtiles')
 
   console.log('-------------------------------')
   console.log('✅ Downloaded 🌍️')
@@ -81,7 +81,7 @@ export async function updateFranceTiles(
 
   const tilemakerMerges = osmPbfUrls.map((url, i) => {
     const filename = url.split('/').slice(-1)[0]
-    const command = `tilemaker --input ${filename} --output ${outputFilename}.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua${
+    const command = `tilemaker --input ${filename} --output ${outputFilename}.mbtiles --config ~/serveur/tilemaker/resources/config-openmaptiles.json --process ~/serveur/tilemaker/resources/process-openmaptiles.lua${
       i > 0 ? ' --merge' : ''
     }`
 
@@ -100,7 +100,7 @@ export async function updateFranceTiles(
   )
 
   // sudo because this dir is handled by www-data
-  await exec(`sudo mv ${outputFilename}.pmtiles ~/gtfs/data/pmtiles/`)
+  await exec(`sudo mv ${outputFilename}.pmtiles ~/serveur/data/pmtiles/`)
   // wait until the above step is verified before deleting, we've got disk space
   //await exec('rm hexagone-plus.mbtiles')
 

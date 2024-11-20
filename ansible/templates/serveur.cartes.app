@@ -13,7 +13,7 @@ erver {
     }
 
     location /pmtiles/ {
-        alias /home/ubuntu/gtfs/data/pmtiles/;
+        alias /home/ubuntu/serveur/data/pmtiles/;
 
 
         add_header Access-Control-Allow-Origin *;

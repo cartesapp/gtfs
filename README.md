@@ -9,7 +9,7 @@ Le plan, c'est de ne générer pour l'instant que les PMTiles (Protomaps) de la 
 Donc :
 
 - ne générer que la France de notre côté, on veut du openmaptiles pour être standard
-- utiliser un proxy maison (sur laem/cartes/...CartesProtocol) qui redirige soit sur notre pmtiles pour 90% des requêtes, soit un pmtiles mondial
+- utiliser un proxy maison (sur cartesapp/cartes/...CartesProtocol) qui redirige soit sur notre pmtiles pour 90% des requêtes, soit un pmtiles mondial
 - inclure un land.pmtiles depuis [cette source](https://osmdata.openstreetmap.de/data/land-polygons.html) car les mers ne sont plus includes dans les tuiles de la France !
 - mon serveur (ses 16go de RAM ?) plante sur tilemaker du france.osm.pbf... [Normal](https://github.com/systemed/tilemaker/issues/57), et l'option --store rend la chose hyper trop lente...
 - donc on calcule les tuiles en local pour l'instant et on upload via scp
@@ -23,7 +23,7 @@ wget https://github.com/protomaps/go-pmtiles/releases/download/v1.20.0/go-pmtile
 mkdir pmtiles
 tar -xvf go-pmtiles_1.20.0_Linux_x86_64.tar.gz -C pmtiles
 ./pmtiles/pmtiles convert france.mbtiles france.pmtiles
-scp -r tilemaker/france.pmtiles root@51.159.173.121:/root/gtfs/data/pmtiles/france.pmtiles
+scp -r tilemaker/france.pmtiles root@51.159.173.121:/root/serveur/data/pmtiles/france.pmtiles
 ```
 
 ```
@@ -45,8 +45,8 @@ wget https://osm.download.movisda.io/grid/N50E010-10-202408071900.osm.pbf &
 Puis les transformer en MBTiles, la seule méthode que j'ai trouvée est le --merge de tilemaker.
 
 ```
-tilemaker --input N50E010-10-202407310700.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua
-tilemaker --input NN50E000-10-202407310700.osm.pbf --output hexagone-plus.mbtiles --config ~/gtfs/tilemaker/resources/config-openmaptiles.json --process ~/gtfs/tilemaker/resources/process-openmaptiles.lua --merge
+tilemaker --input N50E010-10-202407310700.osm.pbf --output hexagone-plus.mbtiles --config ~/serveur/tilemaker/resources/config-openmaptiles.json --process ~/serveur/tilemaker/resources/process-openmaptiles.lua
+tilemaker --input NN50E000-10-202407310700.osm.pbf --output hexagone-plus.mbtiles --config ~/serveur/tilemaker/resources/config-openmaptiles.json --process ~/serveur/tilemaker/resources/process-openmaptiles.lua --merge
 # pareil pour les 2 autres
 
 ```
@@ -59,9 +59,9 @@ wget https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles
 
 ## API des horaires et lignes de bus en France (standard GTFS)
 
-On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/laem/cartes/issues/162).
+On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/cartesapp/cartes/issues/162).
 
-Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous intéressent avec un script Deno. Il est donc la source des données pour [laem/motis](https://github.com/laem/motis), qui lui gère le routage.
+Ce dépôt est aussi celui où on va lister et récupérer les GTFS qui nous intéressent avec un script Deno. Il est donc la source des données pour [cartesapp/motis](https://github.com/cartesapp/motis), qui lui gère le routage.
 
 ### Couverture
 
@@ -71,7 +71,7 @@ Nouveau : une page donne l'[état des lieux de la couverture nationale](https://
 
 Vous êtes développeur ou bidouilleur et vous aimeriez que votre territoire y soit ? Allons-y !
 
-C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](https://github.com/laem/gtfs/blob/master/input.yaml). Vous y trouverez en début de fichier une petite documentation.
+C'est assez simple : il faut ajouter une ligne dans le fichier [input.yaml](https://github.com/cartesapp/serveur/blob/master/input.yaml). Vous y trouverez en début de fichier une petite documentation.
 
 > À noter, nous n'avons pas encore de branches déployées automatiquement pour chaque PR. Il faudra donc mettre en ligne sur `master` et attendre le déploiement pour ensuite tester les transports en commun sur votre territoire, et ça passe forcément par @laem, pingez-moi dans les PR. Comme vous pouvez le voir plus bas dans #déploiement, j'ai tenté de déployer tout ça sur un SaaS, mais c'est trop compliqué pour l'instant... Quand on aura le temps, il faudra automatiser tout ça et trouver un moyen de déployer ce serveur de façon plus décentralisée.
 
@@ -79,19 +79,19 @@ Lancer le calcul sur votre machine avec les instructions suivantes est possible,
 
 ### Faire tourner ce serveur en local
 
-Toutes les étapes sont résumées dans [la route `update` du `server.js`](https://github.com/laem/gtfs/blob/master/server.js#L575).
+Toutes les étapes sont résumées dans [la route `update` du `server.js`](https://github.com/cartesapp/serveur/blob/master/server.js#L575).
 
 Donc quand le serveur tourne, charger `/update` va relancer le téléchargement, l'intégration dans Motis et le calcul des plans de transport !
 
 D'abord lancer le téléchargement des fichiers GTFS et la création de la configuration node-GTFS.
 
-Ça nécessite d'installer [node](https://nodejs.org) via [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating), [pm2](https://pm2.keymetrics.io/), [Deno](https://deno.com/) et [laem/motis](https://github.com/laem/motis).
+Ça nécessite d'installer [node](https://nodejs.org) via [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating), [pm2](https://pm2.keymetrics.io/), [Deno](https://deno.com/) et [cartesapp/motis](https://github.com/cartesapp/motis).
 
-Le dossier laem/motis doit être installé à côté de ce dossier GTFS.
+Le dossier cartesapp/motis doit être installé à côté de ce dossier GTFS.
 
 ### Déploiement
 
-Actuellement, j'ai un serveur Scaleway qui me coûte 80€/mois pour faire tourner laem/gtfs et laem/motis. C'est assez simple à gérer : je développe en local et je fais des `git pull` quand nécessaire (changement de code) puis un `pm2 delete 0 && PORT=3001 pm2 start "npm run start"` ou je tape l'URL `/update` pour lancer une MAJ des réseaux de transport si ce n'est que ça, et le résultat peut être suivi via `pm2 logs --raw --lines 50`.
+Actuellement, j'ai un serveur Scaleway qui me coûte 80€/mois pour faire tourner cartesapp/serveur et cartesapp/motis. C'est assez simple à gérer : je développe en local et je fais des `git pull` quand nécessaire (changement de code) puis un `pm2 delete 0 && PORT=3001 pm2 start "npm run start"` ou je tape l'URL `/update` pour lancer une MAJ des réseaux de transport si ce n'est que ça, et le résultat peut être suivi via `pm2 logs --raw --lines 50`.
 
 Vous moquez pas, on vise l'efficacité pour innover côté UI avant d'atteindre le graal du devops justifié par des millions d'utilisateurs ;)
 
@@ -125,7 +125,7 @@ Dernier point : node-GTFS ne fait pas le café, juste une API de recherche dans 
 
 Ainsi, héberger node-GTFS et Motis sur le même serveur VPS est intéressant. Surtout que la sécurisation de ce serveur, on s'en fout, il n'y a rien de confidentiel.
 
-Resterait donc à fusionner laem/motis et laem/gtfs, pour mettre en commun le dépôt et surtout la gestion des GTFS à télécharger et mettre à jour avec un CRON.
+Resterait donc à fusionner laem/motis et laem/serveur, pour mettre en commun le dépôt et surtout la gestion des GTFS à télécharger et mettre à jour avec un CRON.
 
 Ensuite, trouver un moyen de déployer plusieurs serveurs pour scaler, ou retester l'expérience PaaS ou Edge, mais on verra ça quand on aura du succès.
 
