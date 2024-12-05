@@ -57,6 +57,16 @@ Aussi, mieux vaut télécharger le pmtiles de Panoramax plutôt que de taper sur
 wget https://panoramax.openstreetmap.fr/pmtiles/planet.pmtiles
 ```
 
+### Réseaux express vélo
+
+Dans le fichier [cycleHighways](https://github.com/cartesapp/serveur/blob/master/cycleHighways.ts#L13-L26) sont définies les requêtes OSM qui renvoient les REV. En effet, ces derniers ne sont pas encore structurés par la communauté OSM en un seul tag national, voir [cette discussion](https://forum.openstreetmap.fr/t/numerisation-des-reseaux-velo-structurants/17214).
+
+À vous d'ajouter les réseaux de votre ville pour qu'ils s'affichent sur la carte comme une infrastructure de premier niveau. C'est un changement relativement discret qui fait pourtant toute la différence en matière de planification des transports. On voit notamment qu'à date de décembre 2024, Rennes pêche énormément par le manque de REV *dans* la ville coeur alors que ses accès depuis la métropole sont plutôt bons. 
+
+![image](https://github.com/user-attachments/assets/09d1cd3a-a2ab-48d7-ab50-8e0b3508bf5c)
+
+
+
 ## API des horaires et lignes de bus en France (standard GTFS)
 
 On utilise node-gtfs pour parser et servir les bons JSON pour répondre aux besoins de [Cartes.app](https://github.com/cartesapp/cartes/issues/162).
